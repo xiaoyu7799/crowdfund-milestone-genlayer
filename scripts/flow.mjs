@@ -707,6 +707,12 @@ const evidence = {
       status: "superseded",
       reason: "Replaced: its flag-exact consensus check deadlocked the c1 m1 review — the unrelated real page (sensor-kits delivery file for a Dashboard milestone) split validators between [false,false,false] and [false,false,true], both REJECT, and three review attempts all failed to reach MILESTONE_REVIEW (txs 0x153b0b6d…, 0x77ce5184…, 0x4ebbb48c…; milestone left EVIDENCE_SUBMITTED with 0 evaluations). The replacement validates the VERDICT derived from the flags, not the raw flags, and clarifies that corroborating detail must be about this milestone. Stranded on this contract (faucet GEN, keys lost with the crashed flow process): 33 GEN received, 17 GEN credits outstanding, 16 GEN escrow locked, invariant_ok true. The run otherwise proved the mechanism end to end: c0 m0 ACCEPT + challenge FAILED (9 GEN to creator), c0 m1 REJECT (example.org + injection), c0 m2 PARTIAL, c1 m0 REJECT then challenge WON_FROZEN (0.5 GEN reward) then resolve RELEASED ACCEPT (3.5 GEN to creator).",
     },
+    {
+      address: "0x548A3cC8e8841C4F1668A32C92dF03311012d5D9",
+      deployTxHash: "0xbdc2186d53cc7a11b4672e105a85e8a948d46ab7f1cb43e385b25bac41f2d3c5",
+      status: "superseded",
+      reason: "Replaced: the evidence run on this contract completed phase 1 perfectly (all reviews converged on attempt 1, including c1-m1 REJECT — the verdict-level consensus fix proven on chain), but the flow process was killed externally while waiting for the UTC rollover (~22:50 UTC; the long monitor was SIGTERM'd at the same time) and the ephemeral keys were lost with it, so phase 2 could not run. Stranded (faucet GEN, verified from evidence/phase1.json and chain readback): 45 GEN received, 29 GEN credits outstanding, 16 GEN escrow locked, invariant_ok true; 34 transactions, 8 failed calls. Full phase-1 record archived as flow-v3-phase1-killed.log and phase1-v3-contract-0x548A.json. Lesson recorded in WORK_LOG.md §11: no more nohup launches for the long run — the flow must run as a tracked background exec, started late enough that the rollover wait is under an hour.",
+    },
   ],
   checkedAt: new Date().toISOString(),
 };
