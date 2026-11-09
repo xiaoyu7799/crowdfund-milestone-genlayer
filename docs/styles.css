@@ -1,0 +1,284 @@
+/* MilestoneFund — token system (6 colours) + one motion technique.
+ * Tokens: paper, ink, brick, gold, moss, clay. Card surface is a tint of paper.
+ * Motion: one technique only — staged typographic reveal (translateY + opacity,
+ * single easing curve). No blur, no 3D, no layout-property animation.
+ */
+:root {
+  --paper: #F7F1E5;
+  --card: #FFFDF7;
+  --ink: #221C14;
+  --brick: #B7410E;
+  --gold: #C99A2C;
+  --moss: #4C6444;
+  --clay: #8A7D6B;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --display: "Fraunces", Georgia, "Times New Roman", serif;
+  --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+
+a { color: var(--brick); }
+a:visited { color: var(--brick); }
+
+/* One motion technique: staged reveal. */
+@keyframes rise {
+  from { transform: translateY(14px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.act, .topbar, .story, footer {
+  animation: rise 500ms var(--ease) both;
+}
+.act:nth-of-type(2) { animation-delay: 80ms; }
+.act:nth-of-type(3) { animation-delay: 160ms; }
+.act:nth-of-type(4) { animation-delay: 240ms; }
+@media (prefers-reduced-motion: reduce) {
+  .act, .topbar, .story, footer { animation: none; }
+  * { transition-duration: 0.01ms !important; }
+}
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 3px solid var(--ink);
+  max-width: 1020px;
+  margin: 0 auto;
+}
+.brand { display: flex; align-items: baseline; gap: 8px; }
+.brand-mark {
+  font-family: var(--display);
+  font-weight: 900;
+  color: var(--brick);
+  font-size: 1.4rem;
+}
+.brand-name {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 1.4rem;
+  letter-spacing: -0.02em;
+}
+.topbar-right { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Story line: loading as narrative (E6). */
+.story {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border-bottom: 1px solid var(--clay);
+  font-size: 0.95rem;
+}
+.story-dot {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+.story-done .story-dot { background: var(--moss); }
+
+main, footer {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.act { padding: 40px 0 8px; }
+.act-name {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--brick);
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+h1, .section-title {
+  font-family: var(--display);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  margin: 0 0 14px;
+}
+h1 { font-size: clamp(2.2rem, 8vw, 4.2rem); }
+.section-title { font-size: clamp(1.8rem, 6vw, 3rem); }
+.lead { font-size: 1.05rem; max-width: 62ch; margin: 0 0 20px; }
+
+.picker { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.picker-btn {
+  font: inherit;
+  background: transparent;
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+.picker-btn.active { background: var(--ink); color: var(--paper); }
+
+/* E3: the numbers ARE the content. */
+.hero-numbers { border-top: 3px solid var(--ink); padding-top: 10px; }
+.campaign-title {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(1.3rem, 4vw, 2rem);
+  margin: 0 0 4px;
+}
+.giant-number {
+  font-family: var(--display);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--brick);
+  overflow-wrap: anywhere;
+}
+.giant-value { font-size: clamp(4rem, 19vw, 10rem); }
+.giant-unit { font-size: clamp(1.2rem, 4vw, 2.2rem); font-weight: 600; color: var(--ink); }
+.goal-line { margin-top: 8px; font-size: 1rem; color: var(--ink); }
+.curtain-track {
+  margin-top: 14px;
+  height: 14px;
+  background: color-mix(in srgb, var(--clay) 35%, var(--paper));
+  border: 2px solid var(--ink);
+  overflow: hidden;
+}
+.curtain-fill {
+  height: 100%;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 600ms var(--ease);
+}
+.empty-note { font-size: 1.1rem; }
+
+.wallet-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 720px) {
+  .wallet-grid { grid-template-columns: repeat(3, 1fr); }
+}
+.wallet-card, .panel {
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  padding: 16px;
+}
+.panel { margin: 16px 0; }
+.wallet-state { font-weight: 700; margin: 0 0 6px; }
+.wallet-chain { display: block; color: var(--moss); font-size: 0.95rem; }
+.balance-line { margin: 0 0 8px; }
+.card-title { font-family: var(--display); font-weight: 600; font-size: 1.1rem; margin: 0 0 6px; }
+.fineprint { color: var(--clay); font-size: 0.9rem; margin: 8px 0; }
+h3 { font-family: var(--display); font-weight: 600; font-size: 1.25rem; margin: 0 0 10px; }
+
+.btn {
+  font: inherit;
+  font-weight: 700;
+  background: var(--card);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 10px 18px;
+  cursor: pointer;
+  min-height: 44px;
+  transition: transform 150ms var(--ease), opacity 150ms var(--ease);
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+.btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.btn-primary { background: var(--brick); border-color: var(--brick); color: #FFF7EC; }
+.btn-ghost { background: transparent; }
+
+/* Stages: milestone cockpit. */
+.stages { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 720px) {
+  .stages { grid-template-columns: repeat(3, 1fr); }
+}
+.stage-card {
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  padding: 16px;
+  overflow-wrap: anywhere;
+}
+.stage-amount {
+  font-family: var(--display);
+  font-weight: 900;
+  color: var(--brick);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.stage-value { font-size: clamp(2.6rem, 9vw, 3.6rem); }
+.stage-unit { font-size: 1rem; font-weight: 600; color: var(--ink); }
+.stage-card h3 { margin-top: 8px; }
+.stage-status { font-weight: 700; color: var(--moss); }
+.stage-evidence {
+  margin: 10px 0;
+  padding-left: 12px;
+  border-left: 4px solid var(--gold);
+  font-size: 0.95rem;
+}
+.stage-hash, .stage-rounds, .stage-money { font-size: 0.88rem; color: var(--clay); overflow-wrap: anywhere; }
+.stage-money { color: var(--ink); font-weight: 700; }
+.stage-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+.field { display: block; margin-bottom: 12px; }
+.field span { display: block; font-weight: 700; margin-bottom: 4px; }
+.field input, .field textarea {
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.field input:focus, .field textarea:focus { outline: 3px solid var(--gold); outline-offset: 1px; }
+.milestone-row { display: grid; grid-template-columns: 1fr; gap: 0 12px; }
+@media (min-width: 720px) {
+  .milestone-row { grid-template-columns: 2fr 1fr; }
+}
+
+.table-wrap { overflow-x: auto; border: 2px solid var(--ink); border-radius: 14px; background: var(--card); }
+table { width: 100%; border-collapse: collapse; min-width: 480px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid color-mix(in srgb, var(--clay) 40%, var(--paper)); }
+th { font-family: var(--display); }
+tr:last-child td { border-bottom: none; }
+
+.tx-feed { display: grid; gap: 8px; margin-bottom: 24px; }
+.tx-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: baseline;
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  padding: 10px 14px;
+  overflow-wrap: anywhere;
+}
+.tx-status { font-weight: 700; color: var(--moss); }
+.tx-empty { color: var(--clay); }
+
+footer { border-top: 3px solid var(--ink); padding: 24px 16px 48px; }
+footer h3 { font-family: var(--display); }
+.trust-list { list-style: none; padding: 0; margin: 0 0 12px; }
+.trust-list li { padding: 2px 0; overflow-wrap: anywhere; }

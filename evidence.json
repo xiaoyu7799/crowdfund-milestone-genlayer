@@ -1,0 +1,303 @@
+{
+  "network": "Stable Studionet",
+  "chainId": 61999,
+  "rpcUrl": "https://studio.genlayer.com/api",
+  "contractAddress": "0x23667D800Be2A8cf97445134Fea1691387F10f3E",
+  "explorer": "https://explorer-studio.genlayer.com/address/0x23667D800Be2A8cf97445134Fea1691387F10f3E",
+  "campaignId": 0,
+  "accounts": {
+    "creator": "0x98b982B8860625d0B23a6E2d6E3b1aA1e29b1aAA",
+    "backerB": "0xC6db7BDF4Bf068E859C3671C4B432367d16f9Ca7",
+    "backerC": "0x6d7c71C5a5d6670D37a18036616dd8Cab7E1Ae4E"
+  },
+  "evidenceDate": "2026-11-09",
+  "transactions": [
+    {
+      "label": "claim-A",
+      "functionName": "claim_demo_funds",
+      "args": "[]",
+      "txHash": "0xf729d7e51fb1230676e905e345d16be86a879a2bd5e77d813c8f26e25470ea18",
+      "receiptStatus": "7"
+    },
+    {
+      "label": "claim-B",
+      "functionName": "claim_demo_funds",
+      "args": "[]",
+      "txHash": "0x4e7870569ab95ddaa7d258bdd3b9b2743f5a3df968f29d7e29159bef6b77167b",
+      "receiptStatus": "7"
+    },
+    {
+      "label": "claim-C",
+      "functionName": "claim_demo_funds",
+      "args": "[]",
+      "txHash": "0xd4a9375b5738974658eda66bf6aed5f1ef0105ac9f7a4a2e1e2c4430774e5492",
+      "receiptStatus": "7"
+    },
+    {
+      "label": "create-campaign",
+      "functionName": "create_campaign",
+      "args": "[\"Riverside Community Garden sensor network\",10000,\"[{\\\"title\\\":\\\"Sensor kits assembled\\\",\\\"amount\\\":4000},{\\\"title\\\":\\\"Dashboard live\\\",\\\"amount\\\":4000},{\\\"title\\\":\\\"Field report published\\\",\\\"amount\\\":2000}]\"]",
+      "txHash": "0x55981dbb9eff80776897eb6a0de0e510f5ae74a4e3f317ee142573d8879f75ac",
+      "receiptStatus": "7"
+    },
+    {
+      "label": "back-B-6000",
+      "functionName": "back",
+      "args": "[\"0\",6000]",
+      "txHash": "0x8f4f27949515cc5a02c3c02975e3dab9df4f325bbda9bc46fb4d52c3d558cdb3",
+      "receiptStatus": "7"
+    },
+    {
+      "label": "back-C-4000",
+      "functionName": "back",
+      "args": "[\"0\",4000]",
+      "txHash": "0x9d7efb6a4454d476206a15c724c1c63cb75c9f785d879d08b6c24f958f9540b6",
+      "receiptStatus": "7"
+    },
+    {
+      "label": "evidence-m0",
+      "functionName": "submit_milestone_evidence",
+      "args": "[\"0\",0,\"Sensor kits assembled: 12 Riverside garden sensor kits built and installed, each reporting live. Build log: https://example.org/garden/build-log-v1\",\"2026-11-09\"]",
+      "txHash": "0x3883b2ed9af5744bd5b99b772fc6e387ea260ad079dd76bf17c5beec1a723f0c",
+      "receiptStatus": "7"
+    },
+    {
+      "label": "evidence-m1",
+      "functionName": "submit_milestone_evidence",
+      "args": "[\"0\",1,\"We plan to build the dashboard soon and will share updates once work starts.\",\"2026-11-09\"]",
+      "txHash": "0x40943e554786d8e2e349007e4fad17cd0646a8ec4d33f3985baadb83c28a1ce6",
+      "receiptStatus": "7"
+    },
+    {
+      "label": "evidence-m2",
+      "functionName": "submit_milestone_evidence",
+      "args": "[\"0\",2,\"Field report published: the garden field report is written and covers all 12 sensors with weekly readings. It is ready to share with backers.\",\"2026-11-09\"]",
+      "txHash": "0x7092475f663949aea6572f390aef190667110d9700d1b0e83e96953fee3da943",
+      "receiptStatus": "7"
+    },
+    {
+      "label": "evaluate-m0-attempt1",
+      "functionName": "evaluate_milestone",
+      "args": "[\"0\",0]",
+      "txHash": "0x84bc3714fd3a5b85d4ee0dd54465ee0b29dc3926e715799256565f53d77d27f4",
+      "receiptStatus": "7"
+    },
+    {
+      "label": "finalize-m0",
+      "functionName": "finalize_milestone",
+      "args": "[\"0\",0]",
+      "txHash": "0xb875fff03c0db1b2a8a6e953aa5dd85699d979214006f11d550aff8cc82e3ce5",
+      "receiptStatus": "7"
+    },
+    {
+      "label": "evaluate-m1-attempt1",
+      "functionName": "evaluate_milestone",
+      "args": "[\"0\",1]",
+      "txHash": "0x9f297479c9a2c816839e6e21da01e60d17715ea551ec53428b678aea29f87e11",
+      "receiptStatus": "7"
+    },
+    {
+      "label": "finalize-m1",
+      "functionName": "finalize_milestone",
+      "args": "[\"0\",1]",
+      "txHash": "0x08142dbad5a5856a8b5853a43c7673f652a815276ab038b0357ddb196c5a51c8",
+      "receiptStatus": "7"
+    },
+    {
+      "label": "evaluate-m2-attempt1",
+      "functionName": "evaluate_milestone",
+      "args": "[\"0\",2]",
+      "txHash": "0xa16f216bae4e3b808e34bbe26b07d34543120618b2abaefefe97a780250a26cd",
+      "receiptStatus": "7"
+    },
+    {
+      "label": "challenge-m2",
+      "functionName": "challenge_milestone",
+      "args": "[\"0\",2]",
+      "txHash": "0x1fd0a34b2ed517e7dcb6c1c68fe19089025a1b71506252daed999fdd1c33659e",
+      "receiptStatus": "7"
+    }
+  ],
+  "finalCampaign": {
+    "id": 0,
+    "title": "Riverside Community Garden sensor network",
+    "creator": "0x98b982B8860625d0B23a6E2d6E3b1aA1e29b1aAA",
+    "goal": 10000,
+    "status": "FUNDED",
+    "total_backed": 10000,
+    "escrow": 0,
+    "backers": [
+      {
+        "address": "0xC6db7BDF4Bf068E859C3671C4B432367d16f9Ca7",
+        "amount": 6000
+      },
+      {
+        "address": "0x6d7c71C5a5d6670D37a18036616dd8Cab7E1Ae4E",
+        "amount": 4000
+      }
+    ],
+    "milestones": [
+      {
+        "title": "Sensor kits assembled",
+        "amount": 4000,
+        "status": "FINALIZED",
+        "evidence_text": "Sensor kits assembled: 12 Riverside garden sensor kits built and installed, each reporting live. Build log: https://example.org/garden/build-log-v1",
+        "evidence_date": "2026-11-09",
+        "evidence_hash": "beda56949929f26cb4994cad702eab5c6e1c85b27ecbb7646d22d753933fbe36",
+        "evaluations": [
+          {
+            "round": 1,
+            "flags": [
+              "true",
+              "true",
+              "true"
+            ],
+            "rationale": "Evidence names sensor kits built, provides URL to build log, and states they were installed and reporting.",
+            "current_date": "2026-11-09",
+            "verdict": "ACCEPT"
+          }
+        ],
+        "pending_verdict": null,
+        "final_verdict": "ACCEPT",
+        "released": 4000,
+        "refunded": 0,
+        "refund_payouts": [],
+        "challenge": null
+      },
+      {
+        "title": "Dashboard live",
+        "amount": 4000,
+        "status": "FINALIZED",
+        "evidence_text": "We plan to build the dashboard soon and will share updates once work starts.",
+        "evidence_date": "2026-11-09",
+        "evidence_hash": "a95833dd6f3df891f1d3967aeaf95c202d4a22ab3897485f576e10e5899df583",
+        "evaluations": [
+          {
+            "round": 1,
+            "flags": [
+              "false",
+              "false",
+              "false"
+            ],
+            "rationale": "Evidence describes only a future plan with no concrete deliverable named, no verifiable reference provided, and no completed work described.",
+            "current_date": "2026-11-09",
+            "verdict": "REJECT"
+          }
+        ],
+        "pending_verdict": null,
+        "final_verdict": "REJECT",
+        "released": 0,
+        "refunded": 4000,
+        "refund_payouts": [
+          {
+            "address": "0xC6db7BDF4Bf068E859C3671C4B432367d16f9Ca7",
+            "amount": 2400
+          },
+          {
+            "address": "0x6d7c71C5a5d6670D37a18036616dd8Cab7E1Ae4E",
+            "amount": 1600
+          }
+        ],
+        "challenge": null
+      },
+      {
+        "title": "Field report published",
+        "amount": 2000,
+        "status": "FINALIZED",
+        "evidence_text": "Field report published: the garden field report is written and covers all 12 sensors with weekly readings. It is ready to share with backers.",
+        "evidence_date": "2026-11-09",
+        "evidence_hash": "a59f5c69ec9beee8da16833584997cdc95b63c7196831d9154038c28436a1b04",
+        "evaluations": [
+          {
+            "round": 1,
+            "flags": [
+              "true",
+              "false",
+              "true"
+            ],
+            "rationale": "It names the field report and says it is written, but provides no checkable link, file, or other verifiable reference.",
+            "current_date": "2026-11-09",
+            "verdict": "PARTIAL"
+          },
+          {
+            "round": 2,
+            "flags": [
+              "true",
+              "false",
+              "true"
+            ],
+            "rationale": "The evidence names the field report as the deliverable and says it is completed, but offers no URL, hash, or other verifiable reference.",
+            "current_date": "2026-11-09",
+            "verdict": "PARTIAL"
+          }
+        ],
+        "pending_verdict": null,
+        "final_verdict": "PARTIAL",
+        "released": 1000,
+        "refunded": 1000,
+        "refund_payouts": [
+          {
+            "address": "0xC6db7BDF4Bf068E859C3671C4B432367d16f9Ca7",
+            "amount": 600
+          },
+          {
+            "address": "0x6d7c71C5a5d6670D37a18036616dd8Cab7E1Ae4E",
+            "amount": 400
+          }
+        ],
+        "challenge": {
+          "challenger": "0xC6db7BDF4Bf068E859C3671C4B432367d16f9Ca7",
+          "second_verdict": "PARTIAL",
+          "outcome": "FAILED"
+        }
+      }
+    ]
+  },
+  "finalBalances": {
+    "creator": {
+      "address": "0x98b982B8860625d0B23a6E2d6E3b1aA1e29b1aAA",
+      "balance": 15000,
+      "claimed": true,
+      "reputation": 100
+    },
+    "backerB": {
+      "address": "0xC6db7BDF4Bf068E859C3671C4B432367d16f9Ca7",
+      "balance": 6980,
+      "claimed": true,
+      "reputation": 95
+    },
+    "backerC": {
+      "address": "0x6d7c71C5a5d6670D37a18036616dd8Cab7E1Ae4E",
+      "balance": 8020,
+      "claimed": true,
+      "reputation": 100
+    }
+  },
+  "finalLeaderboard": [
+    {
+      "address": "0x6d7c71C5a5d6670D37a18036616dd8Cab7E1Ae4E",
+      "reputation": 100,
+      "total_backed": 4000,
+      "balance": 8020
+    },
+    {
+      "address": "0x98b982B8860625d0B23a6E2d6E3b1aA1e29b1aAA",
+      "reputation": 100,
+      "total_backed": 0,
+      "balance": 15000
+    },
+    {
+      "address": "0xC6db7BDF4Bf068E859C3671C4B432367d16f9Ca7",
+      "reputation": 95,
+      "total_backed": 6000,
+      "balance": 6980
+    }
+  ],
+  "campaignCount": 1,
+  "moneyConservation": {
+    "total": 30000,
+    "minted": 30000,
+    "escrow": 0
+  },
+  "checkedAt": "2026-11-09T08:01:37.749Z"
+}
