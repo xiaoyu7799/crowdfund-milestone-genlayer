@@ -9,6 +9,7 @@ import { createClient, createAccount, generatePrivateKey } from "genlayer-js";
 import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 import { I18N } from "./i18n.js";
+import { buildDossier } from "./dossier.js";
 
 const CFG = window.MF_CONFIG;
 const CHAIN_ID = 61999;
@@ -24,6 +25,10 @@ let selectedId = 0;
 let testAccount = null; // { address, client }
 let walletAddress = null;
 let walletChainOk = null;
+// Gate 11: the last successful FINALIZED readback. Every displayed or
+// exported value comes from here; before it exists, the page shows
+// only "unconfirmed" placeholders and the dossier button stays disabled.
+let lastReadback = null; // { campaigns, totals, readAt } | null
 
 const $ = (id) => document.getElementById(id);
 const t = (key) => (I18N[lang] && I18N[lang][key]) || I18N.en[key] || key;
@@ -104,6 +109,11 @@ async function refreshAll() {
     } else {
       campaigns = await read("list_campaigns", [0n, 20n]);
     }
+    const totals = await read("get_totals", []);
+    // Only a completed readback may feed display or export.
+    lastReadback = { campaigns, totals, readAt: new Date().toISOString() };
+    $("btn-dossier").disabled = false;
+    $("dossier-state").textContent = t("dossier_ready");
     if (campaigns.length > 0 && !campaigns.find((c) => c.id === selectedId)) selectedId = campaigns[0].id;
     renderCampaigns();
     await refreshBoard();
@@ -203,6 +213,12 @@ function renderCampaigns() {
     return;
   }
   $("back-box").style.display = "";
+  // Cancel is available while the campaign has not started delivering:
+  // FUNDING (creator or any backer) or MILESTONE_REVIEW with every
+  // milestone still PENDING (creator only — the contract enforces it).
+  const cancellable = camp.status === "FUNDING"
+    || (camp.status === "MILESTONE_REVIEW" && camp.milestones.every((m) => m.status === "PENDING"));
+  $("btn-cancel").style.display = cancellable ? "" : "none";
   hero.innerHTML = "";
   const raised = document.createElement("div");
   raised.className = "giant-number";
@@ -226,7 +242,8 @@ function renderCampaigns() {
 
 function milestoneCard(camp, m, index) {
   const card = document.createElement("article");
-  card.className = "stage-card";
+  // PARTIAL is its own visual state (amber), never the success style.
+  card.className = "stage-card" + (m.status === "PARTIAL_RELEASED" ? " stage-partial" : "");
   const amount = document.createElement("div");
   amount.className = "stage-amount";
   amount.innerHTML = `<span class="stage-value">${fmtGen(m.amount)}</span><span class="stage-unit"> · ${fmtWei(m.amount)}</span>`;
@@ -234,8 +251,29 @@ function milestoneCard(camp, m, index) {
   title.textContent = m.title;
   const status = document.createElement("p");
   status.className = "stage-status";
-  status.textContent = `${t("status_" + m.status)}${m.final_verdict ? ` — ${t("verdict_" + m.final_verdict)}` : ""}${m.pending_verdict ? ` — ${t("pending_verdict_label")}: ${t("verdict_" + m.pending_verdict)}` : ""}`;
+  // Exhaustive verdict branches: every contract state has its own line.
+  // A pending verdict never shows money — only "unconfirmed".
+  if (m.status === "PENDING" || m.status === "EVIDENCE_SUBMITTED") {
+    status.textContent = t("status_" + m.status);
+  } else if (m.status === "MILESTONE_REVIEW") {
+    status.textContent = `${t("status_MILESTONE_REVIEW")} — ${t("pending_verdict_label")}: ${t("verdict_" + m.pending_verdict)} · ${t("pending_unconfirmed")}`;
+  } else if (m.status === "FROZEN") {
+    status.textContent = `${t("status_FROZEN")} — ${t("pending_verdict_label")}: ${t("verdict_" + m.pending_verdict)} · ${t("pending_unconfirmed")}`;
+  } else {
+    status.textContent = `${t("status_" + m.status)} — ${t("verdict_" + m.final_verdict)}`;
+  }
   card.append(amount, title, status);
+  if (m.reference_url) {
+    const ref = document.createElement("p");
+    ref.className = "stage-ref";
+    const link = document.createElement("a");
+    link.href = m.reference_url;
+    link.target = "_blank";
+    link.rel = "noreferrer";
+    link.textContent = m.reference_url;
+    ref.append(document.createTextNode(`${t("reference_label")}: `), link);
+    card.appendChild(ref);
+  }
   if (m.evidence_text) {
     const ev = document.createElement("blockquote");
     ev.className = "stage-evidence";
@@ -245,16 +283,41 @@ function milestoneCard(camp, m, index) {
     hash.textContent = `${t("evidence_hash_label")}: ${String(m.evidence_hash).slice(0, 18)}… (${m.evidence_date})`;
     card.append(ev, hash);
   }
+  if (m.snapshot_hash) {
+    const snap = document.createElement("p");
+    snap.className = "stage-hash";
+    snap.textContent = `${t("snapshot_hash_label")}: ${String(m.snapshot_hash).slice(0, 18)}… (${t("snapshot_len_label")}: ${m.snapshot_len})${m.github_sha ? ` · GitHub SHA ${String(m.github_sha).slice(0, 12)}…` : ""}`;
+    card.appendChild(snap);
+  }
+  if (m.quote) {
+    const q = document.createElement("blockquote");
+    q.className = "stage-quote";
+    q.textContent = `“${m.quote}”`;
+    card.appendChild(q);
+  }
+  if (m.review_date) {
+    const rd = document.createElement("p");
+    rd.className = "stage-hash";
+    rd.textContent = `${t("review_date_label")}: ${m.review_date} · ${t("confirm_available_label")}`;
+    card.appendChild(rd);
+  }
   if (m.evaluations && m.evaluations.length > 0) {
     const rounds = document.createElement("p");
     rounds.className = "stage-rounds";
     rounds.textContent = `${t("evaluations_label")}: ` + m.evaluations.map((e) => `R${e.round} ${e.verdict} [${e.flags.join(",")}]`).join(" · ");
     card.appendChild(rounds);
   }
+  // Money is shown ONLY for settled milestones, from the readback.
+  // A pending verdict shows "unconfirmed" and no amounts.
   if (["RELEASED", "REFUNDED", "PARTIAL_RELEASED"].includes(m.status)) {
     const money = document.createElement("p");
     money.className = "stage-money";
     money.textContent = `${t("released_label")} ${fmtGen(m.released_wei)} · ${t("refunded_label")} ${fmtGen(m.refunded_wei)}`;
+    card.appendChild(money);
+  } else if (m.status === "MILESTONE_REVIEW" || m.status === "FROZEN") {
+    const money = document.createElement("p");
+    money.className = "stage-money-unconfirmed";
+    money.textContent = `${t("released_label")} ${t("pending_unconfirmed")} · ${t("refunded_label")} ${t("pending_unconfirmed")}`;
     card.appendChild(money);
   }
   const actions = document.createElement("div");
@@ -272,7 +335,7 @@ function milestoneCard(camp, m, index) {
   if (m.status === "EVIDENCE_SUBMITTED") mkBtn(t("btn_review"), () => doWrite("review_milestone", [BigInt(camp.id), index], "review", 0n));
   if (m.status === "MILESTONE_REVIEW") {
     mkBtn(t("btn_confirm"), () => doWrite("confirm_milestone", [BigInt(camp.id), index], "confirm", 0n));
-    mkBtn(t("btn_challenge"), () => doWrite("challenge_milestone", [BigInt(camp.id), index], "challenge", CHALLENGE_STAKE_WEI));
+    mkBtn(t("btn_challenge"), () => openChallengeForm(camp.id, index));
   }
   if (m.status === "FROZEN") mkBtn(t("btn_resolve"), () => doWrite("resolve_disputed_milestone", [BigInt(camp.id), index], "resolve", 0n));
   if (actions.children.length > 0) card.appendChild(actions);
@@ -289,8 +352,40 @@ function renderStages(camp) {
 let evidenceTarget = null;
 function openEvidenceForm(campaignId, index) {
   evidenceTarget = { campaignId, index };
+  $("challenge-box").style.display = "none";
   $("evidence-box").style.display = "";
   $("evidence-box").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// --- challenge form -----------------------------------------------------------
+let challengeTarget = null;
+function openChallengeForm(campaignId, index) {
+  challengeTarget = { campaignId, index };
+  $("evidence-box").style.display = "none";
+  $("challenge-box").style.display = "";
+  $("challenge-box").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// --- dossier export (Gate 11: readback only) ----------------------------------
+function downloadDossier() {
+  try {
+    if (!lastReadback) throw new Error(t("err_no_readback"));
+    const camp = selectedCampaign();
+    if (!camp) throw new Error(t("err_no_campaign"));
+    const dossier = buildDossier({ campaign: camp, totals: lastReadback.totals, readAt: lastReadback.readAt });
+    const blob = new Blob([JSON.stringify(dossier, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `milestonefund-dossier-campaign-${camp.id}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    story("story_finalized");
+  } catch (err) {
+    story("story_error", humanError(err));
+  }
 }
 
 // --- writes -------------------------------------------------------------------
@@ -438,10 +533,26 @@ function bindForms() {
     if (!evidenceTarget) return;
     const text = $("evidence-text").value.trim();
     const date = $("evidence-date").value;
-    if (text.length < 20 || !date) { story("story_error", t("err_need_amount")); return; }
-    await doWrite("submit_milestone_proof", [BigInt(evidenceTarget.campaignId), evidenceTarget.index, text, date], "submit_proof", 0n);
+    const url = $("evidence-url").value.trim();
+    if (text.length < 20 || !date || !url.startsWith("https://")) { story("story_error", t("err_need_amount")); return; }
+    await doWrite("submit_milestone_proof", [BigInt(evidenceTarget.campaignId), evidenceTarget.index, text, date, url], "submit_proof", 0n);
     $("evidence-box").style.display = "none";
   });
+  $("btn-submit-challenge").addEventListener("click", async () => {
+    if (!challengeTarget) return;
+    const text = $("challenge-text").value.trim();
+    const date = $("challenge-date").value;
+    const url = $("challenge-url").value.trim();
+    if (text.length < 20 || !date || !url.startsWith("https://")) { story("story_error", t("err_need_amount")); return; }
+    await doWrite("challenge_milestone", [BigInt(challengeTarget.campaignId), challengeTarget.index, text, date, url], "challenge", CHALLENGE_STAKE_WEI);
+    $("challenge-box").style.display = "none";
+  });
+  $("btn-cancel").addEventListener("click", async () => {
+    const camp = selectedCampaign();
+    if (!camp) { story("story_error", t("err_no_campaign")); return; }
+    await doWrite("cancel_campaign", [BigInt(camp.id)], "cancel_campaign", 0n);
+  });
+  $("btn-dossier").addEventListener("click", downloadDossier);
   $("btn-lang").addEventListener("click", () => {
     lang = lang === "en" ? "zh" : "en";
     localStorage.setItem("mf-lang", lang);
@@ -471,6 +582,8 @@ document.addEventListener("DOMContentLoaded", () => {
   $("network-note").textContent = "Stable Studionet · 61999";
   document.querySelectorAll(".faucet-link").forEach((el) => { el.href = FAUCET_URL; });
   $("evidence-date").value = new Date().toISOString().slice(0, 10);
+  $("challenge-date").value = new Date().toISOString().slice(0, 10);
+  $("dossier-state").textContent = t("dossier_disabled_note");
   applyI18n();
   bindForms();
   renderWallet();

@@ -392,15 +392,19 @@ r = json.loads(c.back_campaign(0))
 sync_balance(c)
 check("B backs 60 GEN, still FUNDING",
       r["total_backed_wei"] == str(60 * GEN) and r["status"] == "FUNDING", str(r))
-expect_error("back exceeding goal rejected", lambda: (set_sender(B, 50 * GEN), c.back_campaign(0))[1])
-expect_error("zero-value back rejected", lambda: (set_sender(B, 0), c.back_campaign(0))[1])
+check("back accepted flag true", r["accepted"] is True, str(r))
+# Zero-value backing is rejected without taking anything (no value sent).
+set_sender(B, 0)
+r = json.loads(c.back_campaign(0))
+check("zero-value back rejected", r["accepted"] is False and r["reason"] == "back_must_send_gen", str(r))
 set_sender(C, 40 * GEN)
 r = json.loads(c.back_campaign(0))
 sync_balance(c)
 check("C backs 40 GEN, MILESTONE_REVIEW",
       r["total_backed_wei"] == str(100 * GEN) and r["status"] == "MILESTONE_REVIEW", str(r))
 check("invariant holds after funding", invariant(c))
-expect_error("back after funded rejected", lambda: (set_sender(B, 2 * GEN), c.back_campaign(0))[1])
+# With-value rejections (over goal, after funded) are covered in
+# section 11 on a separate contract: they refund as credit.
 
 # evidence: only creator may submit; reference URL is required
 set_sender(B)
@@ -451,11 +455,11 @@ set_sender(A)
 expect_error("creator cannot confirm own release", lambda: c.confirm_milestone(0, 0))
 set_sender(D)
 expect_error("stranger cannot confirm", lambda: c.confirm_milestone(0, 0))
-# challenge: creator / stranger / wrong stake all rejected
-expect_error("challenge by creator rejected", lambda: (set_sender(A, 1 * GEN), c.challenge_milestone(0, 0, "x" * 30, "2026-11-09", CHECK_URL))[1])
-expect_error("challenge by stranger rejected", lambda: (set_sender(D, 1 * GEN), c.challenge_milestone(0, 0, "x" * 30, "2026-11-09", CHECK_URL))[1])
-expect_error("challenge with wrong stake rejected", lambda: (set_sender(B, 2 * GEN), c.challenge_milestone(0, 0, "x" * 30, "2026-11-09", CHECK_URL))[1])
-expect_error("challenge with bad counter URL rejected", lambda: (set_sender(B, 1 * GEN), c.challenge_milestone(0, 0, "x" * 30, "2026-11-09", "http://example.org"))[1])
+# challenge pre-checks with value are covered in section 11 (refund
+# path). Here the stake checks run with zero value attached.
+set_sender(B, 0)
+r = json.loads(c.challenge_milestone(0, 0, "x" * 30, "2026-11-09", CHECK_URL))
+check("challenge with zero stake rejected", r["accepted"] is False and r["reason"] == "challenge_stake_must_be_1_gen", str(r))
 # challenge by backer C with NEW counter-evidence (check file) agrees -> FAILED
 _Nondet.flag_queue = [["true", "true", "true"], ["true", "true", "true"]]
 set_sender(C, 1 * GEN)
@@ -468,6 +472,7 @@ check("m0 challenge FAILED, second ACCEPT, RELEASED",
 check("m0 settlement 41 GEN (40 + 1 forfeited stake)",
       r["settlement"]["released_wei"] == str(41 * GEN) and r["settlement"]["refunded_wei"] == "0", str(r))
 check("creator credit 41 GEN", int(c.get_credit(A)) == 41 * GEN, str(c.get_credit(A)))
+set_sender(C)
 expect_error("confirm settled milestone rejected", lambda: c.confirm_milestone(0, 0))
 check("invariant holds after m0", invariant(c))
 
@@ -697,7 +702,13 @@ check("B credit 4 GEN after cancel", int(c5.get_credit(B)) == 4 * GEN)
 camp5 = json.loads(c5.get_campaign(0))
 check("cancelled campaign escrow 0", camp5["escrow_wei"] == "0", str(camp5))
 check("invariant holds after cancel", invariant(c5))
-expect_error("back a cancelled campaign rejected", lambda: (set_sender(B, 2 * GEN), c5.back_campaign(0))[1])
+set_sender(B, 2 * GEN)
+r = json.loads(c5.back_campaign(0))
+sync_balance(c5)
+check("back a cancelled campaign rejected, 2 GEN refunded as credit",
+      r["accepted"] is False and r["reason"] == "campaign_not_funding"
+      and r["refunded_credit_wei"] == str(2 * GEN) and int(c5.get_credit(B)) == 6 * GEN, str(r))
+set_sender(B)
 expect_error("cancel twice rejected", lambda: c5.cancel_campaign(0))
 # creator cancels a fully funded campaign with no evidence yet
 c6 = mf.MilestoneFund()
@@ -770,6 +781,113 @@ check("failed review leaves milestone EVIDENCE_SUBMITTED",
       camp8["milestones"][1]["status"] == "EVIDENCE_SUBMITTED"
       and camp8["milestones"][1]["evaluations"] == [], str(camp8["milestones"][1]["status"]))
 check("invariant holds after anchor tests", invariant(c8))
+
+# ---------------------------------------------------------------------------
+# 11. failed payables never swallow GEN: invalid backings and challenges
+#     are rejected with the full value credited back (platform fact:
+#     a raising payable keeps the value while the state reverts).
+# ---------------------------------------------------------------------------
+print("== failed payables refund as credit ==")
+_Nondet.flag_queue = []
+_Web.current_date = "2026-11-09"
+E = "0xEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+c9 = mf.MilestoneFund()
+c9.__init__()
+sync_balance(c9)
+set_sender(A)
+json.loads(c9.create_campaign("Refund test", str(20 * GEN), json.dumps([{"title": "M", "amount": str(20 * GEN)}])))
+set_sender(B, 15 * GEN)
+r = json.loads(c9.back_campaign(0))
+sync_balance(c9)
+check("c9 backed 15 GEN, still FUNDING", r["accepted"] is True and r["total_backed_wei"] == str(15 * GEN), str(r))
+# over-goal backing: 15 + 10 > 20, rejected, 10 GEN credited back to E
+set_sender(E, 10 * GEN)
+r = json.loads(c9.back_campaign(0))
+sync_balance(c9)
+check("over-goal back rejected with full refund",
+      r["accepted"] is False and r["reason"] == "back_exceeds_goal"
+      and r["refunded_credit_wei"] == str(10 * GEN), str(r))
+check("E credit 10 GEN after over-goal refund", int(c9.get_credit(E)) == 10 * GEN)
+check("total_backed unchanged at 15 GEN",
+      json.loads(c9.get_campaign(0))["total_backed_wei"] == str(15 * GEN))
+set_sender(B, 5 * GEN)
+r = json.loads(c9.back_campaign(0))
+sync_balance(c9)
+check("c9 fully funded with the remaining 5 GEN", r["accepted"] is True and r["total_backed_wei"] == str(20 * GEN), str(r))
+# backing a nonexistent campaign: rejected, 3 GEN credited back
+set_sender(E, 3 * GEN)
+r = json.loads(c9.back_campaign(99))
+sync_balance(c9)
+check("back to missing campaign rejected with full refund",
+      r["accepted"] is False and r["reason"] == "campaign_not_found"
+      and r["refunded_credit_wei"] == str(3 * GEN), str(r))
+check("E credit 13 GEN after both refunds", int(c9.get_credit(E)) == 13 * GEN)
+# review to ACCEPT so the milestone is challengeable
+set_sender(A)
+json.loads(c9.submit_milestone_proof(0, 0, "Evidence text that is long enough here.", "2026-11-09", GOOD_URL))
+_Nondet.flag_queue = [["true", "true", "true"], ["true", "true", "true"]]
+set_sender(B)
+r = json.loads(c9.review_milestone(0, 0))
+check("c9 m0 pending ACCEPT", r["pending_verdict"] == "ACCEPT", str(r))
+# wrong stake: rejected, 2 GEN credited back to B
+set_sender(B, 2 * GEN)
+r = json.loads(c9.challenge_milestone(0, 0, "x" * 30, "2026-11-09", CHECK_URL))
+sync_balance(c9)
+check("wrong-stake challenge rejected with full refund",
+      r["accepted"] is False and r["reason"] == "challenge_stake_must_be_1_gen"
+      and r["refunded_credit_wei"] == str(2 * GEN), str(r))
+check("B credit 2 GEN after wrong-stake refund", int(c9.get_credit(B)) == 2 * GEN)
+# creator challenge: rejected, 1 GEN credited back to A
+set_sender(A, 1 * GEN)
+r = json.loads(c9.challenge_milestone(0, 0, "x" * 30, "2026-11-09", CHECK_URL))
+sync_balance(c9)
+check("creator challenge rejected with full refund",
+      r["accepted"] is False and r["reason"] == "creator_cannot_challenge_own_milestone"
+      and r["refunded_credit_wei"] == str(1 * GEN), str(r))
+check("A credit 1 GEN after creator-challenge refund", int(c9.get_credit(A)) == 1 * GEN)
+# adjudication failure (counter URL 404s on the GitHub API): the 1 GEN
+# stake is credited back, the milestone stays challengeable, and the
+# unjudged counter-evidence is NOT stored.
+set_sender(B, 1 * GEN)
+r = json.loads(c9.challenge_milestone(0, 0,
+    "Counter-evidence pointing at a file that does not exist.",
+    "2026-11-09",
+    "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/main/docs/evidence/does-not-exist.md"))
+sync_balance(c9)
+check("failed adjudication refunds the stake",
+      r["accepted"] is False and r["reason"] == "adjudication_failed_retryable"
+      and r["refunded_credit_wei"] == str(1 * GEN), str(r))
+check("B credit 3 GEN after adjudication-failure refund", int(c9.get_credit(B)) == 3 * GEN)
+camp9 = json.loads(c9.get_campaign(0))
+check("milestone still MILESTONE_REVIEW / ACCEPT after failed challenge",
+      camp9["milestones"][0]["status"] == "MILESTONE_REVIEW"
+      and camp9["milestones"][0]["pending_verdict"] == "ACCEPT", str(camp9["milestones"][0]["status"]))
+check("unjudged counter-evidence not stored",
+      camp9["milestones"][0]["challenge_evidence"] is None, str(camp9["milestones"][0]["challenge_evidence"]))
+# GEN sent to a non-payable write is credited back before anything else.
+set_sender(B, 1 * GEN)
+r = json.loads(c9.review_milestone(0, 0))
+sync_balance(c9)
+check("value to a non-payable write is credited back, call refused",
+      r["accepted"] is False and r["reason"] == "value_not_accepted", str(r))
+check("B credit 4 GEN after non-payable refund", int(c9.get_credit(B)) == 4 * GEN)
+set_sender(B)
+# money: received 20 + 10 + 3 + 2 + 1 + 1 + 1 = 38 GEN; credits 18 GEN; escrow 20 GEN.
+totals9 = json.loads(c9.get_totals())
+check("refund-path totals: received 38 GEN, credits 18 GEN, escrow 20 GEN",
+      totals9["total_received_wei"] == str(38 * GEN)
+      and totals9["credits_outstanding_wei"] == str(18 * GEN)
+      and totals9["escrow_locked_wei"] == str(20 * GEN), str(totals9))
+check("refund-path contract balance equals received minus withdrawn",
+      totals9["contract_balance_wei"] == str(38 * GEN), str(totals9))
+check("invariant holds after all refunds", invariant(c9))
+# the refunded credits are withdrawable in full
+set_sender(E)
+r = json.loads(c9.withdraw_payout())
+sync_balance(c9)
+check("E withdraws the 13 GEN refund", r["withdrawn_wei"] == str(13 * GEN), str(r))
+check("E transfer recorded", TRANSFERS[-1] == (E, 13 * GEN), str(TRANSFERS[-1]))
+check("invariant holds after refund withdraw", invariant(c9))
 
 print(f"\n{PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)

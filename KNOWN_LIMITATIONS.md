@@ -22,6 +22,12 @@
   the verdict and is not part of the consensus check. The quotation
   is part of the consensus check: it must appear verbatim in the
   fetched snapshot.
+- A payable call that raises keeps the value: on Studionet the GEN
+  sent with a failed payable call stays in the contract while the
+  state reverts. This contract therefore never raises while holding
+  value — invalid backings and challenges are rejected with the full
+  value credited back as a withdrawable credit (see
+  `docs/mechanism.md`, "Failed payments never swallow GEN").
 - The challenge window runs to the end of the review's UTC day: a
   same-day confirm is rejected on chain, and confirming is possible
   from the next UTC day. A review made shortly before midnight UTC

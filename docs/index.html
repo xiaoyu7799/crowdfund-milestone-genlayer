@@ -83,10 +83,39 @@
         <textarea id="evidence-text" rows="4"></textarea>
       </label>
       <label class="field">
+        <span data-i18n="field_reference_url">Verifiable reference URL — validators fetch this page and judge only what it serves</span>
+        <input id="evidence-url" type="url" inputmode="url" placeholder="https://">
+      </label>
+      <label class="field">
         <span data-i18n="field_evidence_date">Evidence date</span>
         <input id="evidence-date" type="date">
       </label>
       <button id="btn-submit-evidence" class="btn btn-primary" type="button" data-i18n="btn_submit_evidence">Submit evidence</button>
+    </div>
+
+    <div id="challenge-box" class="panel" style="display:none">
+      <h3 data-i18n="challenge_box_title">Challenge the verdict — with new counter-evidence</h3>
+      <p class="fineprint" data-i18n="challenge_box_lead">The second review judges only this new counter-evidence, never the first review's input. Challenging sends a 1 GEN stake with the call.</p>
+      <label class="field">
+        <span data-i18n="field_counter_evidence">Counter-evidence — what the first review got wrong, with something checkable</span>
+        <textarea id="challenge-text" rows="4"></textarea>
+      </label>
+      <label class="field">
+        <span data-i18n="field_reference_url">Verifiable reference URL — validators fetch this page and judge only what it serves</span>
+        <input id="challenge-url" type="url" inputmode="url" placeholder="https://">
+      </label>
+      <label class="field">
+        <span data-i18n="field_evidence_date">Evidence date</span>
+        <input id="challenge-date" type="date">
+      </label>
+      <button id="btn-submit-challenge" class="btn btn-primary" type="button" data-i18n="btn_submit_challenge">Challenge verdict (1 GEN stake)</button>
+    </div>
+
+    <div class="panel">
+      <h3 data-i18n="dossier_title">Evidence dossier</h3>
+      <p class="fineprint" data-i18n="dossier_lead">Download this campaign as a JSON dossier. Every value in it is copied from the latest FINALIZED chain readback — a pending verdict carries no money, and PARTIAL is never marked as a success.</p>
+      <button id="btn-dossier" class="btn btn-primary" type="button" data-i18n="btn_dossier" disabled>Download dossier (JSON)</button>
+      <p id="dossier-state" class="fineprint" data-i18n="dossier_disabled_note">Waiting for the chain readback…</p>
     </div>
 
     <div id="back-box" class="panel">
@@ -98,6 +127,7 @@
       <p id="back-preview" class="fineprint" aria-live="polite"></p>
       <button id="btn-back" class="btn btn-primary" type="button" data-i18n="btn_back">Back campaign</button>
       <p class="fineprint" data-i18n="challenge_note">Challenging sends a 1 GEN stake with the call. If the second verdict agrees with the first, the challenge fails and the 1 GEN is forfeited into this milestone's allocation. If it disagrees, the milestone freezes, your stake returns plus a 0.5 GEN reward from escrow, and a third verdict decides.</p>
+      <button id="btn-cancel" class="btn" type="button" style="display:none" data-i18n="btn_cancel_campaign">Cancel campaign and refund backers</button>
     </div>
 
     <div class="panel">

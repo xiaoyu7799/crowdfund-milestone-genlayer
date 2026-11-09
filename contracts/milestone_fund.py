@@ -59,8 +59,14 @@ What this contract does
    can be cancelled by its creator (and a still-funding campaign
    by any backer): every backer is credited their full backing and
    the campaign closes as CANCELLED. No non-terminal state is
-   without an exit, and a failed payable call raises before any
-   state change, so it takes no GEN.
+   without an exit, and a failed payable call never swallows GEN:
+   on Studionet a payable call that raises keeps the value while
+   the state reverts, so the payable entry points never raise while
+   they hold value — an invalid backing or challenge is rejected
+   with the full value credited back to the sender as a
+   withdrawable credit, and a failed adjudication refunds the
+   challenge stake the same way. Non-payable writes credit back
+   any GEN sent to them before doing anything else.
 6. Settlement never pushes GEN. It records withdrawable credits (wei)
    and each beneficiary pulls their own GEN with `withdraw_payout`,
    which zeroes the credit before transferring. A settled verdict is
@@ -471,6 +477,42 @@ class MilestoneFund(gl.Contract):
             standing[creator]["milestones_released_as_creator"] = int(standing[creator]["milestones_released_as_creator"]) + 1
         return {"released_wei": _ws(release), "refunded_wei": _ws(refund), "payouts": payouts}
 
+    def _refund_unexpected_value(self, credits) -> int:
+        """Credit back GEN sent to a non-payable write.
+
+        Platform fact, verified on chain: on Studionet a payable call
+        that raises keeps the value in the contract while the state
+        reverts. So no write that holds value may raise: the value is
+        credited back to the sender as a withdrawable credit instead.
+        Returns the value received (0 when nothing was sent).
+        """
+        value = int(gl.message.value)
+        if value > 0:
+            sender = str(gl.message.sender_address)
+            self._credit(credits, sender, value)
+            self.total_received_wei = self.total_received_wei + gl.message.value
+        return value
+
+    def _reject_with_refund(self, campaigns, credits, standing, participants, reason, value, extra) -> str:
+        """Reject a payable call, crediting the full value back.
+
+        Used by the payable entry points whenever the call cannot be
+        accepted: the GEN is never swallowed, it becomes a
+        withdrawable credit of the sender.
+        """
+        if value > 0:
+            sender = str(gl.message.sender_address)
+            self._credit(credits, sender, value)
+            self.total_received_wei = self.total_received_wei + gl.message.value
+        self._save_all(campaigns, credits, standing, participants)
+        out = {
+            "accepted": False,
+            "reason": reason,
+            "refunded_credit_wei": _ws(value if value > 0 else 0),
+        }
+        out.update(extra)
+        return json.dumps(out)
+
     def _is_backer(self, campaign, addr) -> bool:
         for entry in campaign["backers"]:
             if entry["address"] == addr:
@@ -746,6 +788,9 @@ class MilestoneFund(gl.Contract):
     def create_campaign(self, title: str, goal_wei: str, milestones_json: str) -> str:
         campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
+        if self._refund_unexpected_value(credits) > 0:
+            self._save_all(campaigns, credits, standing, participants)
+            return json.dumps({"accepted": False, "reason": "value_not_accepted"})
         if not isinstance(title, str) or len(title.strip()) == 0 or len(title) > MAX_TITLE_LEN:
             raise gl.vm.UserError("EXPECTED: title_must_be_1_to_80_chars")
         goal = _check_even_positive_wei(goal_wei, "goal")
@@ -815,13 +860,21 @@ class MilestoneFund(gl.Contract):
         campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
         value = int(gl.message.value)
+        campaign = campaigns.get(str(int(campaign_id)))
+        reason = None
         if value <= 0:
-            raise gl.vm.UserError("EXPECTED: back_must_send_gen")
-        campaign = self._load_campaign(campaigns, campaign_id)
-        if campaign["status"] != "FUNDING":
-            raise gl.vm.UserError("EXPECTED: campaign_not_funding")
-        if _wn(campaign["total_backed_wei"]) + value > _wn(campaign["goal_wei"]):
-            raise gl.vm.UserError("EXPECTED: back_exceeds_goal")
+            reason = "back_must_send_gen"
+        elif campaign is None:
+            reason = "campaign_not_found"
+        elif campaign["status"] != "FUNDING":
+            reason = "campaign_not_funding"
+        elif _wn(campaign["total_backed_wei"]) + value > _wn(campaign["goal_wei"]):
+            reason = "back_exceeds_goal"
+        if reason is not None:
+            return self._reject_with_refund(
+                campaigns, credits, standing, participants, reason, value,
+                {"campaign_id": int(campaign_id)},
+            )
         self._ensure_standing(sender, standing, participants)
         standing[sender]["backed_wei_total"] = _ws(_wn(standing[sender]["backed_wei_total"]) + value)
         found = False
@@ -839,6 +892,7 @@ class MilestoneFund(gl.Contract):
         self.total_received_wei = self.total_received_wei + gl.message.value
         self._save_all(campaigns, credits, standing, participants)
         return json.dumps({
+            "accepted": True,
             "campaign_id": int(campaign_id),
             "total_backed_wei": campaign["total_backed_wei"],
             "goal_wei": campaign["goal_wei"],
@@ -851,6 +905,9 @@ class MilestoneFund(gl.Contract):
     def submit_milestone_proof(self, campaign_id: u256, milestone_index: int, evidence_text: str, evidence_date: str, reference_url: str) -> str:
         campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
+        if self._refund_unexpected_value(credits) > 0:
+            self._save_all(campaigns, credits, standing, participants)
+            return json.dumps({"accepted": False, "reason": "value_not_accepted"})
         campaign = self._load_campaign(campaigns, campaign_id)
         if campaign["creator"] != sender:
             raise gl.vm.UserError("EXPECTED: only_creator_submits_evidence")
@@ -889,6 +946,9 @@ class MilestoneFund(gl.Contract):
     def review_milestone(self, campaign_id: u256, milestone_index: int) -> str:
         campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
+        if self._refund_unexpected_value(credits) > 0:
+            self._save_all(campaigns, credits, standing, participants)
+            return json.dumps({"accepted": False, "reason": "value_not_accepted"})
         campaign = self._load_campaign(campaigns, campaign_id)
         milestone = self._load_milestone(campaign, milestone_index)
         if milestone["status"] != "EVIDENCE_SUBMITTED":
@@ -944,21 +1004,39 @@ class MilestoneFund(gl.Contract):
         campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
         stake = int(gl.message.value)
+        campaign = campaigns.get(str(int(campaign_id)))
+        milestone = None
+        if campaign is not None:
+            milestones = campaign["milestones"]
+            if isinstance(milestone_index, int) and not isinstance(milestone_index, bool) and 0 <= milestone_index < len(milestones):
+                milestone = milestones[milestone_index]
+        reason = None
         if stake != CHALLENGE_STAKE_WEI:
-            raise gl.vm.UserError("EXPECTED: challenge_stake_must_be_1_gen")
-        campaign = self._load_campaign(campaigns, campaign_id)
-        if campaign["creator"] == sender:
-            raise gl.vm.UserError("EXPECTED: creator_cannot_challenge_own_milestone")
-        if not self._is_backer(campaign, sender):
-            raise gl.vm.UserError("EXPECTED: only_backer_challenges")
-        milestone = self._load_milestone(campaign, milestone_index)
-        if milestone["status"] != "MILESTONE_REVIEW" or milestone["pending_verdict"] is None:
-            raise gl.vm.UserError("EXPECTED: milestone_not_challengeable")
-        if not isinstance(counter_text, str) or len(counter_text.strip()) < MIN_EVIDENCE_LEN or len(counter_text) > MAX_EVIDENCE_LEN:
-            raise gl.vm.UserError("EXPECTED: counter_evidence_must_be_20_to_2000_chars")
-        if not _valid_date_format(counter_date):
-            raise gl.vm.UserError("EXPECTED: counter_date_must_be_YYYY_MM_DD")
-        self._check_reference_shape(counter_url)
+            reason = "challenge_stake_must_be_1_gen"
+        elif campaign is None:
+            reason = "campaign_not_found"
+        elif milestone is None:
+            reason = "milestone_not_found"
+        elif campaign["creator"] == sender:
+            reason = "creator_cannot_challenge_own_milestone"
+        elif not self._is_backer(campaign, sender):
+            reason = "only_backer_challenges"
+        elif milestone["status"] != "MILESTONE_REVIEW" or milestone["pending_verdict"] is None:
+            reason = "milestone_not_challengeable"
+        elif not isinstance(counter_text, str) or len(counter_text.strip()) < MIN_EVIDENCE_LEN or len(counter_text) > MAX_EVIDENCE_LEN:
+            reason = "counter_evidence_must_be_20_to_2000_chars"
+        elif not _valid_date_format(counter_date):
+            reason = "counter_date_must_be_YYYY_MM_DD"
+        else:
+            try:
+                self._check_reference_shape(counter_url)
+            except gl.vm.UserError:
+                reason = "counter_reference_invalid"
+        if reason is not None:
+            return self._reject_with_refund(
+                campaigns, credits, standing, participants, reason, stake,
+                {"campaign_id": int(campaign_id), "milestone_index": milestone_index},
+            )
         first_verdict = milestone["pending_verdict"]
         self._ensure_standing(sender, standing, participants)
         counter = {
@@ -967,9 +1045,21 @@ class MilestoneFund(gl.Contract):
             "url": counter_url,
             "hash": pure_sha256_hex(counter_text.strip()),
         }
-        milestone["challenge_evidence"] = counter
         source = {"text": counter["text"], "date": counter["date"], "url": counter["url"]}
-        result = self._adjudicate(campaign, milestone, source)
+        try:
+            result = self._adjudicate(campaign, milestone, source)
+        except gl.vm.UserError as exc:
+            # Adjudication failed (fetch down, stale evidence, judge
+            # failure): the stake is credited back in full, nothing
+            # else changes, and the milestone stays challengeable.
+            # The challenge evidence is NOT stored: it was never judged.
+            return self._reject_with_refund(
+                campaigns, credits, standing, participants,
+                "adjudication_failed_retryable", stake,
+                {"campaign_id": int(campaign_id), "milestone_index": milestone_index,
+                 "error": str(exc)},
+            )
+        milestone["challenge_evidence"] = counter
         self.total_received_wei = self.total_received_wei + gl.message.value
         second_verdict = _verdict_from_flags(result["flags"])
         milestone["evaluations"].append({
@@ -1024,6 +1114,7 @@ class MilestoneFund(gl.Contract):
             settlement = None
         self._save_all(campaigns, credits, standing, participants)
         return json.dumps({
+            "accepted": True,
             "campaign_id": int(campaign_id),
             "milestone_index": milestone_index,
             "status": milestone["status"],
@@ -1037,6 +1128,9 @@ class MilestoneFund(gl.Contract):
     def confirm_milestone(self, campaign_id: u256, milestone_index: int) -> str:
         campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
+        if self._refund_unexpected_value(credits) > 0:
+            self._save_all(campaigns, credits, standing, participants)
+            return json.dumps({"accepted": False, "reason": "value_not_accepted"})
         campaign = self._load_campaign(campaigns, campaign_id)
         milestone = self._load_milestone(campaign, milestone_index)
         if milestone["status"] != "MILESTONE_REVIEW" or milestone["pending_verdict"] is None:
@@ -1075,6 +1169,9 @@ class MilestoneFund(gl.Contract):
     def resolve_disputed_milestone(self, campaign_id: u256, milestone_index: int) -> str:
         campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
+        if self._refund_unexpected_value(credits) > 0:
+            self._save_all(campaigns, credits, standing, participants)
+            return json.dumps({"accepted": False, "reason": "value_not_accepted"})
         campaign = self._load_campaign(campaigns, campaign_id)
         milestone = self._load_milestone(campaign, milestone_index)
         if milestone["status"] != "FROZEN":
@@ -1139,6 +1236,9 @@ class MilestoneFund(gl.Contract):
         """
         campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
+        if self._refund_unexpected_value(credits) > 0:
+            self._save_all(campaigns, credits, standing, participants)
+            return json.dumps({"accepted": False, "reason": "value_not_accepted"})
         campaign = self._load_campaign(campaigns, campaign_id)
         if campaign["status"] == "FUNDING":
             if campaign["creator"] != sender and not self._is_backer(campaign, sender):
@@ -1170,6 +1270,9 @@ class MilestoneFund(gl.Contract):
     def withdraw_payout(self) -> str:
         campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
+        # GEN sent to a withdrawal is credited back first; the
+        # withdrawal of the (now larger) credit then proceeds.
+        self._refund_unexpected_value(credits)
         amount = _wn(credits.get(sender, "0"))
         if amount <= 0:
             raise gl.vm.UserError("EXPECTED: no_credit_to_withdraw")

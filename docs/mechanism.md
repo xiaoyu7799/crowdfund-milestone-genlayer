@@ -122,10 +122,10 @@ on a contradicting challenge, resolved by a third review.
 - `back_campaign(campaign_id)` is payable: the GEN sent with the call
   (`gl.message.value`, wei) is the backing. Any positive amount; backing
   is capped at the goal. At `total_backed_wei == goal_wei` the campaign
-  becomes `MILESTONE_REVIEW` and milestones open. A backing that would
-  exceed the goal, a zero-value backing, or a backing to a campaign
-  that is not `FUNDING` raises before any state change, so no GEN is
-  taken.
+  becomes `MILESTONE_REVIEW` and milestones open. An invalid backing
+  (zero value, unknown campaign, campaign not funding, backing over
+  the goal) is rejected with the full value credited back to the
+  sender as a withdrawable credit — see "Failed payments" below.
 - Settlement on confirmation, computed once in the contract after
   consensus, recorded as credits (wei):
   - `ACCEPT`: the full settlement amount credited to the creator.
@@ -138,7 +138,12 @@ on a contradicting challenge, resolved by a third review.
   ties. The rule is deterministic and fixed in the contract; it is
   never a subject of validator disagreement.
 - Challenge stake: exactly 1 GEN (`1000000000000000000` wei), sent with
-  `challenge_milestone`. Failed challenge (second verdict equals the
+  `challenge_milestone`. A challenge that cannot be accepted (wrong
+  stake, wrong sender, milestone not challengeable, invalid
+  counter-evidence) is rejected with the full stake credited back to
+  the sender; a challenge whose adjudication fails (fetch down, stale
+  evidence, judge failure) is rejected the same way and the milestone
+  stays challengeable. Failed challenge (second verdict equals the
   first): the 1 GEN is forfeited into the current milestone's
   allocation, so the settlement pool is the milestone amount plus
   1 GEN, split by the same verdict rules. Successful challenge
@@ -158,6 +163,34 @@ on a contradicting challenge, resolved by a third review.
   credits outstanding plus escrow locked: every wei the contract holds
   is either owed to someone as a credit or locked for an unsettled
   milestone.
+
+## Failed payments never swallow GEN
+
+Platform fact, verified on chain during the rescue: on Stable
+Studionet a payable call that raises keeps the value in the contract
+while the state reverts. A 1 GEN backing sent to a fully funded
+campaign was observed to leave the sender's balance and sit in the
+contract with no owner, while the contract's own accounting still
+balanced. So this contract never raises while it holds value:
+
+- The two payable entry points (`back_campaign`,
+  `challenge_milestone`) validate first and, on any invalid input,
+  return `{"accepted": false, "reason": ...}` with the full value
+  credited back to the sender as a withdrawable credit. The
+  transaction FINALIZES as a rejection, not as an error.
+- If a challenge's adjudication itself fails (reference fetch down,
+  stale counter-evidence, judge failure), the failure is caught and
+  the 1 GEN stake is credited back the same way; the milestone is
+  unchanged and stays challengeable, and the unjudged
+  counter-evidence is not stored.
+- Non-payable writes credit back any GEN sent to them before doing
+  anything else and refuse the call; `withdraw_payout` credits the
+  GEN back and then proceeds with the withdrawal.
+- The accounting invariant still holds with refunds: every wei ever
+  received (backings, stakes, and refunded invalid payments) equals
+  withdrawn + credits outstanding + escrow locked, and the contract
+  balance equals credits outstanding plus escrow locked — no wei is
+  ever held without an owner.
 
 ## Standing (history, not a score)
 
@@ -369,9 +402,11 @@ leader outputs be, if both pass validation?
   creator may cancel, with the same full refund.
 - Once any milestone has evidence submitted or a settlement, the
   campaign cannot be cancelled: its money moves only by verdict.
-  A failed payable call (backing over the goal, backing a campaign
-  that is not funding, a wrong challenge stake) raises before any
-  state change, so the GEN is never taken.
+  A failed payment never swallows GEN: invalid backings and
+  challenges are rejected with the full value credited back to the
+  sender (see "Failed payments never swallow GEN" above).
+- GEN sent to a non-payable write is credited back before anything
+  else and the call is refused.
 
 ## What this contract does not do
 

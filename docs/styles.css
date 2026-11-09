@@ -238,6 +238,18 @@ h3 { font-family: var(--display); font-weight: 600; font-size: 1.25rem; margin: 
 }
 .stage-hash, .stage-rounds, .stage-money { font-size: 0.88rem; color: var(--clay); overflow-wrap: anywhere; }
 .stage-money { color: var(--ink); font-weight: 700; }
+/* PARTIAL is its own state: amber, never the success green. */
+.stage-partial { border-left: 8px solid var(--gold); }
+.stage-partial .stage-status { color: var(--gold); }
+.stage-quote {
+  margin: 10px 0;
+  padding-left: 12px;
+  border-left: 4px solid var(--brick);
+  font-size: 0.95rem;
+  font-style: italic;
+}
+.stage-ref { font-size: 0.88rem; color: var(--clay); overflow-wrap: anywhere; }
+.stage-money-unconfirmed { font-size: 0.88rem; color: var(--clay); font-weight: 700; }
 .stage-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 
 .field { display: block; margin-bottom: 12px; }
