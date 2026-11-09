@@ -2,145 +2,205 @@
   "network": "Stable Studionet",
   "chainId": 61999,
   "rpcUrl": "https://studio.genlayer.com/api",
-  "contractAddress": "0x23667D800Be2A8cf97445134Fea1691387F10f3E",
-  "explorer": "https://explorer-studio.genlayer.com/address/0x23667D800Be2A8cf97445134Fea1691387F10f3E",
+  "contractAddress": "0x2151db0CD7259A9D714C4431335f98E860f72F86",
+  "explorer": "https://explorer-studio.genlayer.com/address/0x2151db0CD7259A9D714C4431335f98E860f72F86",
   "campaignId": 0,
   "accounts": {
-    "creator": "0x98b982B8860625d0B23a6E2d6E3b1aA1e29b1aAA",
-    "backerB": "0xC6db7BDF4Bf068E859C3671C4B432367d16f9Ca7",
-    "backerC": "0x6d7c71C5a5d6670D37a18036616dd8Cab7E1Ae4E"
+    "creator": "0xf466dda25236C8a7d1970590Fcdb286394De9F5b",
+    "backerB": "0xF61DCa921e9f69C4f18F7AF21f5e0742748cDf2A",
+    "backerC": "0x5180b15C037CA4251d64dA7C93De98833FEb780E"
+  },
+  "funding": {
+    "creator": {
+      "address": "0xf466dda25236C8a7d1970590Fcdb286394De9F5b",
+      "funded_gen": 10000,
+      "fundTx": "0xe5bcc1abfa50d85065c65a17b3bc5d5f530024ef86327dfd0542149ca411ed16",
+      "eoaAfterFundWei": "10000000000000000000000"
+    },
+    "backerB": {
+      "address": "0xF61DCa921e9f69C4f18F7AF21f5e0742748cDf2A",
+      "funded_gen": 10000,
+      "fundTx": "0xc2e1f83a861dff8e119ccad1a4a9fa1ba0536d1907d1d5ff9f803a05667b990d",
+      "eoaAfterFundWei": "10000000000000000000000"
+    },
+    "backerC": {
+      "address": "0x5180b15C037CA4251d64dA7C93De98833FEb780E",
+      "funded_gen": 10000,
+      "fundTx": "0x260060286aaef14d016c5d07e81057e923e7a426e5b00e36c18449af8372902c",
+      "eoaAfterFundWei": "10000000000000000000000"
+    }
   },
   "evidenceDate": "2026-11-09",
+  "challengeBranch": "FAILED",
   "transactions": [
     {
-      "label": "claim-A",
-      "functionName": "claim_demo_funds",
-      "args": "[]",
-      "txHash": "0xf729d7e51fb1230676e905e345d16be86a879a2bd5e77d813c8f26e25470ea18",
-      "receiptStatus": "7"
+      "label": "fund-creator",
+      "functionName": "sim_fundAccount",
+      "args": "[\"0xf466dda25236C8a7d1970590Fcdb286394De9F5b\",1e+22]",
+      "value_wei": "0",
+      "txHash": "0xe5bcc1abfa50d85065c65a17b3bc5d5f530024ef86327dfd0542149ca411ed16",
+      "receiptStatus": "FUNDED"
     },
     {
-      "label": "claim-B",
-      "functionName": "claim_demo_funds",
-      "args": "[]",
-      "txHash": "0x4e7870569ab95ddaa7d258bdd3b9b2743f5a3df968f29d7e29159bef6b77167b",
-      "receiptStatus": "7"
+      "label": "fund-backerB",
+      "functionName": "sim_fundAccount",
+      "args": "[\"0xF61DCa921e9f69C4f18F7AF21f5e0742748cDf2A\",1e+22]",
+      "value_wei": "0",
+      "txHash": "0xc2e1f83a861dff8e119ccad1a4a9fa1ba0536d1907d1d5ff9f803a05667b990d",
+      "receiptStatus": "FUNDED"
     },
     {
-      "label": "claim-C",
-      "functionName": "claim_demo_funds",
-      "args": "[]",
-      "txHash": "0xd4a9375b5738974658eda66bf6aed5f1ef0105ac9f7a4a2e1e2c4430774e5492",
-      "receiptStatus": "7"
+      "label": "fund-backerC",
+      "functionName": "sim_fundAccount",
+      "args": "[\"0x5180b15C037CA4251d64dA7C93De98833FEb780E\",1e+22]",
+      "value_wei": "0",
+      "txHash": "0x260060286aaef14d016c5d07e81057e923e7a426e5b00e36c18449af8372902c",
+      "receiptStatus": "FUNDED"
     },
     {
       "label": "create-campaign",
       "functionName": "create_campaign",
-      "args": "[\"Riverside Community Garden sensor network\",10000,\"[{\\\"title\\\":\\\"Sensor kits assembled\\\",\\\"amount\\\":4000},{\\\"title\\\":\\\"Dashboard live\\\",\\\"amount\\\":4000},{\\\"title\\\":\\\"Field report published\\\",\\\"amount\\\":2000}]\"]",
-      "txHash": "0x55981dbb9eff80776897eb6a0de0e510f5ae74a4e3f317ee142573d8879f75ac",
-      "receiptStatus": "7"
+      "args": "[\"Riverside Community Garden sensor network\",\"100000000000000000000\",\"[{\\\"title\\\":\\\"Sensor kits assembled\\\",\\\"amount\\\":\\\"40000000000000000000\\\"},{\\\"title\\\":\\\"Dashboard live\\\",\\\"amount\\\":\\\"40000000000000000000\\\"},{\\\"title\\\":\\\"Field report published\\\",\\\"amount\\\":\\\"20000000000000000000\\\"}]\"]",
+      "value_wei": "0",
+      "txHash": "0x6a57a414b3660152cd001350566afc67ccc5d1fd2ca2c318d3f6367b8f5eb479",
+      "receiptStatus": "FINALIZED"
     },
     {
-      "label": "back-B-6000",
-      "functionName": "back",
-      "args": "[\"0\",6000]",
-      "txHash": "0x8f4f27949515cc5a02c3c02975e3dab9df4f325bbda9bc46fb4d52c3d558cdb3",
-      "receiptStatus": "7"
+      "label": "back-B-60GEN",
+      "functionName": "back_campaign",
+      "args": "[\"0\"]",
+      "value_wei": "60000000000000000000",
+      "txHash": "0x07741d719eed3928646b39ff1690630ea89e043b9fd4e95f9bdf117f3613b622",
+      "receiptStatus": "FINALIZED"
     },
     {
-      "label": "back-C-4000",
-      "functionName": "back",
-      "args": "[\"0\",4000]",
-      "txHash": "0x9d7efb6a4454d476206a15c724c1c63cb75c9f785d879d08b6c24f958f9540b6",
-      "receiptStatus": "7"
+      "label": "back-C-40GEN",
+      "functionName": "back_campaign",
+      "args": "[\"0\"]",
+      "value_wei": "40000000000000000000",
+      "txHash": "0x74471fca7780c55a210230292c63b6d5e1780a07b0fa82dfec6f4c91caa9f99f",
+      "receiptStatus": "FINALIZED"
     },
     {
-      "label": "evidence-m0",
-      "functionName": "submit_milestone_evidence",
+      "label": "proof-m0",
+      "functionName": "submit_milestone_proof",
       "args": "[\"0\",0,\"Sensor kits assembled: 12 Riverside garden sensor kits built and installed, each reporting live. Build log: https://example.org/garden/build-log-v1\",\"2026-11-09\"]",
-      "txHash": "0x3883b2ed9af5744bd5b99b772fc6e387ea260ad079dd76bf17c5beec1a723f0c",
-      "receiptStatus": "7"
+      "value_wei": "0",
+      "txHash": "0xe20fe943012a54819ec3789e9a80cfb19421a9ea358d5e3b64a74e6434cecdc2",
+      "receiptStatus": "FINALIZED"
     },
     {
-      "label": "evidence-m1",
-      "functionName": "submit_milestone_evidence",
+      "label": "proof-m1",
+      "functionName": "submit_milestone_proof",
       "args": "[\"0\",1,\"We plan to build the dashboard soon and will share updates once work starts.\",\"2026-11-09\"]",
-      "txHash": "0x40943e554786d8e2e349007e4fad17cd0646a8ec4d33f3985baadb83c28a1ce6",
-      "receiptStatus": "7"
+      "value_wei": "0",
+      "txHash": "0xe6a90edb7db92cf392532f69691fa80fce9c68241dc61b92921033397f7bf3b3",
+      "receiptStatus": "FINALIZED"
     },
     {
-      "label": "evidence-m2",
-      "functionName": "submit_milestone_evidence",
+      "label": "proof-m2",
+      "functionName": "submit_milestone_proof",
       "args": "[\"0\",2,\"Field report published: the garden field report is written and covers all 12 sensors with weekly readings. It is ready to share with backers.\",\"2026-11-09\"]",
-      "txHash": "0x7092475f663949aea6572f390aef190667110d9700d1b0e83e96953fee3da943",
-      "receiptStatus": "7"
+      "value_wei": "0",
+      "txHash": "0xef9dcc94e62e9a56fc5d654f6e429880976c5cd0a5426a45ef92b7cc552569ef",
+      "receiptStatus": "FINALIZED"
     },
     {
-      "label": "evaluate-m0-attempt1",
-      "functionName": "evaluate_milestone",
+      "label": "review-m0-attempt1",
+      "functionName": "review_milestone",
       "args": "[\"0\",0]",
-      "txHash": "0x84bc3714fd3a5b85d4ee0dd54465ee0b29dc3926e715799256565f53d77d27f4",
-      "receiptStatus": "7"
+      "value_wei": "0",
+      "txHash": "0xd77b4ee7f834b53c718dfae54125ffd507b7f7da454dd8ffcbf253bd0e94109b",
+      "receiptStatus": "FINALIZED"
     },
     {
-      "label": "finalize-m0",
-      "functionName": "finalize_milestone",
+      "label": "confirm-m0",
+      "functionName": "confirm_milestone",
       "args": "[\"0\",0]",
-      "txHash": "0xb875fff03c0db1b2a8a6e953aa5dd85699d979214006f11d550aff8cc82e3ce5",
-      "receiptStatus": "7"
+      "value_wei": "0",
+      "txHash": "0xdac7321a080c108c3babc1efaac7e05ce9c87ecb9566427b2363744a223b370a",
+      "receiptStatus": "FINALIZED"
     },
     {
-      "label": "evaluate-m1-attempt1",
-      "functionName": "evaluate_milestone",
+      "label": "review-m1-attempt1",
+      "functionName": "review_milestone",
       "args": "[\"0\",1]",
-      "txHash": "0x9f297479c9a2c816839e6e21da01e60d17715ea551ec53428b678aea29f87e11",
-      "receiptStatus": "7"
+      "value_wei": "0",
+      "txHash": "0x17fbfebd354c2f24ea967a008053d345e40349a6cbb197569d3db740efe8c26f",
+      "receiptStatus": "FINALIZED"
     },
     {
-      "label": "finalize-m1",
-      "functionName": "finalize_milestone",
+      "label": "confirm-m1",
+      "functionName": "confirm_milestone",
       "args": "[\"0\",1]",
-      "txHash": "0x08142dbad5a5856a8b5853a43c7673f652a815276ab038b0357ddb196c5a51c8",
-      "receiptStatus": "7"
+      "value_wei": "0",
+      "txHash": "0x2f1c107e3cb899af6ba991f22d4c7dae86c18d08bcb51d341c3c9c76d0e016e5",
+      "receiptStatus": "FINALIZED"
     },
     {
-      "label": "evaluate-m2-attempt1",
-      "functionName": "evaluate_milestone",
+      "label": "review-m2-attempt1",
+      "functionName": "review_milestone",
       "args": "[\"0\",2]",
-      "txHash": "0xa16f216bae4e3b808e34bbe26b07d34543120618b2abaefefe97a780250a26cd",
-      "receiptStatus": "7"
+      "value_wei": "0",
+      "txHash": "0x72aa411e6e0405ee866e47d431285ce0b31fd5fb2c7b52a6cf64f02ea537a19d",
+      "receiptStatus": "FINALIZED"
     },
     {
       "label": "challenge-m2",
       "functionName": "challenge_milestone",
       "args": "[\"0\",2]",
-      "txHash": "0x1fd0a34b2ed517e7dcb6c1c68fe19089025a1b71506252daed999fdd1c33659e",
-      "receiptStatus": "7"
+      "value_wei": "1000000000000000000",
+      "txHash": "0x2b37b9f05dbb9a356b95a4e5b6a7c52f92c539e9e956c74a6e3eb0687016cc24",
+      "receiptStatus": "FINALIZED"
+    },
+    {
+      "label": "withdraw-creator",
+      "functionName": "withdraw_payout",
+      "args": "[]",
+      "value_wei": "0",
+      "txHash": "0xbe0c6a8611973ada8fbaeed7acb142b63a034891a05f4fcf3b41a4cd5b226bc6",
+      "receiptStatus": "FINALIZED"
+    },
+    {
+      "label": "withdraw-backerB",
+      "functionName": "withdraw_payout",
+      "args": "[]",
+      "value_wei": "0",
+      "txHash": "0x7d3f05adf17398688a584fcfbf8b7576ea88b508de8cfd4dd9444d4b9c8a373b",
+      "receiptStatus": "FINALIZED"
+    },
+    {
+      "label": "withdraw-backerC",
+      "functionName": "withdraw_payout",
+      "args": "[]",
+      "value_wei": "0",
+      "txHash": "0xa3b729656f62e77b15680accb429ac0d380d1a1b3be77dd9539437eef75efc75",
+      "receiptStatus": "FINALIZED"
     }
   ],
   "finalCampaign": {
     "id": 0,
     "title": "Riverside Community Garden sensor network",
-    "creator": "0x98b982B8860625d0B23a6E2d6E3b1aA1e29b1aAA",
-    "goal": 10000,
-    "status": "FUNDED",
-    "total_backed": 10000,
-    "escrow": 0,
+    "creator": "0xf466dda25236C8a7d1970590Fcdb286394De9F5b",
+    "goal_wei": "100000000000000000000",
+    "status": "MILESTONE_REVIEW",
+    "total_backed_wei": "100000000000000000000",
+    "escrow_wei": "0",
     "backers": [
       {
-        "address": "0xC6db7BDF4Bf068E859C3671C4B432367d16f9Ca7",
-        "amount": 6000
+        "address": "0xF61DCa921e9f69C4f18F7AF21f5e0742748cDf2A",
+        "amount": "60000000000000000000"
       },
       {
-        "address": "0x6d7c71C5a5d6670D37a18036616dd8Cab7E1Ae4E",
-        "amount": 4000
+        "address": "0x5180b15C037CA4251d64dA7C93De98833FEb780E",
+        "amount": "40000000000000000000"
       }
     ],
     "milestones": [
       {
         "title": "Sensor kits assembled",
-        "amount": 4000,
-        "status": "FINALIZED",
+        "amount": "40000000000000000000",
+        "status": "RELEASED",
         "evidence_text": "Sensor kits assembled: 12 Riverside garden sensor kits built and installed, each reporting live. Build log: https://example.org/garden/build-log-v1",
         "evidence_date": "2026-11-09",
         "evidence_hash": "beda56949929f26cb4994cad702eab5c6e1c85b27ecbb7646d22d753933fbe36",
@@ -152,22 +212,23 @@
               "true",
               "true"
             ],
-            "rationale": "Evidence names sensor kits built, provides URL to build log, and states they were installed and reporting.",
+            "rationale": "Evidence names 12 specific sensor kits built and installed, provides a checkable build log URL, and describes completed past-tense work matching the milestone title.",
             "current_date": "2026-11-09",
             "verdict": "ACCEPT"
           }
         ],
         "pending_verdict": null,
         "final_verdict": "ACCEPT",
-        "released": 4000,
-        "refunded": 0,
+        "released_wei": "40000000000000000000",
+        "refunded_wei": "0",
         "refund_payouts": [],
+        "settlement_wei": null,
         "challenge": null
       },
       {
         "title": "Dashboard live",
-        "amount": 4000,
-        "status": "FINALIZED",
+        "amount": "40000000000000000000",
+        "status": "REFUNDED",
         "evidence_text": "We plan to build the dashboard soon and will share updates once work starts.",
         "evidence_date": "2026-11-09",
         "evidence_hash": "a95833dd6f3df891f1d3967aeaf95c202d4a22ab3897485f576e10e5899df583",
@@ -179,31 +240,32 @@
               "false",
               "false"
             ],
-            "rationale": "Evidence describes only a future plan with no concrete deliverable named, no verifiable reference provided, and no completed work described.",
+            "rationale": "The evidence describes future plans rather than a completed deliverable, lacks a verifiable link or reference, and uses vague language about upcoming work instead of confirming the dashboard is live.",
             "current_date": "2026-11-09",
             "verdict": "REJECT"
           }
         ],
         "pending_verdict": null,
         "final_verdict": "REJECT",
-        "released": 0,
-        "refunded": 4000,
+        "released_wei": "0",
+        "refunded_wei": "40000000000000000000",
         "refund_payouts": [
           {
-            "address": "0xC6db7BDF4Bf068E859C3671C4B432367d16f9Ca7",
-            "amount": 2400
+            "address": "0xF61DCa921e9f69C4f18F7AF21f5e0742748cDf2A",
+            "amount_wei": "24000000000000000000"
           },
           {
-            "address": "0x6d7c71C5a5d6670D37a18036616dd8Cab7E1Ae4E",
-            "amount": 1600
+            "address": "0x5180b15C037CA4251d64dA7C93De98833FEb780E",
+            "amount_wei": "16000000000000000000"
           }
         ],
+        "settlement_wei": null,
         "challenge": null
       },
       {
         "title": "Field report published",
-        "amount": 2000,
-        "status": "FINALIZED",
+        "amount": "20000000000000000000",
+        "status": "PARTIAL_RELEASED",
         "evidence_text": "Field report published: the garden field report is written and covers all 12 sensors with weekly readings. It is ready to share with backers.",
         "evidence_date": "2026-11-09",
         "evidence_hash": "a59f5c69ec9beee8da16833584997cdc95b63c7196831d9154038c28436a1b04",
@@ -215,7 +277,7 @@
               "false",
               "true"
             ],
-            "rationale": "It names the field report and says it is written, but provides no checkable link, file, or other verifiable reference.",
+            "rationale": "Evidence names concrete deliverable 'Field report published' matching milestone title and describes finished work.",
             "current_date": "2026-11-09",
             "verdict": "PARTIAL"
           },
@@ -226,78 +288,154 @@
               "false",
               "true"
             ],
-            "rationale": "The evidence names the field report as the deliverable and says it is completed, but offers no URL, hash, or other verifiable reference.",
+            "rationale": "Evidence names the 'garden field report' as deliverable, describes it as written and complete, but lacks verifiable reference.",
             "current_date": "2026-11-09",
             "verdict": "PARTIAL"
           }
         ],
         "pending_verdict": null,
         "final_verdict": "PARTIAL",
-        "released": 1000,
-        "refunded": 1000,
+        "released_wei": "10500000000000000000",
+        "refunded_wei": "10500000000000000000",
         "refund_payouts": [
           {
-            "address": "0xC6db7BDF4Bf068E859C3671C4B432367d16f9Ca7",
-            "amount": 600
+            "address": "0xF61DCa921e9f69C4f18F7AF21f5e0742748cDf2A",
+            "amount_wei": "6300000000000000000"
           },
           {
-            "address": "0x6d7c71C5a5d6670D37a18036616dd8Cab7E1Ae4E",
-            "amount": 400
+            "address": "0x5180b15C037CA4251d64dA7C93De98833FEb780E",
+            "amount_wei": "4200000000000000000"
           }
         ],
+        "settlement_wei": null,
         "challenge": {
-          "challenger": "0xC6db7BDF4Bf068E859C3671C4B432367d16f9Ca7",
+          "challenger": "0xF61DCa921e9f69C4f18F7AF21f5e0742748cDf2A",
+          "stake_wei": "1000000000000000000",
           "second_verdict": "PARTIAL",
           "outcome": "FAILED"
         }
       }
     ]
   },
-  "finalBalances": {
+  "finalCredits": {
+    "creator": "50500000000000000000",
+    "backerB": "30300000000000000000",
+    "backerC": "20200000000000000000"
+  },
+  "expectedCredits": {
+    "0xf466dda25236C8a7d1970590Fcdb286394De9F5b": "50500000000000000000",
+    "0xF61DCa921e9f69C4f18F7AF21f5e0742748cDf2A": "30300000000000000000",
+    "0x5180b15C037CA4251d64dA7C93De98833FEb780E": "20200000000000000000"
+  },
+  "withdrawals": {
     "creator": {
-      "address": "0x98b982B8860625d0B23a6E2d6E3b1aA1e29b1aAA",
-      "balance": 15000,
-      "claimed": true,
-      "reputation": 100
+      "address": "0xf466dda25236C8a7d1970590Fcdb286394De9F5b",
+      "withdrawn_wei": "50500000000000000000",
+      "eoaBeforeWei": "10000000000000000000000",
+      "eoaAfterWei": "10050500000000000000000"
     },
     "backerB": {
-      "address": "0xC6db7BDF4Bf068E859C3671C4B432367d16f9Ca7",
-      "balance": 6980,
-      "claimed": true,
-      "reputation": 95
+      "address": "0xF61DCa921e9f69C4f18F7AF21f5e0742748cDf2A",
+      "withdrawn_wei": "30300000000000000000",
+      "eoaBeforeWei": "9939000000000000000000",
+      "eoaAfterWei": "9969300000000000000000"
     },
     "backerC": {
-      "address": "0x6d7c71C5a5d6670D37a18036616dd8Cab7E1Ae4E",
-      "balance": 8020,
-      "claimed": true,
-      "reputation": 100
+      "address": "0x5180b15C037CA4251d64dA7C93De98833FEb780E",
+      "withdrawn_wei": "20200000000000000000",
+      "eoaBeforeWei": "9960000000000000000000",
+      "eoaAfterWei": "9980200000000000000000"
     }
   },
-  "finalLeaderboard": [
+  "finalTotals": {
+    "total_received_wei": "101000000000000000000",
+    "total_withdrawn_wei": "101000000000000000000",
+    "contract_balance_wei": "0",
+    "credits_outstanding_wei": "0",
+    "escrow_locked_wei": "0",
+    "accounted_wei": "101000000000000000000",
+    "invariant_ok": true
+  },
+  "finalSupporters": {
+    "creator": {
+      "address": "0xf466dda25236C8a7d1970590Fcdb286394De9F5b",
+      "credit_wei": "0",
+      "backed_wei_total": "0",
+      "milestones_completed_as_backer": 0,
+      "campaigns_created": 1,
+      "milestones_released_as_creator": 2,
+      "challenges_won": 0,
+      "challenges_lost": 0
+    },
+    "backerB": {
+      "address": "0xF61DCa921e9f69C4f18F7AF21f5e0742748cDf2A",
+      "credit_wei": "0",
+      "backed_wei_total": "60000000000000000000",
+      "milestones_completed_as_backer": 3,
+      "campaigns_created": 0,
+      "milestones_released_as_creator": 0,
+      "challenges_won": 0,
+      "challenges_lost": 1
+    },
+    "backerC": {
+      "address": "0x5180b15C037CA4251d64dA7C93De98833FEb780E",
+      "credit_wei": "0",
+      "backed_wei_total": "40000000000000000000",
+      "milestones_completed_as_backer": 3,
+      "campaigns_created": 0,
+      "milestones_released_as_creator": 0,
+      "challenges_won": 0,
+      "challenges_lost": 0
+    }
+  },
+  "finalSupporterBoard": [
     {
-      "address": "0x6d7c71C5a5d6670D37a18036616dd8Cab7E1Ae4E",
-      "reputation": 100,
-      "total_backed": 4000,
-      "balance": 8020
+      "address": "0xF61DCa921e9f69C4f18F7AF21f5e0742748cDf2A",
+      "backed_wei_total": "60000000000000000000",
+      "milestones_completed_as_backer": 3,
+      "campaigns_created": 0,
+      "milestones_released_as_creator": 0,
+      "challenges_won": 0,
+      "challenges_lost": 1,
+      "credit_wei": "0"
     },
     {
-      "address": "0x98b982B8860625d0B23a6E2d6E3b1aA1e29b1aAA",
-      "reputation": 100,
-      "total_backed": 0,
-      "balance": 15000
+      "address": "0x5180b15C037CA4251d64dA7C93De98833FEb780E",
+      "backed_wei_total": "40000000000000000000",
+      "milestones_completed_as_backer": 3,
+      "campaigns_created": 0,
+      "milestones_released_as_creator": 0,
+      "challenges_won": 0,
+      "challenges_lost": 0,
+      "credit_wei": "0"
     },
     {
-      "address": "0xC6db7BDF4Bf068E859C3671C4B432367d16f9Ca7",
-      "reputation": 95,
-      "total_backed": 6000,
-      "balance": 6980
+      "address": "0xf466dda25236C8a7d1970590Fcdb286394De9F5b",
+      "backed_wei_total": "0",
+      "milestones_completed_as_backer": 0,
+      "campaigns_created": 1,
+      "milestones_released_as_creator": 2,
+      "challenges_won": 0,
+      "challenges_lost": 0,
+      "credit_wei": "0"
     }
   ],
   "campaignCount": 1,
-  "moneyConservation": {
-    "total": 30000,
-    "minted": 30000,
-    "escrow": 0
+  "moneyReconciliation": {
+    "totalReceivedWei": "101000000000000000000",
+    "totalWithdrawnWei": "101000000000000000000",
+    "creditsOutstandingWei": "0",
+    "escrowLockedWei": "0",
+    "contractBalanceWei": "0",
+    "eoaSumWei": "30000000000000000000000",
+    "faucetFundedWei": "30000000000000000000000",
+    "invariant": "total_received == total_withdrawn + credits_outstanding + escrow_locked",
+    "invariantOk": true
   },
-  "checkedAt": "2026-11-09T08:01:37.749Z"
+  "supersededContract": {
+    "address": "0x23667D800Be2A8cf97445134Fea1691387F10f3E",
+    "status": "superseded",
+    "reason": "Replaced: it used a ledger of units inside the contract instead of real GEN."
+  },
+  "checkedAt": "2026-11-09T10:37:32.325Z"
 }

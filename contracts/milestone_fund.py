@@ -1,5 +1,5 @@
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
-"""MilestoneFund: crowdfunding that only pays for proven work.
+"""MilestoneFund: crowdfunding that only pays for proven work, in real GEN.
 
 Problem
 -------
@@ -11,30 +11,66 @@ refunded when they are not.
 
 What this contract does
 -----------------------
-1. Anyone creates a campaign: a title, a funding goal, and 1-6
-   milestones. Each milestone has a title and an amount. The amounts
-   must add up to the goal exactly.
-2. Anyone claims 10,000 simulated mGEN once (demo funds) and backs a
-   campaign from that balance. Backing is capped at the goal; once the
-   goal is reached the campaign is FUNDED and milestones open.
+1. Anyone creates a campaign: a title, a funding goal in wei, and 1-6
+   milestones. Each milestone has a title and an amount in wei. The
+   amounts must add up to the goal exactly.
+2. Anyone backs a campaign with real GEN on Stable Studionet
+   (testnet GEN, free from the faucet, zero cash cost). `back_campaign`
+   is payable: the GEN sent with the call (`gl.message.value`, wei)
+   is held in escrow. Backing is capped at the goal; once the goal is
+   reached the campaign moves to MILESTONE_REVIEW and milestones open.
 3. The creator submits evidence for a milestone: free text plus the
    date the evidence is from.
-4. Anyone evaluates the milestone. The leader and every validator
+4. Anyone reviews the milestone. The leader and every validator
    independently (a) fetch the current UTC date and (b) judge the
    evidence against three strict binary criteria with an LLM. The
    contract — not the LLM — turns the three flags into the verdict:
    3 of 3 -> ACCEPT, 2 of 3 -> PARTIAL, 0-1 of 3 -> REJECT.
-5. The first evaluation leaves a pending verdict (EVALUATING). Anyone
-   may finalize it, or anyone except the creator may challenge it
-   while it is pending. A challenge runs a second independent
-   evaluation: if it agrees, the verdict finalizes and the challenger
-   loses 5 reputation and half of a 100 mGEN bond; if it disagrees,
-   the milestone freezes with both verdicts kept as witness and a
-   third evaluation decides the tie-break.
-6. Finalization moves money deterministically: ACCEPT releases the
-   full milestone amount to the creator, REJECT refunds it pro-rata
-   to backers, PARTIAL releases half and refunds half. A finalized
-   verdict is immutable.
+5. The first review leaves a pending verdict (MILESTONE_REVIEW).
+   Anyone may confirm it, or anyone except the creator may challenge
+   it first. Challenging costs a real 1 GEN stake, sent with the call.
+   A challenge runs a second independent review: if it agrees, the
+   verdict settles and the 1 GEN stake is forfeited into the current
+   milestone's allocation; if it disagrees, the milestone freezes
+   with both verdicts kept as witness, the stake is returned plus a
+   0.5 GEN reward taken from the milestone escrow, and a third review
+   decides the tie-break.
+6. Settlement never pushes GEN. It records withdrawable credits (wei)
+   and each beneficiary pulls their own GEN with `withdraw_payout`,
+   which zeroes the credit before transferring. A settled verdict is
+   immutable.
+
+Money
+-----
+All amounts are wei integers (1 GEN = 10^18 wei), stored as decimal
+strings inside the JSON state documents so no precision is lost.
+Milestone amounts are positive even wei, so a PARTIAL 50/50 split is
+exact with no rounding. Pro-rata refunds use integer division; the
+remainder (at most one wei per backer) goes to the largest backer,
+first in insertion order on ties — a deterministic rule computed once
+in the contract after consensus, never a subject of validator
+disagreement. The challenge stake (1 GEN) and reward (0.5 GEN) are
+both even wei, so a challenge-adjusted settlement stays even and its
+PARTIAL split stays exact.
+
+Accounting invariant, readable at any time with `get_totals`:
+    total_received_wei == total_withdrawn_wei
+                         + credits_outstanding_wei
+                         + escrow_locked_wei
+`total_received_wei` counts every wei ever received (backings plus
+challenge stakes). `contract_balance` is `self.balance` and equals
+credits outstanding plus escrow locked: every wei the contract holds
+is either owed to someone as a credit or locked for an unsettled
+milestone.
+
+Standing (not a score)
+----------------------
+There is no starting reputation and no +/- points. What the contract
+records per address is history: total GEN ever backed, milestones
+completed as a backer, campaigns created, milestones released as a
+creator, challenges won and lost. History is what it is; it is never
+spent, never a gate, and no penalty can lock an address out — no
+action requires a minimum balance or a minimum standing.
 
 Consensus design (the part that matters)
 ----------------------------------------
@@ -59,21 +95,11 @@ Consensus design (the part that matters)
   within the 30 days up to and including that date. Future-dated or
   older evidence raises before any write, so the milestone stays
   open and the creator must submit fresh evidence. If the time
-  source is unreachable, evaluation also raises before any write and
-  can be retried.
-* Money math is integer-only. Milestone amounts are positive even
-  integers, so a PARTIAL 50/50 split is exact with no rounding.
-  Pro-rata refunds use integer division; the remainder (at most one
-  unit per backer) goes to the largest backer, first in insertion
-  order on ties — a deterministic rule computed once in the contract
-  after consensus, never a subject of validator disagreement.
-* No action requires a minimum balance or a minimum reputation, so no
-  penalty can ever lock an address out: the challenge bond is 100
-  mGEN (50 slashed on a failed challenge, 50 returned), reputation
-  starts at 100 on first participation and has a floor of 0.
-* A finalized verdict is never overwritten. A contradiction (second
-  evaluation disagreeing with the first) freezes the milestone and is
-  kept as a witness alongside both verdicts until a third evaluation
+  source is unreachable, review also raises before any write and can
+  be retried.
+* A settled verdict is never overwritten. A contradiction (second
+  review disagreeing with the first) freezes the milestone and is
+  kept as a witness alongside both verdicts until a third review
   decides the tie-break. The frozen funds move only on that final
   verdict.
 * The LLM returns flags and one rationale sentence. The rationale is
@@ -81,25 +107,16 @@ Consensus design (the part that matters)
   the verdict and is not part of the consensus check. Evidence text
   is treated as untrusted data in the judging prompt; instructions
   inside it are to be ignored.
-
-Money
------
-All mGEN are simulated ledger units inside this contract on Stable
-Studionet. No real cryptocurrency is transferred, held, or custodied.
-`claim_demo_funds` credits 10,000 mGEN once per address; backing,
-escrow, release, and refund only move ledger balances.
 """
 
 import json
 
 from genlayer import *
 
-DEMO_FUNDS = 10000
-CHALLENGE_BOND = 100
-CHALLENGE_SLASH = 50
+CHALLENGE_STAKE_WEI = 1000000000000000000
+CHALLENGE_REWARD_WEI = 500000000000000000
 EVIDENCE_FRESH_DAYS = 30
 TIME_URL = "https://timeapi.io/api/Time/current/zone?timeZone=UTC"
-REPUTATION_START = 100
 MAX_MILESTONES = 6
 MAX_TITLE_LEN = 80
 MAX_EVIDENCE_LEN = 2000
@@ -172,6 +189,33 @@ def _is_digit(ch: str) -> bool:
     return "0" <= ch <= "9"
 
 
+def _ws(n) -> str:
+    """Wei integer -> decimal string (exact; JSON numbers would round)."""
+    return str(int(n))
+
+
+def _wn(s) -> int:
+    return int(s)
+
+
+def _valid_wei_string(value) -> bool:
+    if not isinstance(value, str) or len(value) == 0:
+        return False
+    for ch in value:
+        if not _is_digit(ch):
+            return False
+    return True
+
+
+def _check_even_positive_wei(value, label: str) -> int:
+    if not _valid_wei_string(value):
+        raise gl.vm.UserError("EXPECTED: " + label + "_must_be_wei_string")
+    n = int(value)
+    if n <= 0 or n % 2 != 0:
+        raise gl.vm.UserError("EXPECTED: " + label + "_must_be_positive_even_wei")
+    return n
+
+
 def _valid_date_format(ds: str) -> bool:
     if not isinstance(ds, str) or len(ds) != 10:
         return False
@@ -218,28 +262,39 @@ def _verdict_from_flags(flags) -> str:
     return "REJECT"
 
 
-def _check_even_positive(value, label: str) -> int:
-    if not isinstance(value, int) or isinstance(value, bool):
-        raise gl.vm.UserError("EXPECTED: " + label + "_must_be_integer")
-    if value <= 0 or value % 2 != 0:
-        raise gl.vm.UserError("EXPECTED: " + label + "_must_be_positive_even")
-    return value
+def _terminal_status(verdict: str) -> str:
+    if verdict == "ACCEPT":
+        return "RELEASED"
+    if verdict == "REJECT":
+        return "REFUNDED"
+    return "PARTIAL_RELEASED"
+
+
+@gl.evm.contract_interface
+class _Recipient:
+    class View:
+        pass
+
+    class Write:
+        pass
 
 
 class MilestoneFund(gl.Contract):
     campaigns_json: str
-    balances_json: str
-    reputations_json: str
-    claimed_json: str
+    credits_json: str
+    standing_json: str
     participants_json: str
+    total_received_wei: u256
+    total_withdrawn_wei: u256
     next_id: u256
 
     def __init__(self):
         self.campaigns_json = "{}"
-        self.balances_json = "{}"
-        self.reputations_json = "{}"
-        self.claimed_json = "{}"
+        self.credits_json = "{}"
+        self.standing_json = "{}"
         self.participants_json = "[]"
+        self.total_received_wei = u256(0)
+        self.total_withdrawn_wei = u256(0)
         self.next_id = u256(0)
 
     # -- state plumbing ------------------------------------------------------
@@ -247,30 +302,28 @@ class MilestoneFund(gl.Contract):
     def _load_all(self):
         return (
             json.loads(self.campaigns_json),
-            json.loads(self.balances_json),
-            json.loads(self.reputations_json),
-            json.loads(self.claimed_json),
+            json.loads(self.credits_json),
+            json.loads(self.standing_json),
             json.loads(self.participants_json),
         )
 
-    def _save_all(self, campaigns, balances, reputations, claimed, participants):
+    def _save_all(self, campaigns, credits, standing, participants):
         self.campaigns_json = json.dumps(campaigns)
-        self.balances_json = json.dumps(balances)
-        self.reputations_json = json.dumps(reputations)
-        self.claimed_json = json.dumps(claimed)
+        self.credits_json = json.dumps(credits)
+        self.standing_json = json.dumps(standing)
         self.participants_json = json.dumps(participants)
 
-    def _ensure_participant(self, addr, reputations, participants):
-        if addr not in reputations:
-            reputations[addr] = REPUTATION_START
+    def _ensure_standing(self, addr, standing, participants):
+        if addr not in standing:
+            standing[addr] = {
+                "backed_wei_total": "0",
+                "milestones_completed_as_backer": 0,
+                "campaigns_created": 0,
+                "milestones_released_as_creator": 0,
+                "challenges_won": 0,
+                "challenges_lost": 0,
+            }
             participants.append(addr)
-
-    def _apply_reputation(self, addr, reputations, participants, delta: int):
-        self._ensure_participant(addr, reputations, participants)
-        new_rep = reputations[addr] + delta
-        if new_rep < 0:
-            new_rep = 0
-        reputations[addr] = new_rep
 
     def _load_campaign(self, campaigns, campaign_id: u256) -> dict:
         key = str(int(campaign_id))
@@ -286,26 +339,29 @@ class MilestoneFund(gl.Contract):
             raise gl.vm.UserError("EXPECTED: milestone_not_found")
         return milestones[index]
 
-    def _distribute(self, campaign, balances, amount: int):
-        """Credit `amount` pro-rata to backers by contribution.
+    def _credit(self, credits, addr, amount: int):
+        credits[addr] = _ws(_wn(credits.get(addr, "0")) + amount)
+
+    def _distribute(self, campaign, credits, amount: int):
+        """Credit `amount` wei pro-rata to backers by contribution.
 
         Deterministic integer math, computed once after consensus.
-        Remainder (at most one unit per backer) goes to the largest
+        Remainder (at most one wei per backer) goes to the largest
         backer, first in insertion order on ties. Returns the payout
         list for the receipt.
         """
         backers = campaign["backers"]
-        total = int(campaign["total_backed"])
+        total = _wn(campaign["total_backed_wei"])
         if total <= 0 or amount <= 0 or len(backers) == 0:
             return []
         payouts = []
         given = 0
         largest_idx = 0
         for i in range(len(backers)):
-            share = (int(backers[i]["amount"]) * amount) // total
+            share = (_wn(backers[i]["amount"]) * amount) // total
             payouts.append(share)
             given += share
-            if int(backers[i]["amount"]) > int(backers[largest_idx]["amount"]):
+            if _wn(backers[i]["amount"]) > _wn(backers[largest_idx]["amount"]):
                 largest_idx = i
         remainder = amount - given
         if remainder > 0:
@@ -313,41 +369,55 @@ class MilestoneFund(gl.Contract):
         out = []
         for i in range(len(backers)):
             addr = backers[i]["address"]
-            balances[addr] = int(balances.get(addr, 0)) + payouts[i]
-            out.append({"address": addr, "amount": payouts[i]})
+            self._credit(credits, addr, payouts[i])
+            out.append({"address": addr, "amount_wei": _ws(payouts[i])})
         return out
 
-    def _settle_milestone(self, campaign, milestone, verdict: str, balances):
-        """Move escrow money per the finalized verdict. Deterministic.
+    def _settle_milestone(self, campaign, milestone, verdict: str, credits, standing, participants, settlement_amount: int, escrow_delta: int):
+        """Credit the settlement per the settled verdict. Deterministic.
 
-        ACCEPT: full amount to the creator. REJECT: full amount refunded
-        pro-rata to backers. PARTIAL: half released, half refunded
-        (amount is even, so the split is exact). Records actuals.
+        ACCEPT: full settlement amount to the creator. REJECT: full
+        amount refunded pro-rata to backers. PARTIAL: half released,
+        half refunded (settlement amount is even wei, so the split is
+        exact). Records actuals and updates backer/creator history.
+        `escrow_delta` is what leaves the campaign escrow: the
+        original milestone amount normally, but only the shrunk
+        settlement pool after a won challenge (the 0.5 GEN reward was
+        already taken out of escrow when the milestone froze). A
+        forfeited challenge stake folded into the settlement is new
+        money already counted in total_received_wei, so it never
+        leaves escrow. The books stay exact either way.
         """
-        amount = int(milestone["amount"])
-        escrow = int(campaign["escrow"])
+        escrow = _wn(campaign["escrow_wei"])
         if verdict == "ACCEPT":
-            release = amount if amount <= escrow else escrow
+            release = settlement_amount
             refund = 0
         elif verdict == "REJECT":
             release = 0
-            refund = amount if amount <= escrow else escrow
+            refund = settlement_amount
         else:  # PARTIAL
-            half = amount // 2
-            release = half if half <= escrow else escrow
-            remaining = escrow - release
-            refund = half if half <= remaining else remaining
+            half = settlement_amount // 2
+            release = half
+            refund = half
         creator = campaign["creator"]
-        balances[creator] = int(balances.get(creator, 0)) + release
-        payouts = self._distribute(campaign, balances, refund) if refund > 0 else []
-        campaign["escrow"] = escrow - release - refund
-        milestone["status"] = "FINALIZED"
+        if release > 0:
+            self._credit(credits, creator, release)
+        payouts = self._distribute(campaign, credits, refund) if refund > 0 else []
+        campaign["escrow_wei"] = _ws(escrow - escrow_delta)
+        milestone["status"] = _terminal_status(verdict)
         milestone["final_verdict"] = verdict
-        milestone["released"] = release
-        milestone["refunded"] = refund
+        milestone["released_wei"] = _ws(release)
+        milestone["refunded_wei"] = _ws(refund)
         milestone["refund_payouts"] = payouts
         milestone["pending_verdict"] = None
-        return {"released": release, "refunded": refund, "payouts": payouts}
+        for entry in campaign["backers"]:
+            addr = entry["address"]
+            self._ensure_standing(addr, standing, participants)
+            standing[addr]["milestones_completed_as_backer"] = int(standing[addr]["milestones_completed_as_backer"]) + 1
+        if verdict in ("ACCEPT", "PARTIAL"):
+            self._ensure_standing(creator, standing, participants)
+            standing[creator]["milestones_released_as_creator"] = int(standing[creator]["milestones_released_as_creator"]) + 1
+        return {"released_wei": _ws(release), "refunded_wei": _ws(refund), "payouts": payouts}
 
     # -- shared nondet adjudication -----------------------------------------
 
@@ -460,25 +530,12 @@ class MilestoneFund(gl.Contract):
     # -- writes --------------------------------------------------------------
 
     @gl.public.write
-    def claim_demo_funds(self) -> str:
-        campaigns, balances, reputations, claimed, participants = self._load_all()
-        sender = str(gl.message.sender_address)
-        if claimed.get(sender) is True:
-            raise gl.vm.UserError("EXPECTED: demo_funds_already_claimed")
-        self._ensure_participant(sender, reputations, participants)
-        claimed[sender] = True
-        balances[sender] = int(balances.get(sender, 0)) + DEMO_FUNDS
-        self._save_all(campaigns, balances, reputations, claimed, participants)
-        return json.dumps({"address": sender, "balance": balances[sender], "claimed": True})
-
-    @gl.public.write
-    def create_campaign(self, title: str, goal: int, milestones_json: str) -> str:
-        campaigns, balances, reputations, claimed, participants = self._load_all()
+    def create_campaign(self, title: str, goal_wei: str, milestones_json: str) -> str:
+        campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
         if not isinstance(title, str) or len(title.strip()) == 0 or len(title) > MAX_TITLE_LEN:
             raise gl.vm.UserError("EXPECTED: title_must_be_1_to_80_chars")
-        if not isinstance(goal, int) or isinstance(goal, bool) or goal <= 0:
-            raise gl.vm.UserError("EXPECTED: goal_must_be_positive_integer")
+        goal = _check_even_positive_wei(goal_wei, "goal")
         try:
             raw_milestones = json.loads(milestones_json)
         except Exception:
@@ -493,11 +550,11 @@ class MilestoneFund(gl.Contract):
             m_title = item.get("title")
             if not isinstance(m_title, str) or len(m_title.strip()) == 0 or len(m_title) > MAX_TITLE_LEN:
                 raise gl.vm.UserError("EXPECTED: milestone_title_must_be_1_to_80_chars")
-            amount = _check_even_positive(item.get("amount"), "milestone_amount")
+            amount = _check_even_positive_wei(item.get("amount"), "milestone_amount")
             total += amount
             milestones.append({
                 "title": m_title.strip(),
-                "amount": amount,
+                "amount": _ws(amount),
                 "status": "PENDING",
                 "evidence_text": None,
                 "evidence_date": None,
@@ -505,75 +562,79 @@ class MilestoneFund(gl.Contract):
                 "evaluations": [],
                 "pending_verdict": None,
                 "final_verdict": None,
-                "released": 0,
-                "refunded": 0,
+                "released_wei": "0",
+                "refunded_wei": "0",
                 "refund_payouts": [],
+                "settlement_wei": None,
                 "challenge": None,
             })
         if total != goal:
             raise gl.vm.UserError("EXPECTED: milestone_amounts_must_sum_to_goal")
-        self._ensure_participant(sender, reputations, participants)
+        self._ensure_standing(sender, standing, participants)
+        standing[sender]["campaigns_created"] = int(standing[sender]["campaigns_created"]) + 1
         campaign_id = self.next_id
         self.next_id = campaign_id + u256(1)
         campaign = {
             "id": int(campaign_id),
             "title": title.strip(),
             "creator": sender,
-            "goal": goal,
+            "goal_wei": _ws(goal),
             "status": "FUNDING",
-            "total_backed": 0,
-            "escrow": 0,
+            "total_backed_wei": "0",
+            "escrow_wei": "0",
             "backers": [],
             "milestones": milestones,
         }
         campaigns[str(int(campaign_id))] = campaign
-        self._save_all(campaigns, balances, reputations, claimed, participants)
+        self._save_all(campaigns, credits, standing, participants)
         return json.dumps(campaign)
 
-    @gl.public.write
-    def back(self, campaign_id: u256, amount: int) -> str:
-        campaigns, balances, reputations, claimed, participants = self._load_all()
+    @gl.public.write.payable
+    def back_campaign(self, campaign_id: u256) -> str:
+        campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
-        amount = _check_even_positive(amount, "back_amount")
+        value = int(gl.message.value)
+        if value <= 0:
+            raise gl.vm.UserError("EXPECTED: back_must_send_gen")
         campaign = self._load_campaign(campaigns, campaign_id)
         if campaign["status"] != "FUNDING":
             raise gl.vm.UserError("EXPECTED: campaign_not_funding")
-        if int(campaign["total_backed"]) + amount > int(campaign["goal"]):
+        if _wn(campaign["total_backed_wei"]) + value > _wn(campaign["goal_wei"]):
             raise gl.vm.UserError("EXPECTED: back_exceeds_goal")
-        if int(balances.get(sender, 0)) < amount:
-            raise gl.vm.UserError("EXPECTED: insufficient_demo_balance")
-        self._ensure_participant(sender, reputations, participants)
-        balances[sender] = int(balances.get(sender, 0)) - amount
+        self._ensure_standing(sender, standing, participants)
+        standing[sender]["backed_wei_total"] = _ws(_wn(standing[sender]["backed_wei_total"]) + value)
         found = False
         for entry in campaign["backers"]:
             if entry["address"] == sender:
-                entry["amount"] = int(entry["amount"]) + amount
+                entry["amount"] = _ws(_wn(entry["amount"]) + value)
                 found = True
                 break
         if not found:
-            campaign["backers"].append({"address": sender, "amount": amount})
-        campaign["total_backed"] = int(campaign["total_backed"]) + amount
-        campaign["escrow"] = int(campaign["escrow"]) + amount
-        if int(campaign["total_backed"]) == int(campaign["goal"]):
-            campaign["status"] = "FUNDED"
-        self._save_all(campaigns, balances, reputations, claimed, participants)
+            campaign["backers"].append({"address": sender, "amount": _ws(value)})
+        campaign["total_backed_wei"] = _ws(_wn(campaign["total_backed_wei"]) + value)
+        campaign["escrow_wei"] = _ws(_wn(campaign["escrow_wei"]) + value)
+        if _wn(campaign["total_backed_wei"]) == _wn(campaign["goal_wei"]):
+            campaign["status"] = "MILESTONE_REVIEW"
+        self.total_received_wei = self.total_received_wei + gl.message.value
+        self._save_all(campaigns, credits, standing, participants)
         return json.dumps({
             "campaign_id": int(campaign_id),
-            "total_backed": campaign["total_backed"],
-            "goal": campaign["goal"],
+            "total_backed_wei": campaign["total_backed_wei"],
+            "goal_wei": campaign["goal_wei"],
             "status": campaign["status"],
-            "balance": balances[sender],
+            "backed_wei": _ws(value),
+            "contract_balance_wei": _ws(int(self.balance)),
         })
 
     @gl.public.write
-    def submit_milestone_evidence(self, campaign_id: u256, milestone_index: int, evidence_text: str, evidence_date: str) -> str:
-        campaigns, balances, reputations, claimed, participants = self._load_all()
+    def submit_milestone_proof(self, campaign_id: u256, milestone_index: int, evidence_text: str, evidence_date: str) -> str:
+        campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
         campaign = self._load_campaign(campaigns, campaign_id)
         if campaign["creator"] != sender:
             raise gl.vm.UserError("EXPECTED: only_creator_submits_evidence")
-        if campaign["status"] != "FUNDED":
-            raise gl.vm.UserError("EXPECTED: campaign_not_funded")
+        if campaign["status"] != "MILESTONE_REVIEW":
+            raise gl.vm.UserError("EXPECTED: campaign_not_in_milestone_review")
         milestone = self._load_milestone(campaign, milestone_index)
         if milestone["status"] not in ("PENDING", "EVIDENCE_SUBMITTED"):
             raise gl.vm.UserError("EXPECTED: milestone_not_open_for_evidence")
@@ -585,7 +646,7 @@ class MilestoneFund(gl.Contract):
         milestone["evidence_date"] = evidence_date
         milestone["evidence_hash"] = pure_sha256_hex(evidence_text.strip())
         milestone["status"] = "EVIDENCE_SUBMITTED"
-        self._save_all(campaigns, balances, reputations, claimed, participants)
+        self._save_all(campaigns, credits, standing, participants)
         return json.dumps({
             "campaign_id": int(campaign_id),
             "milestone_index": milestone_index,
@@ -595,13 +656,13 @@ class MilestoneFund(gl.Contract):
         })
 
     @gl.public.write
-    def evaluate_milestone(self, campaign_id: u256, milestone_index: int) -> str:
-        campaigns, balances, reputations, claimed, participants = self._load_all()
+    def review_milestone(self, campaign_id: u256, milestone_index: int) -> str:
+        campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
         campaign = self._load_campaign(campaigns, campaign_id)
         milestone = self._load_milestone(campaign, milestone_index)
         if milestone["status"] != "EVIDENCE_SUBMITTED":
-            raise gl.vm.UserError("EXPECTED: milestone_not_awaiting_evaluation")
+            raise gl.vm.UserError("EXPECTED: milestone_not_awaiting_review")
         result = self._adjudicate(campaign, milestone)
         verdict = _verdict_from_flags(result["flags"])
         milestone["evaluations"].append({
@@ -612,9 +673,9 @@ class MilestoneFund(gl.Contract):
             "verdict": verdict,
         })
         milestone["pending_verdict"] = verdict
-        milestone["status"] = "EVALUATING"
-        self._ensure_participant(sender, reputations, participants)
-        self._save_all(campaigns, balances, reputations, claimed, participants)
+        milestone["status"] = "MILESTONE_REVIEW"
+        self._ensure_standing(sender, standing, participants)
+        self._save_all(campaigns, credits, standing, participants)
         return json.dumps({
             "campaign_id": int(campaign_id),
             "milestone_index": milestone_index,
@@ -625,22 +686,23 @@ class MilestoneFund(gl.Contract):
             "current_date": result["current_date"],
         })
 
-    @gl.public.write
+    @gl.public.write.payable
     def challenge_milestone(self, campaign_id: u256, milestone_index: int) -> str:
-        campaigns, balances, reputations, claimed, participants = self._load_all()
+        campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
+        stake = int(gl.message.value)
+        if stake != CHALLENGE_STAKE_WEI:
+            raise gl.vm.UserError("EXPECTED: challenge_stake_must_be_1_gen")
         campaign = self._load_campaign(campaigns, campaign_id)
         if campaign["creator"] == sender:
             raise gl.vm.UserError("EXPECTED: creator_cannot_challenge_own_milestone")
         milestone = self._load_milestone(campaign, milestone_index)
-        if milestone["status"] != "EVALUATING" or milestone["pending_verdict"] is None:
+        if milestone["status"] != "MILESTONE_REVIEW" or milestone["pending_verdict"] is None:
             raise gl.vm.UserError("EXPECTED: milestone_not_challengeable")
-        if int(balances.get(sender, 0)) < CHALLENGE_BOND:
-            raise gl.vm.UserError("EXPECTED: challenge_requires_100_mgen_bond")
         first_verdict = milestone["pending_verdict"]
-        self._ensure_participant(sender, reputations, participants)
-        balances[sender] = int(balances.get(sender, 0)) - CHALLENGE_BOND
+        self._ensure_standing(sender, standing, participants)
         result = self._adjudicate(campaign, milestone)
+        self.total_received_wei = self.total_received_wei + gl.message.value
         second_verdict = _verdict_from_flags(result["flags"])
         milestone["evaluations"].append({
             "round": 2,
@@ -649,25 +711,39 @@ class MilestoneFund(gl.Contract):
             "current_date": result["current_date"],
             "verdict": second_verdict,
         })
-        milestone["challenge"] = {"challenger": sender, "second_verdict": second_verdict}
+        milestone_amount = _wn(milestone["amount"])
         if second_verdict == first_verdict:
-            # Challenge fails: verdict stands and finalizes now.
-            balances[sender] = int(balances.get(sender, 0)) + (CHALLENGE_BOND - CHALLENGE_SLASH)
-            self._distribute(campaign, balances, CHALLENGE_SLASH)
-            self._apply_reputation(sender, reputations, participants, -5)
-            settlement = self._settle_milestone(campaign, milestone, first_verdict, balances)
-            if first_verdict == "ACCEPT":
-                self._apply_reputation(campaign["creator"], reputations, participants, 5)
-            elif first_verdict == "REJECT":
-                self._apply_reputation(campaign["creator"], reputations, participants, -5)
-            milestone["challenge"]["outcome"] = "FAILED"
+            # Challenge fails: the 1 GEN stake is forfeited into the
+            # current milestone's allocation and the verdict settles now.
+            standing[sender]["challenges_lost"] = int(standing[sender]["challenges_lost"]) + 1
+            milestone["challenge"] = {
+                "challenger": sender,
+                "stake_wei": _ws(CHALLENGE_STAKE_WEI),
+                "second_verdict": second_verdict,
+                "outcome": "FAILED",
+            }
+            settlement = self._settle_milestone(
+                campaign, milestone, first_verdict, credits, standing, participants,
+                milestone_amount + CHALLENGE_STAKE_WEI, milestone_amount,
+            )
         else:
-            # Contradiction: freeze, keep both verdicts as witness, refund bond.
-            balances[sender] = int(balances.get(sender, 0)) + CHALLENGE_BOND
+            # Contradiction: freeze, keep both verdicts as witness.
+            # Stake returns plus a 0.5 GEN reward from the milestone
+            # escrow; the remaining settlement pool shrinks by the reward.
+            standing[sender]["challenges_won"] = int(standing[sender]["challenges_won"]) + 1
+            self._credit(credits, sender, CHALLENGE_STAKE_WEI + CHALLENGE_REWARD_WEI)
+            campaign["escrow_wei"] = _ws(_wn(campaign["escrow_wei"]) - CHALLENGE_REWARD_WEI)
+            milestone["settlement_wei"] = _ws(milestone_amount - CHALLENGE_REWARD_WEI)
             milestone["status"] = "FROZEN"
-            milestone["challenge"]["outcome"] = "CONTRADICTION_FROZEN"
+            milestone["challenge"] = {
+                "challenger": sender,
+                "stake_wei": _ws(CHALLENGE_STAKE_WEI),
+                "reward_wei": _ws(CHALLENGE_REWARD_WEI),
+                "second_verdict": second_verdict,
+                "outcome": "WON_FROZEN",
+            }
             settlement = None
-        self._save_all(campaigns, balances, reputations, claimed, participants)
+        self._save_all(campaigns, credits, standing, participants)
         return json.dumps({
             "campaign_id": int(campaign_id),
             "milestone_index": milestone_index,
@@ -679,21 +755,20 @@ class MilestoneFund(gl.Contract):
         })
 
     @gl.public.write
-    def finalize_milestone(self, campaign_id: u256, milestone_index: int) -> str:
-        campaigns, balances, reputations, claimed, participants = self._load_all()
+    def confirm_milestone(self, campaign_id: u256, milestone_index: int) -> str:
+        campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
         campaign = self._load_campaign(campaigns, campaign_id)
         milestone = self._load_milestone(campaign, milestone_index)
-        if milestone["status"] != "EVALUATING" or milestone["pending_verdict"] is None:
-            raise gl.vm.UserError("EXPECTED: milestone_not_awaiting_finalize")
+        if milestone["status"] != "MILESTONE_REVIEW" or milestone["pending_verdict"] is None:
+            raise gl.vm.UserError("EXPECTED: milestone_not_awaiting_confirm")
         verdict = milestone["pending_verdict"]
-        settlement = self._settle_milestone(campaign, milestone, verdict, balances)
-        if verdict == "ACCEPT":
-            self._apply_reputation(campaign["creator"], reputations, participants, 5)
-        elif verdict == "REJECT":
-            self._apply_reputation(campaign["creator"], reputations, participants, -5)
-        self._ensure_participant(sender, reputations, participants)
-        self._save_all(campaigns, balances, reputations, claimed, participants)
+        settlement = self._settle_milestone(
+            campaign, milestone, verdict, credits, standing, participants,
+            _wn(milestone["amount"]), _wn(milestone["amount"]),
+        )
+        self._ensure_standing(sender, standing, participants)
+        self._save_all(campaigns, credits, standing, participants)
         return json.dumps({
             "campaign_id": int(campaign_id),
             "milestone_index": milestone_index,
@@ -703,8 +778,8 @@ class MilestoneFund(gl.Contract):
         })
 
     @gl.public.write
-    def resolve_frozen(self, campaign_id: u256, milestone_index: int) -> str:
-        campaigns, balances, reputations, claimed, participants = self._load_all()
+    def resolve_disputed_milestone(self, campaign_id: u256, milestone_index: int) -> str:
+        campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
         campaign = self._load_campaign(campaigns, campaign_id)
         milestone = self._load_milestone(campaign, milestone_index)
@@ -719,13 +794,12 @@ class MilestoneFund(gl.Contract):
             "current_date": result["current_date"],
             "verdict": third_verdict,
         })
-        settlement = self._settle_milestone(campaign, milestone, third_verdict, balances)
-        if third_verdict == "ACCEPT":
-            self._apply_reputation(campaign["creator"], reputations, participants, 5)
-        elif third_verdict == "REJECT":
-            self._apply_reputation(campaign["creator"], reputations, participants, -5)
-        self._ensure_participant(sender, reputations, participants)
-        self._save_all(campaigns, balances, reputations, claimed, participants)
+        settlement = self._settle_milestone(
+            campaign, milestone, third_verdict, credits, standing, participants,
+            _wn(milestone["settlement_wei"]), _wn(milestone["settlement_wei"]),
+        )
+        self._ensure_standing(sender, standing, participants)
+        self._save_all(campaigns, credits, standing, participants)
         return json.dumps({
             "campaign_id": int(campaign_id),
             "milestone_index": milestone_index,
@@ -735,11 +809,30 @@ class MilestoneFund(gl.Contract):
             "settlement": settlement,
         })
 
+    @gl.public.write
+    def withdraw_payout(self) -> str:
+        campaigns, credits, standing, participants = self._load_all()
+        sender = str(gl.message.sender_address)
+        amount = _wn(credits.get(sender, "0"))
+        if amount <= 0:
+            raise gl.vm.UserError("EXPECTED: no_credit_to_withdraw")
+        # Pull payment: zero the credit before the transfer, so a
+        # failed or re-entered transfer can never pay twice.
+        credits[sender] = "0"
+        self.total_withdrawn_wei = self.total_withdrawn_wei + u256(amount)
+        self._save_all(campaigns, credits, standing, participants)
+        _Recipient(Address(sender)).emit_transfer(value=u256(amount))
+        return json.dumps({
+            "address": sender,
+            "withdrawn_wei": _ws(amount),
+            "total_withdrawn_wei": _ws(int(self.total_withdrawn_wei)),
+        })
+
     # -- views ---------------------------------------------------------------
 
     @gl.public.view
     def get_campaign(self, campaign_id: u256) -> str:
-        campaigns, balances, reputations, claimed, participants = self._load_all()
+        campaigns, credits, standing, participants = self._load_all()
         return json.dumps(self._load_campaign(campaigns, campaign_id))
 
     @gl.public.view
@@ -748,7 +841,7 @@ class MilestoneFund(gl.Contract):
 
     @gl.public.view
     def list_campaigns(self, offset: u256, limit: u256) -> str:
-        campaigns, balances, reputations, claimed, participants = self._load_all()
+        campaigns, credits, standing, participants = self._load_all()
         if limit < 1 or limit > 20:
             raise gl.vm.UserError("EXPECTED: limit_must_be_1_to_20")
         total = int(self.next_id)
@@ -766,31 +859,73 @@ class MilestoneFund(gl.Contract):
         return json.dumps(out)
 
     @gl.public.view
-    def get_balance(self, address: str) -> str:
-        campaigns, balances, reputations, claimed, participants = self._load_all()
+    def get_credit(self, address: str) -> u256:
+        campaigns, credits, standing, participants = self._load_all()
+        return u256(_wn(credits.get(address, "0")))
+
+    @gl.public.view
+    def get_totals(self) -> str:
+        campaigns, credits, standing, participants = self._load_all()
+        credits_outstanding = 0
+        for addr in credits:
+            credits_outstanding += _wn(credits[addr])
+        escrow_locked = 0
+        for key in campaigns:
+            escrow_locked += _wn(campaigns[key]["escrow_wei"])
+        received = int(self.total_received_wei)
+        withdrawn = int(self.total_withdrawn_wei)
+        accounted = withdrawn + credits_outstanding + escrow_locked
         return json.dumps({
-            "address": address,
-            "balance": int(balances.get(address, 0)),
-            "claimed": claimed.get(address) is True,
-            "reputation": int(reputations.get(address, REPUTATION_START)) if address in reputations else None,
+            "total_received_wei": _ws(received),
+            "total_withdrawn_wei": _ws(withdrawn),
+            "contract_balance_wei": _ws(int(self.balance)),
+            "credits_outstanding_wei": _ws(credits_outstanding),
+            "escrow_locked_wei": _ws(escrow_locked),
+            "accounted_wei": _ws(accounted),
+            "invariant_ok": received == accounted,
         })
 
     @gl.public.view
-    def get_leaderboard(self, limit: u256) -> str:
-        campaigns, balances, reputations, claimed, participants = self._load_all()
+    def get_supporter(self, address: str) -> str:
+        campaigns, credits, standing, participants = self._load_all()
+        record = standing.get(address)
+        if record is None:
+            record = {
+                "backed_wei_total": "0",
+                "milestones_completed_as_backer": 0,
+                "campaigns_created": 0,
+                "milestones_released_as_creator": 0,
+                "challenges_won": 0,
+                "challenges_lost": 0,
+            }
+        return json.dumps({
+            "address": address,
+            "credit_wei": _ws(_wn(credits.get(address, "0"))),
+            "backed_wei_total": record["backed_wei_total"],
+            "milestones_completed_as_backer": int(record["milestones_completed_as_backer"]),
+            "campaigns_created": int(record["campaigns_created"]),
+            "milestones_released_as_creator": int(record["milestones_released_as_creator"]),
+            "challenges_won": int(record["challenges_won"]),
+            "challenges_lost": int(record["challenges_lost"]),
+        })
+
+    @gl.public.view
+    def get_supporter_board(self, limit: u256) -> str:
+        campaigns, credits, standing, participants = self._load_all()
         if limit < 1 or limit > 50:
             raise gl.vm.UserError("EXPECTED: limit_must_be_1_to_50")
-        backed = {}
-        for key in campaigns:
-            for entry in campaigns[key]["backers"]:
-                backed[entry["address"]] = int(backed.get(entry["address"], 0)) + int(entry["amount"])
         rows = []
         for addr in participants:
+            record = standing[addr]
             rows.append({
                 "address": addr,
-                "reputation": int(reputations.get(addr, REPUTATION_START)),
-                "total_backed": int(backed.get(addr, 0)),
-                "balance": int(balances.get(addr, 0)),
+                "backed_wei_total": record["backed_wei_total"],
+                "milestones_completed_as_backer": int(record["milestones_completed_as_backer"]),
+                "campaigns_created": int(record["campaigns_created"]),
+                "milestones_released_as_creator": int(record["milestones_released_as_creator"]),
+                "challenges_won": int(record["challenges_won"]),
+                "challenges_lost": int(record["challenges_lost"]),
+                "credit_wei": _ws(_wn(credits.get(addr, "0"))),
             })
-        rows.sort(key=lambda r: (-r["reputation"], -r["total_backed"], r["address"]))
+        rows.sort(key=lambda r: (-_wn(r["backed_wei_total"]), -r["milestones_completed_as_backer"], r["address"]))
         return json.dumps(rows[:int(limit)])

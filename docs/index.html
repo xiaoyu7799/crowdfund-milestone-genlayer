@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="MilestoneFund — crowdfunding that only pays for proven work. GenLayer consensus judges milestone evidence, then releases or refunds by segment.">
+<meta name="description" content="MilestoneFund — crowdfunding in real testnet GEN that only pays for proven work. GenLayer consensus judges milestone evidence, then releases or refunds by segment.">
 <title>MilestoneFund — Crowdfunding that only pays for proven work</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,12 +34,12 @@
   <section class="act act-one" aria-labelledby="act1">
     <p class="act-name" data-i18n="act1_name">Act I — The House</p>
     <h1 id="act1" data-i18n="act1_headline">The money waits on stage until the work proves itself.</h1>
-    <p class="lead" data-i18n="act1_lead">Backers fund the whole campaign up front. Nothing is released until GenLayer validators judge the milestone evidence — delivered, and the creator is paid; failed, and every backer is refunded.</p>
+    <p class="lead" data-i18n="act1_lead">Backers fund the whole campaign up front with real GEN. Nothing is released until GenLayer validators judge the milestone evidence — delivered, and the creator is paid; failed, and every backer is refunded.</p>
     <div id="campaign-picker" class="picker" aria-label="Campaigns"></div>
     <div id="hero-numbers" class="hero-numbers"></div>
   </section>
 
-  <!-- Wallet + demo funds -->
+  <!-- Wallet + faucet + test account -->
   <section class="act" aria-labelledby="wallet-h">
     <p class="act-name" data-i18n="wallet_title">Wallet</p>
     <h2 id="wallet-h" class="section-title" data-i18n="wallet_title">Wallet</h2>
@@ -50,9 +50,15 @@
         <button id="btn-switch-network" class="btn" type="button" style="display:none" data-i18n="btn_switch_network">Switch network</button>
       </div>
       <div class="wallet-card">
-        <p class="balance-line"><span data-i18n="your_balance">Your simulated mGEN balance</span>: <strong id="my-balance">—</strong></p>
-        <p class="balance-line"><span data-i18n="your_reputation">Your reputation</span>: <strong id="my-reputation">—</strong></p>
-        <button id="btn-claim-demo" class="btn btn-primary" type="button" data-i18n="btn_claim_demo">Claim 10,000 simulated mGEN</button>
+        <p class="balance-line"><span data-i18n="your_credit">Your withdrawable credit</span>: <strong id="my-credit">—</strong></p>
+        <p class="balance-line"><span data-i18n="your_backed">You have backed in total</span>: <strong id="my-backed">—</strong></p>
+        <p class="balance-line"><span data-i18n="your_completed">Milestones completed as a backer</span>: <strong id="my-completed">—</strong></p>
+      </div>
+      <div class="wallet-card">
+        <p class="card-title" data-i18n="faucet_title">Get test GEN</p>
+        <p class="fineprint" data-i18n="faucet_lead">Studionet GEN is free. Open the faucet, pick your account, and fund it — any amount, for example 10,000 GEN.</p>
+        <a class="btn btn-primary faucet-link" href="https://studio.genlayer.com/validators" target="_blank" rel="noreferrer" data-i18n="btn_faucet">Open the Studionet faucet</a>
+        <p class="fineprint" data-i18n="faucet_note">The faucet is the only way to get GEN. There is no in-app claim.</p>
       </div>
       <div class="wallet-card">
         <p class="card-title" data-i18n="test_account_title">Temporary test account</p>
@@ -86,11 +92,18 @@
     <div id="back-box" class="panel">
       <h3 data-i18n="back_title">Back this campaign</h3>
       <label class="field">
-        <span data-i18n="field_back_amount">Amount (simulated mGEN, even number)</span>
-        <input id="back-amount" type="number" min="2" step="2" value="2000" inputmode="numeric">
+        <span data-i18n="field_back_amount">Amount (GEN — real GEN is sent with this call)</span>
+        <input id="back-amount" type="text" inputmode="decimal" value="10" autocomplete="off">
       </label>
+      <p id="back-preview" class="fineprint" aria-live="polite"></p>
       <button id="btn-back" class="btn btn-primary" type="button" data-i18n="btn_back">Back campaign</button>
-      <p class="fineprint" data-i18n="challenge_note">Challenging posts a 100 mGEN bond. If the second verdict agrees with the first, the challenge fails: you lose 5 reputation and 50 mGEN goes to backers. If it disagrees, the milestone freezes and a third verdict decides.</p>
+      <p class="fineprint" data-i18n="challenge_note">Challenging sends a 1 GEN stake with the call. If the second verdict agrees with the first, the challenge fails and the 1 GEN is forfeited into this milestone's allocation. If it disagrees, the milestone freezes, your stake returns plus a 0.5 GEN reward from escrow, and a third verdict decides.</p>
+    </div>
+
+    <div class="panel">
+      <h3 data-i18n="withdraw_title">Withdraw your GEN</h3>
+      <p id="withdraw-preview" class="fineprint" data-i18n="withdraw_empty">Nothing to withdraw yet — credits appear here after a milestone settles in your favour.</p>
+      <button id="btn-withdraw" class="btn btn-primary" type="button" data-i18n="btn_withdraw" disabled>Withdraw my GEN</button>
     </div>
 
     <div class="panel">
@@ -101,20 +114,20 @@
         <input id="create-title" type="text" maxlength="80">
       </label>
       <label class="field">
-        <span data-i18n="field_goal">Goal (simulated mGEN)</span>
-        <input id="create-goal" type="number" min="2" step="2" value="10000" inputmode="numeric">
+        <span data-i18n="field_goal">Goal (GEN)</span>
+        <input id="create-goal" type="text" inputmode="decimal" value="100" autocomplete="off">
       </label>
       <div class="milestone-row">
         <label class="field"><span data-i18n="field_milestone_title">Milestone title</span><input class="m-title" type="text" maxlength="80"></label>
-        <label class="field"><span data-i18n="field_milestone_amount">Amount (simulated mGEN)</span><input class="m-amount" type="number" min="2" step="2" inputmode="numeric"></label>
+        <label class="field"><span data-i18n="field_milestone_amount">Amount (GEN)</span><input class="m-amount" type="text" inputmode="decimal" autocomplete="off"></label>
       </div>
       <div class="milestone-row">
         <label class="field"><span data-i18n="field_milestone_title">Milestone title</span><input class="m-title" type="text" maxlength="80"></label>
-        <label class="field"><span data-i18n="field_milestone_amount">Amount (simulated mGEN)</span><input class="m-amount" type="number" min="2" step="2" inputmode="numeric"></label>
+        <label class="field"><span data-i18n="field_milestone_amount">Amount (GEN)</span><input class="m-amount" type="text" inputmode="decimal" autocomplete="off"></label>
       </div>
       <div class="milestone-row">
         <label class="field"><span data-i18n="field_milestone_title">Milestone title</span><input class="m-title" type="text" maxlength="80"></label>
-        <label class="field"><span data-i18n="field_milestone_amount">Amount (simulated mGEN)</span><input class="m-amount" type="number" min="2" step="2" inputmode="numeric"></label>
+        <label class="field"><span data-i18n="field_milestone_amount">Amount (GEN)</span><input class="m-amount" type="text" inputmode="decimal" autocomplete="off"></label>
       </div>
       <button id="btn-create-campaign" class="btn btn-primary" type="button" data-i18n="btn_create_campaign">Create campaign</button>
     </div>
@@ -124,20 +137,21 @@
   <section class="act" aria-labelledby="act3">
     <p class="act-name" data-i18n="act3_name">Act III — The Ledger</p>
     <h2 id="act3" class="section-title" data-i18n="act3_headline">Every move, on the record.</h2>
-    <p class="lead" data-i18n="act3_lead">Balances, reputation, and the backer ranking — all read straight from the contract, in simulated mGEN.</p>
+    <p class="lead" data-i18n="act3_lead">Withdrawable credits, backer history, and the supporter ranking — all read straight from the contract, in real GEN and wei.</p>
     <h3 data-i18n="leaderboard_title">Backer leaderboard</h3>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
-            <th data-i18n="col_backer">Backer</th>
-            <th data-i18n="col_reputation">Reputation</th>
+            <th data-i18n="col_backer">Supporter</th>
             <th data-i18n="col_backed">Backed</th>
-            <th data-i18n="col_balance">Balance</th>
+            <th data-i18n="col_completed">Milestones completed</th>
+            <th data-i18n="col_challenges">Challenges W/L</th>
+            <th data-i18n="col_credit">Withdrawable credit</th>
           </tr>
         </thead>
         <tbody id="leaderboard-body">
-          <tr><td colspan="4" class="tx-empty" data-i18n="leaderboard_empty">No backers yet.</td></tr>
+          <tr><td colspan="5" class="tx-empty" data-i18n="leaderboard_empty">No backers yet.</td></tr>
         </tbody>
       </table>
     </div>
@@ -150,14 +164,14 @@
 
 <footer>
   <h3 data-i18n="trust_title">Trust surface</h3>
-  <p data-i18n="trust_note">All mGEN are simulated ledger units on Stable Studionet (chain 61999). No real cryptocurrency moves here.</p>
+  <p data-i18n="trust_note">All money here is real testnet GEN on Stable Studionet (chain 61999), free from the faucet — zero cash cost. Backing sends GEN with the call; settled money is pulled out with withdraw.</p>
   <ul class="trust-list">
     <li><span data-i18n="contract_label">Contract</span>: <a id="contract-link" href="#" target="_blank" rel="noreferrer">—</a></li>
     <li><span data-i18n="explorer_label">Explorer</span>: <a id="explorer-link" href="https://explorer-studio.genlayer.com/" target="_blank" rel="noreferrer">explorer-studio.genlayer.com</a></li>
     <li><span data-i18n="site_source_label">Source</span>: <a id="source-link" href="#" target="_blank" rel="noreferrer">GitHub</a></li>
     <li><span data-i18n="network_label">Network</span>: <span id="network-note">Stable Studionet · 61999</span></li>
   </ul>
-  <p class="fineprint" data-i18n="footer_note">MilestoneFund runs only on GenLayer Stable Studionet, chain 61999, RPC https://studio.genlayer.com/api. Simulated mGEN only.</p>
+  <p class="fineprint" data-i18n="footer_note">MilestoneFund runs only on GenLayer Stable Studionet, chain 61999, RPC https://studio.genlayer.com/api. Real testnet GEN, free from the faucet.</p>
 </footer>
 
 <script type="module" src="app.bundle.js"></script>

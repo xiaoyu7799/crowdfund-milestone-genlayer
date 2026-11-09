@@ -2,6 +2,9 @@
 // Reads work without a wallet. Writes use an explicitly labelled in-browser
 // temporary test account (key never leaves browser memory); an injected
 // wallet (OKX first) is used only to connect and read as yourself.
+// All money is real testnet GEN on Stable Studionet: backing a campaign
+// sends GEN with the call, and settled money is pulled out with
+// withdraw_payout. Get GEN free from the faucet first.
 import { createClient, createAccount, generatePrivateKey } from "genlayer-js";
 import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
@@ -9,8 +12,11 @@ import { I18N } from "./i18n.js";
 
 const CFG = window.MF_CONFIG;
 const CHAIN_ID = 61999;
+const GEN = 10n ** 18n;
+const CHALLENGE_STAKE_WEI = 1n * GEN;
 const EXPLORER_TX = "https://explorer-studio.genlayer.com/tx/";
 const EXPLORER_ADDR = "https://explorer-studio.genlayer.com/address/";
+const FAUCET_URL = "https://studio.genlayer.com/validators";
 
 let lang = localStorage.getItem("mf-lang") || "en";
 let campaigns = [];
@@ -22,7 +28,30 @@ let walletChainOk = null;
 const $ = (id) => document.getElementById(id);
 const t = (key) => (I18N[lang] && I18N[lang][key]) || I18N.en[key] || key;
 const shortAddr = (a) => (a ? `${a.slice(0, 6)}…${a.slice(-4)}` : "—");
-const fmt = (n) => Number(n).toLocaleString("en-US");
+
+// --- GEN / wei formatting (exact: BigInt, never floats) ----------------------
+function parseGenToWei(text) {
+  const s = String(text || "").trim();
+  if (!/^\d+(\.\d{1,18})?$/.test(s)) return null;
+  const [whole, frac = ""] = s.split(".");
+  return BigInt(whole) * GEN + BigInt(frac.padEnd(18, "0") || "0");
+}
+
+function fmtGen(wei) {
+  const w = BigInt(wei);
+  const whole = w / GEN;
+  const frac = w % GEN;
+  if (frac === 0n) return `${whole.toLocaleString("en-US")} GEN`;
+  return `${whole.toLocaleString("en-US")}.${frac.toString().padStart(18, "0").replace(/0+$/, "")} GEN`;
+}
+
+function fmtWei(wei) {
+  return `${BigInt(wei).toLocaleString("en-US")} wei`;
+}
+
+function fmtGenWei(wei) {
+  return `${fmtGen(wei)} (${fmtWei(wei)})`;
+}
 
 // --- public read client (no account, no wallet needed) --------------------
 const reader = createClient({ chain: studionet });
@@ -49,7 +78,7 @@ function txFeedAdd(entry) {
   link.rel = "noreferrer";
   link.textContent = `${entry.hash.slice(0, 10)}…${entry.hash.slice(-6)}`;
   const label = document.createElement("span");
-  label.textContent = entry.label;
+  label.textContent = entry.label + (entry.valueWei ? ` · ${fmtGenWei(entry.valueWei)}` : "");
   const status = document.createElement("span");
   status.className = "tx-status";
   status.textContent = entry.status;
@@ -77,22 +106,22 @@ async function refreshAll() {
     }
     if (campaigns.length > 0 && !campaigns.find((c) => c.id === selectedId)) selectedId = campaigns[0].id;
     renderCampaigns();
-    await refreshLeaderboard();
-    await refreshMyBalance();
+    await refreshBoard();
+    await refreshMyStanding();
     story("story_ready");
   } catch (err) {
     story("story_error", humanError(err));
   }
 }
 
-async function refreshLeaderboard() {
-  const rows = await read("get_leaderboard", [10n]);
+async function refreshBoard() {
+  const rows = await read("get_supporter_board", [10n]);
   const body = $("leaderboard-body");
   body.innerHTML = "";
   if (!rows || rows.length === 0) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
-    td.colSpan = 4;
+    td.colSpan = 5;
     td.textContent = t("leaderboard_empty");
     tr.appendChild(td);
     body.appendChild(tr);
@@ -100,12 +129,17 @@ async function refreshLeaderboard() {
   }
   rows.forEach((r, i) => {
     const tr = document.createElement("tr");
-    [String(i + 1) + ". " + shortAddr(r.address), String(r.reputation), fmt(r.total_backed), fmt(r.balance)]
-      .forEach((v) => {
-        const td = document.createElement("td");
-        td.textContent = v;
-        tr.appendChild(td);
-      });
+    [
+      String(i + 1) + ". " + shortAddr(r.address),
+      fmtGen(r.backed_wei_total),
+      String(r.milestones_completed_as_backer),
+      `${r.challenges_won} / ${r.challenges_lost}`,
+      fmtGen(r.credit_wei),
+    ].forEach((v) => {
+      const td = document.createElement("td");
+      td.textContent = v;
+      tr.appendChild(td);
+    });
     body.appendChild(tr);
   });
 }
@@ -114,22 +148,30 @@ async function activeAddress() {
   return testAccount ? testAccount.address : walletAddress;
 }
 
-async function refreshMyBalance() {
+async function refreshMyStanding() {
   const addr = await activeAddress();
-  const el = $("my-balance");
-  const repEl = $("my-reputation");
+  const creditEl = $("my-credit");
+  const backedEl = $("my-backed");
+  const doneEl = $("my-completed");
   if (!addr) {
-    el.textContent = "—";
-    repEl.textContent = "—";
+    creditEl.textContent = "—";
+    backedEl.textContent = "—";
+    doneEl.textContent = "—";
     return;
   }
   try {
-    const bal = await read("get_balance", [addr]);
-    el.textContent = fmt(bal.balance) + " mGEN";
-    repEl.textContent = bal.reputation === null || bal.reputation === undefined ? "100" : String(bal.reputation);
+    const sup = await read("get_supporter", [addr]);
+    creditEl.textContent = fmtGenWei(sup.credit_wei);
+    backedEl.textContent = fmtGen(sup.backed_wei_total);
+    doneEl.textContent = `${sup.milestones_completed_as_backer} · ${t("challenges_label")} ${sup.challenges_won}/${sup.challenges_lost}`;
+    $("btn-withdraw").disabled = BigInt(sup.credit_wei) === 0n;
+    $("withdraw-preview").textContent = BigInt(sup.credit_wei) > 0n
+      ? `${t("withdraw_preview")}: ${fmtGenWei(sup.credit_wei)}`
+      : t("withdraw_empty");
   } catch {
-    el.textContent = "—";
-    repEl.textContent = "—";
+    creditEl.textContent = "—";
+    backedEl.textContent = "—";
+    doneEl.textContent = "—";
   }
 }
 
@@ -147,7 +189,7 @@ function renderCampaigns() {
     const btn = document.createElement("button");
     btn.className = "picker-btn" + (c.id === selectedId ? " active" : "");
     btn.textContent = `#${c.id} ${c.title}`;
-    btn.addEventListener("click", () => { selectedId = c.id; renderCampaigns(); refreshMyBalance(); });
+    btn.addEventListener("click", () => { selectedId = c.id; renderCampaigns(); refreshMyStanding(); });
     picker.appendChild(btn);
   });
   if (!camp) {
@@ -164,15 +206,16 @@ function renderCampaigns() {
   hero.innerHTML = "";
   const raised = document.createElement("div");
   raised.className = "giant-number";
-  raised.innerHTML = `<span class="giant-value">${fmt(camp.total_backed)}</span><span class="giant-unit"> mGEN</span>`;
+  raised.innerHTML = `<span class="giant-value">${fmtGen(camp.total_backed_wei)}</span>`;
   const goalLine = document.createElement("div");
   goalLine.className = "goal-line";
-  goalLine.textContent = `${t("raised_label")} / ${t("goal_label")} ${fmt(camp.goal)} · ${t("backers_label")} ${camp.backers.length} · ${t("escrow_label")} ${fmt(camp.escrow)} mGEN`;
+  goalLine.textContent = `${t("raised_label")} / ${t("goal_label")} ${fmtGen(camp.goal_wei)} · ${t("backers_label")} ${camp.backers.length} · ${t("escrow_label")} ${fmtGen(camp.escrow_wei)}`;
   const curtain = document.createElement("div");
   curtain.className = "curtain-track";
   const fill = document.createElement("div");
   fill.className = "curtain-fill";
-  fill.style.transform = `scaleX(${camp.goal ? Math.min(1, camp.total_backed / camp.goal) : 0})`;
+  const pct = camp.goal_wei ? Math.min(1, Number(BigInt(camp.total_backed_wei) * 10000n / BigInt(camp.goal_wei)) / 10000) : 0;
+  fill.style.transform = `scaleX(${pct})`;
   curtain.appendChild(fill);
   const title = document.createElement("h2");
   title.className = "campaign-title";
@@ -186,7 +229,7 @@ function milestoneCard(camp, m, index) {
   card.className = "stage-card";
   const amount = document.createElement("div");
   amount.className = "stage-amount";
-  amount.innerHTML = `<span class="stage-value">${fmt(m.amount)}</span><span class="stage-unit"> mGEN</span>`;
+  amount.innerHTML = `<span class="stage-value">${fmtGen(m.amount)}</span><span class="stage-unit"> · ${fmtWei(m.amount)}</span>`;
   const title = document.createElement("h3");
   title.textContent = m.title;
   const status = document.createElement("p");
@@ -208,10 +251,10 @@ function milestoneCard(camp, m, index) {
     rounds.textContent = `${t("evaluations_label")}: ` + m.evaluations.map((e) => `R${e.round} ${e.verdict} [${e.flags.join(",")}]`).join(" · ");
     card.appendChild(rounds);
   }
-  if (m.status === "FINALIZED") {
+  if (["RELEASED", "REFUNDED", "PARTIAL_RELEASED"].includes(m.status)) {
     const money = document.createElement("p");
     money.className = "stage-money";
-    money.textContent = `${t("released_label")} ${fmt(m.released)} · ${t("refunded_label")} ${fmt(m.refunded)}`;
+    money.textContent = `${t("released_label")} ${fmtGen(m.released_wei)} · ${t("refunded_label")} ${fmtGen(m.refunded_wei)}`;
     card.appendChild(money);
   }
   const actions = document.createElement("div");
@@ -223,15 +266,15 @@ function milestoneCard(camp, m, index) {
     b.addEventListener("click", fn);
     actions.appendChild(b);
   };
-  if (camp.status === "FUNDED" && (m.status === "PENDING" || m.status === "EVIDENCE_SUBMITTED")) {
+  if (camp.status === "MILESTONE_REVIEW" && (m.status === "PENDING" || m.status === "EVIDENCE_SUBMITTED")) {
     mkBtn(t("btn_submit_evidence"), () => openEvidenceForm(camp.id, index));
   }
-  if (m.status === "EVIDENCE_SUBMITTED") mkBtn(t("btn_evaluate"), () => doWrite("evaluate_milestone", [BigInt(camp.id), index], "evaluate"));
-  if (m.status === "EVALUATING") {
-    mkBtn(t("btn_finalize"), () => doWrite("finalize_milestone", [BigInt(camp.id), index], "finalize"));
-    mkBtn(t("btn_challenge"), () => doWrite("challenge_milestone", [BigInt(camp.id), index], "challenge"));
+  if (m.status === "EVIDENCE_SUBMITTED") mkBtn(t("btn_review"), () => doWrite("review_milestone", [BigInt(camp.id), index], "review", 0n));
+  if (m.status === "MILESTONE_REVIEW") {
+    mkBtn(t("btn_confirm"), () => doWrite("confirm_milestone", [BigInt(camp.id), index], "confirm", 0n));
+    mkBtn(t("btn_challenge"), () => doWrite("challenge_milestone", [BigInt(camp.id), index], "challenge", CHALLENGE_STAKE_WEI));
   }
-  if (m.status === "FROZEN") mkBtn(t("btn_resolve"), () => doWrite("resolve_frozen", [BigInt(camp.id), index], "resolve"));
+  if (m.status === "FROZEN") mkBtn(t("btn_resolve"), () => doWrite("resolve_disputed_milestone", [BigInt(camp.id), index], "resolve", 0n));
   if (actions.children.length > 0) card.appendChild(actions);
   return card;
 }
@@ -266,15 +309,19 @@ async function requireWriter() {
   return testAccount.client;
 }
 
-async function doWrite(functionName, args, label) {
+async function doWrite(functionName, args, label, value = 0n) {
   try {
     const client = await requireWriter();
+    if (value > 0n) {
+      const bal = BigInt(await client.getBalance({ address: testAccount.address }));
+      if (bal < value) { story("story_error", `${t("err_need_faucet")} (${fmtGenWei(value)})`); return; }
+    }
     story("story_submitted");
-    const hash = await client.writeContract({ address: CFG.contractAddress, functionName, args, value: 0n, leaderOnly: false });
-    txFeedAdd({ hash, label, status: "submitted" });
+    const hash = await client.writeContract({ address: CFG.contractAddress, functionName, args, value, leaderOnly: false });
+    txFeedAdd({ hash, label, status: "submitted", valueWei: value > 0n ? value.toString() : null });
     story("story_waiting");
     const receipt = await client.waitForTransactionReceipt({ hash, status: TransactionStatus.FINALIZED, retries: 240, interval: 5000 });
-    txFeedAdd({ hash, label, status: receipt.statusName ?? "FINALIZED" });
+    txFeedAdd({ hash, label, status: receipt.statusName ?? "FINALIZED", valueWei: value > 0n ? value.toString() : null });
     story("story_finalized");
     await refreshAll();
   } catch (err) {
@@ -295,7 +342,7 @@ async function connectWallet() {
     walletAddress = accounts[0] || null;
     walletChainOk = parseInt(chainHex, 16) === CHAIN_ID;
     renderWallet();
-    await refreshMyBalance();
+    await refreshMyStanding();
   } catch (err) {
     story("story_error", humanError(err));
   }
@@ -347,9 +394,9 @@ function enableTestAccount() {
   const key = generatePrivateKey();
   const account = createAccount(key);
   testAccount = { address: account.address, client: createClient({ chain: studionet, account }) };
-  $("test-account-state").textContent = `${t("test_account_enabled")}: ${shortAddr(account.address)}`;
+  $("test-account-state").textContent = `${t("test_account_enabled")}: ${shortAddr(account.address)} — ${t("test_account_fund_hint")}`;
   $("btn-enable-test-account").disabled = true;
-  refreshMyBalance();
+  refreshMyStanding();
 }
 
 // --- forms ----------------------------------------------------------------------
@@ -357,46 +404,42 @@ function bindForms() {
   $("btn-connect-wallet").addEventListener("click", connectWallet);
   $("btn-switch-network").addEventListener("click", switchNetwork);
   $("btn-enable-test-account").addEventListener("click", enableTestAccount);
-  $("btn-claim-demo").addEventListener("click", async () => {
-    try {
-      const client = await requireWriter();
-      story("story_submitted");
-      const hash = await client.writeContract({ address: CFG.contractAddress, functionName: "claim_demo_funds", args: [], value: 0n, leaderOnly: false });
-      txFeedAdd({ hash, label: "claim_demo_funds", status: "submitted" });
-      await client.waitForTransactionReceipt({ hash, status: TransactionStatus.FINALIZED, retries: 120, interval: 5000 });
-      story("story_finalized", t("claim_done"));
-      await refreshAll();
-    } catch (err) {
-      story("story_error", humanError(err));
-    }
+  $("btn-withdraw").addEventListener("click", async () => {
+    await doWrite("withdraw_payout", [], "withdraw_payout", 0n);
+  });
+  $("back-amount").addEventListener("input", () => {
+    const wei = parseGenToWei($("back-amount").value);
+    $("back-preview").textContent = wei === null ? "" : `= ${fmtGenWei(wei)}`;
   });
   $("btn-create-campaign").addEventListener("click", async () => {
     const title = $("create-title").value.trim();
-    const goal = Number($("create-goal").value);
+    const goalWei = parseGenToWei($("create-goal").value);
     const milestones = [];
     let ok = true;
     document.querySelectorAll(".milestone-row").forEach((row) => {
       const mt = row.querySelector(".m-title").value.trim();
-      const ma = Number(row.querySelector(".m-amount").value);
-      if (mt && ma > 0) milestones.push({ title: mt, amount: ma });
+      const ma = parseGenToWei(row.querySelector(".m-amount").value);
+      if (mt && ma !== null) milestones.push({ title: mt, amount: ma.toString() });
+      else if (mt || (row.querySelector(".m-amount").value || "").trim()) ok = false;
     });
-    if (!title || !goal || milestones.length === 0) { story("story_error", t("err_need_amount")); return; }
-    if (milestones.reduce((s, m) => s + m.amount, 0) !== goal) { story("story_error", "milestone amounts must sum to goal"); return; }
-    await doWrite("create_campaign", [title, goal, JSON.stringify(milestones)], "create_campaign");
+    if (!title || goalWei === null || milestones.length === 0 || !ok) { story("story_error", t("err_need_amount")); return; }
+    if (milestones.reduce((s, m) => s + BigInt(m.amount), 0n) !== goalWei) { story("story_error", t("err_sum_mismatch")); return; }
+    if (goalWei % 2n !== 0n || milestones.some((m) => BigInt(m.amount) % 2n !== 0n)) { story("story_error", t("err_need_amount")); return; }
+    await doWrite("create_campaign", [title, goalWei.toString(), JSON.stringify(milestones)], "create_campaign", 0n);
   });
   $("btn-back").addEventListener("click", async () => {
     const camp = selectedCampaign();
     if (!camp) { story("story_error", t("err_no_campaign")); return; }
-    const amount = Number($("back-amount").value);
-    if (!amount || amount <= 0 || amount % 2 !== 0) { story("story_error", t("err_need_amount")); return; }
-    await doWrite("back", [BigInt(camp.id), amount], "back");
+    const amountWei = parseGenToWei($("back-amount").value);
+    if (amountWei === null || amountWei <= 0n) { story("story_error", t("err_need_amount")); return; }
+    await doWrite("back_campaign", [BigInt(camp.id)], "back_campaign", amountWei);
   });
   $("btn-submit-evidence").addEventListener("click", async () => {
     if (!evidenceTarget) return;
     const text = $("evidence-text").value.trim();
     const date = $("evidence-date").value;
     if (text.length < 20 || !date) { story("story_error", t("err_need_amount")); return; }
-    await doWrite("submit_milestone_evidence", [BigInt(evidenceTarget.campaignId), evidenceTarget.index, text, date], "submit_evidence");
+    await doWrite("submit_milestone_proof", [BigInt(evidenceTarget.campaignId), evidenceTarget.index, text, date], "submit_proof", 0n);
     $("evidence-box").style.display = "none";
   });
   $("btn-lang").addEventListener("click", () => {
@@ -415,6 +458,9 @@ function applyI18n() {
   });
   document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
   $("btn-lang").textContent = lang === "en" ? "中文" : "EN";
+  document.querySelectorAll("[data-i18n-href]").forEach((el) => {
+    el.href = el.dataset.i18nHref;
+  });
 }
 
 // --- boot -------------------------------------------------------------------------
@@ -423,6 +469,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("contract-link").textContent = shortAddr(CFG.contractAddress);
   $("source-link").href = CFG.repoUrl;
   $("network-note").textContent = "Stable Studionet · 61999";
+  document.querySelectorAll(".faucet-link").forEach((el) => { el.href = FAUCET_URL; });
   $("evidence-date").value = new Date().toISOString().slice(0, 10);
   applyI18n();
   bindForms();
