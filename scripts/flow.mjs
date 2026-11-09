@@ -87,20 +87,57 @@ const reader = clientFor(accountA); // reads need no specific account
 const txs = [];
 const failedCalls = [];
 const refundCredits = {}; // address -> wei refunded by rejected payable calls
-const eoaBalance = async (client, addr) => (await client.getBalance({ address: addr })).toString();
+/* Balance reads are retried too (same transient RPC failure class). */
+const eoaBalance = async (client, addr) => {
+  let lastErr = null;
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      return (await client.getBalance({ address: addr })).toString();
+    } catch (err) {
+      lastErr = err;
+      console.log(`getBalance RPC error (attempt ${attempt}/5): ${String((err && err.message) || err).slice(0, 160)} — retrying in 10s`);
+      if (attempt < 5) await sleep(10_000);
+    }
+  }
+  throw lastErr;
+};
 
 const STATUS = { 0: "UNINITIALIZED", 1: "PENDING", 2: "PROPOSING", 3: "COMMITTING", 4: "REVEALING", 5: "ACCEPTED", 6: "UNDETERMINED", 7: "FINALIZED", 8: "CANCELED" };
 const statusNameOf = (receipt) => receipt.statusName ?? STATUS[receipt.status] ?? String(receipt.status ?? "");
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/* Receipt waiting with retries. The Studionet RPC endpoint occasionally
+ * answers a poll with an HTML error page instead of JSON (observed
+ * 2026-11-10: viem UnknownRpcError "Unexpected token '<', '<!DOCTYPE '"
+ * during waitForTransactionReceipt). That is a transient infra failure,
+ * not a chain failure: the tx itself may already be FINALIZED. So a
+ * receipt wait must never kill the run on the first RPC error — retry
+ * the wait, and only give up after repeated failures. Receipt waiting
+ * is read-only, so retrying it can never double-submit. */
+async function waitReceipt(hash) {
+  let lastErr = null;
+  for (let attempt = 1; attempt <= 10; attempt++) {
+    try {
+      return await clientFor(accountA).waitForTransactionReceipt({
+        hash,
+        status: TransactionStatus.FINALIZED,
+        retries: 60,
+        interval: 5000,
+      });
+    } catch (err) {
+      lastErr = err;
+      console.log(`receipt wait RPC error (attempt ${attempt}/10, tx ${hash.slice(0, 18)}…): ${String((err && err.message) || err).slice(0, 200)} — retrying in 30s`);
+      if (attempt < 10) await sleep(30_000);
+    }
+  }
+  throw lastErr;
+}
+
 async function write(client, functionName, args, label, value = 0n, retries = 240) {
   const hash = await client.writeContract({ address, functionName, args, value, leaderOnly: false });
   console.log(`${label} tx:`, hash, value > 0n ? `(value ${genStr(value)} = ${weiStr(value)} wei)` : "");
-  const receipt = await client.waitForTransactionReceipt({
-    hash,
-    status: TransactionStatus.FINALIZED,
-    retries,
-    interval: 5000,
-  });
+  const receipt = await waitReceipt(hash);
   const statusName = statusNameOf(receipt);
   console.log(`${label} receipt:`, statusName);
   txs.push({
@@ -129,12 +166,7 @@ async function writeExpectRaise(client, functionName, args, label, value = 0n) {
     return { hash: null, error: msg };
   }
   console.log(`${label} tx (expected to fail on chain):`, hash);
-  const receipt = await client.waitForTransactionReceipt({
-    hash,
-    status: TransactionStatus.FINALIZED,
-    retries: 240,
-    interval: 5000,
-  });
+  const receipt = await waitReceipt(hash);
   const statusName = statusNameOf(receipt);
   console.log(`${label} receipt:`, statusName);
   failedCalls.push({ label, functionName, txHash: hash, receiptStatus: String(statusName), error: null, expectedOutcome: "raise" });
@@ -167,10 +199,22 @@ async function writeExpectReject(client, functionName, args, label, value, refun
   return { hash };
 }
 
+/* Reads are retried too: the same transient HTML-error RPC failure
+ * can hit a readContract call, and a read must never kill the run. */
 async function read(functionName, args = []) {
-  const raw = await reader.readContract({ address, functionName, args });
-  if (typeof raw === "string" && (raw.startsWith("{") || raw.startsWith("["))) return JSON.parse(raw);
-  return raw;
+  let lastErr = null;
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      const raw = await reader.readContract({ address, functionName, args });
+      if (typeof raw === "string" && (raw.startsWith("{") || raw.startsWith("["))) return JSON.parse(raw);
+      return raw;
+    } catch (err) {
+      lastErr = err;
+      console.log(`read ${functionName} RPC error (attempt ${attempt}/5): ${String((err && err.message) || err).slice(0, 160)} — retrying in 10s`);
+      if (attempt < 5) await sleep(10_000);
+    }
+  }
+  throw lastErr;
 }
 
 async function readCampaign(id) {
@@ -444,9 +488,19 @@ await write(clientFor(accountB), "back_campaign", [2n], "back2-B-4GEN", 4n * GEN
 
 // --- 10. wait for the UTC date to roll over (challenge window) -----------------
 async function utcDateFromApi() {
-  const res = await fetch("https://timeapi.io/api/Time/current/zone?timeZone=UTC");
-  const data = await res.json();
-  return String(data.dateTime).slice(0, 10);
+  let lastErr = null;
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      const res = await fetch("https://timeapi.io/api/Time/current/zone?timeZone=UTC");
+      const data = await res.json();
+      return String(data.dateTime).slice(0, 10);
+    } catch (err) {
+      lastErr = err;
+      console.log(`timeapi.io error (attempt ${attempt}/5): ${String((err && err.message) || err).slice(0, 160)} — retrying in 30s`);
+      if (attempt < 5) await sleep(30_000);
+    }
+  }
+  throw lastErr;
 }
 {
   const reviewDate = EVIDENCE_DATE;
@@ -646,6 +700,12 @@ const evidence = {
       deployTxHash: "0x719457a3510a9328ebf2e93dbcf3421cbfce0071873e29d9b9846439cefdef49",
       status: "superseded",
       reason: "Replaced: its payable entry points raised on invalid input, and on Studionet a raising payable keeps the value while the state reverts — a 1 GEN backing sent to a fully funded campaign was observed stranded in the contract (tx 0x34e1b390372c1fb140c5491fe55e9484dd3cf37bf86ee6f14dd3c19d5ac10664). The rescued contract rejects invalid payables with the full value credited back.",
+    },
+    {
+      address: "0xF9A21019c1CBCE523eBAE0151745128AbEDF87d5",
+      deployTxHash: "0xe82a8f631e353aee68c9c6b5c5ff4c8851cd3c622429c04be435b2f8b841a5bd",
+      status: "superseded",
+      reason: "Replaced, identical source: the evidence run on this contract was interrupted mid-phase-1 by a transient RPC failure (the endpoint answered a receipt poll with an HTML error page; viem UnknownRpcError). The process exited and the ephemeral creator/backer keys were lost with it, so campaign 0 (20 GEN escrow, 3 GEN refund credits) is stranded with no actor able to confirm or challenge it. The interrupted run itself proved the v2 refund path: the wrong-stake challenge tx 0x20d89b1125dc61f5918a7fc3e6c1f6c99482ae0934bc25fa87ea189b09fa5fa6 FINALIZED and its full 2 GEN was credited back (B credit read back as 3 GEN), and the review of c0 m0 returned ACCEPT with snapshot hash 11c627af… and GitHub SHA 6f51fc51… matching the delivery file. The flow was hardened with receipt/read/balance retries before this redeploy.",
     },
   ],
   checkedAt: new Date().toISOString(),
