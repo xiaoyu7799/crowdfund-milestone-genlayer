@@ -263,7 +263,9 @@ Each round runs the same adjudication:
      independently checkable detail beyond the claim: a commit SHA,
      a version or tag, a dated log line, a measurement with units,
      or a second checkable link. A bare count of items named in the
-     milestone title does not count.
+     milestone title does not count. The detail must be about this
+     milestone's deliverable; detail about an unrelated topic does
+     not count.
    The LLM also returns one quotation copied character for character
    from the snapshot, plus one rationale sentence. The creator's
    evidence text is not in the prompt at all.
@@ -285,8 +287,17 @@ A validator accepts a leader result only if ALL of these hold:
    independently queried GitHub API value, exactly;
 6. the leader's `quote` is a verbatim substring of the validator's
    own snapshot;
-7. the leader's three flags equal the validator's own three flags,
-   exactly — flag for flag.
+7. the verdict derived from the leader's three flags equals the
+   verdict derived from the validator's own three flags, exactly.
+   The raw flags need not be identical: the money follows the
+   verdict, and two validators may legitimately disagree on one
+   diagnostic flag while agreeing on the verdict. Observed on chain
+   2026-11-10: an unrelated real page split validators between
+   [false, false, false] and [false, false, true] — both REJECT —
+   and the earlier flag-exact check deadlocked that milestone for
+   three rounds with no verdict and no way forward. A split that
+   changes the verdict (e.g. REJECT vs ACCEPT) still fails
+   consensus, by design, rather than paying out on a coin flip.
 
 The rationale is leader-provided witness text for humans to read. It
 is not used for the verdict and is not part of the consensus check.
@@ -304,14 +315,19 @@ leader outputs be, if both pass validation?
   `ACCEPT` iff flags = [true, true, true]; `PARTIAL` iff exactly two
   are true; `REJECT` otherwise. There are 8 possible flag vectors
   and 3 possible verdicts.
-- Validation requires the leader's flag vector to equal the
-  validator's own independently produced vector, exactly. So a leader
-  proposing [true, true, false] (PARTIAL) passes a given validator
-  only if that validator's own run also produced [true, true, false].
-  A leader proposing [true, true, true] (ACCEPT) passes the same
-  validator only if its own run produced [true, true, true]. Both
-  cannot pass the same validator, because the validator's own vector
-  is one specific vector.
+- Validation requires the verdict derived from the leader's flag
+  vector to equal the verdict derived from the validator's own
+  independently produced vector, exactly. The raw vectors may
+  differ: a leader proposing [false, false, false] (REJECT) and a
+  leader proposing [false, false, true] (REJECT) both pass a
+  validator whose own run produced either vector. The recorded flags
+  are the settling leader's; the verdict — the only thing the money
+  follows — is the same either way.
+- A leader proposing [true, true, false] (PARTIAL) and a leader
+  proposing [true, true, true] (ACCEPT) cannot both pass the same
+  validator, because the validator's own verdict is one specific
+  verdict. Whichever verdict the validators independently converge
+  on is the only one that can settle.
 - The same exactness holds for the fetched facts: the snapshot hash,
   snapshot length and GitHub SHA must equal the validator's own
   fetch, so two compatible outputs cannot rest on different page
@@ -331,16 +347,24 @@ leader outputs be, if both pass validation?
   release 8 GEN. Leader Y reports [T, T, F] → PARTIAL, release
   4 GEN + refund 4 GEN. Both are plausible LLM outputs for
   borderline evidence. Can both pass? No: each validator accepts at
-  most the vector it produced itself. Whichever vector the validators
+  most the verdict it produced itself. Whichever verdict the validators
   independently converge on is the only one that can settle. The
   other is rejected by validation and the milestone stays open —
-  retryable, never silently settled with the losing verdict.
+  retryable, never silently settled with the losing verdict. The
+  residual risk is the mirror image: if validators split across a
+  verdict boundary and never converge, the milestone stays open
+  indefinitely (no confirm, no challenge, funds escrowed) — a
+  liveness limitation, not a safety hole: nothing can be paid out
+  without a converged verdict. That is the documented outcome of
+  the 2026-11-10 c1-m1 case under the old flag-exact check; the
+  verdict-level check removes the deadlock whenever the split is
+  inside one verdict.
 - Therefore the maximum spread between two validator-compatible leader
-  outputs is: **0 in flags, 0 in verdict, 0 GEN in released amount,
-  0 GEN in refunded amount.** There is no tolerance band to straddle,
-  because there is no band at all — agreement is exact, and the
-  verdict is computed from the agreed flags rather than taken from
-  the LLM.
+  outputs is: **flags may differ within one verdict, 0 in verdict,
+  0 GEN in released amount, 0 GEN in refunded amount.** There is no
+  tolerance band to straddle, because there is no band at all —
+  agreement on the verdict is exact, and the verdict is computed
+  from the flags rather than taken from the LLM.
 - The money side has no second spread source either. The release and
   refund amounts are deterministic functions of the (unique) verdict
   and the (stored) milestone amount: ACCEPT → amount, PARTIAL →

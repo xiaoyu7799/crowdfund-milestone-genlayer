@@ -782,6 +782,69 @@ check("failed review leaves milestone EVIDENCE_SUBMITTED",
       and camp8["milestones"][1]["evaluations"] == [], str(camp8["milestones"][1]["status"]))
 check("invariant holds after anchor tests", invariant(c8))
 
+# Consensus is over the VERDICT, not the raw flags (observed on chain
+# 2026-11-10: an unrelated real page split validators between
+# [false,false,false] and [false,false,true] — both REJECT — and the
+# flag-exact check deadlocked the milestone for three rounds).
+# Leader [F,F,F] vs validator [F,F,T]: same verdict REJECT -> converges.
+_Nondet.flag_queue = []
+_Web.current_date = "2026-11-09"
+c8b = mf.MilestoneFund()
+c8b.__init__()
+set_sender(A)
+json.loads(c8b.create_campaign("Verdict consensus", str(20 * GEN), json.dumps([
+    {"title": "Dashboard live", "amount": str(10 * GEN)},
+    {"title": "Field report published", "amount": str(10 * GEN)},
+])))
+set_sender(B, 20 * GEN)
+json.loads(c8b.back_campaign(0))
+set_sender(A)
+json.loads(c8b.submit_milestone_proof(
+    0, 0, "Dashboard live: the dashboard is up and serving charts for backers.",
+    "2026-11-09", GOOD_URL))
+json.loads(c8b.submit_milestone_proof(
+    0, 1, "Field report published: the garden field report is ready to share.",
+    "2026-11-09", PARTIAL_URL))
+_Nondet.flag_queue = [["false", "false", "false"], ["false", "false", "true"]]
+set_sender(B)
+r = json.loads(c8b.review_milestone(0, 0))
+check("flag split, same verdict REJECT -> review converges",
+      r["pending_verdict"] == "REJECT", str(r))
+# Leader [T,T,F] vs validator [T,F,T]: same verdict PARTIAL -> converges.
+_Nondet.flag_queue = [["true", "true", "false"], ["true", "false", "true"]]
+r = json.loads(c8b.review_milestone(0, 1))
+check("flag split, same verdict PARTIAL -> review converges",
+      r["pending_verdict"] == "PARTIAL", str(r))
+# A split that changes the verdict must still fail consensus, by
+# design: no payout on a coin flip. Leader ACCEPT vs validator REJECT.
+c8c = mf.MilestoneFund()
+c8c.__init__()
+set_sender(A)
+json.loads(c8c.create_campaign("Verdict split", str(10 * GEN), json.dumps([
+    {"title": "Dashboard live", "amount": str(10 * GEN)},
+])))
+set_sender(B, 10 * GEN)
+json.loads(c8c.back_campaign(0))
+set_sender(A)
+json.loads(c8c.submit_milestone_proof(
+    0, 0, "Dashboard live: the dashboard is up and serving charts for backers.",
+    "2026-11-09", GOOD_URL))
+_Nondet.flag_queue = [["true", "true", "true"], ["false", "false", "false"]]
+set_sender(B)
+try:
+    c8c.review_milestone(0, 0)
+    check("verdict split ACCEPT vs REJECT -> consensus fails", False, "(no error raised)")
+except RuntimeError as exc:
+    # The mock raises RuntimeError for a failed consensus (on chain the
+    # tx simply does not apply state); anything else is a real bug.
+    check("verdict split ACCEPT vs REJECT -> consensus fails",
+          "mock consensus: validate() rejected leader" in str(exc), str(exc))
+camp8c = json.loads(c8c.get_campaign(0))
+check("verdict split leaves milestone EVIDENCE_SUBMITTED",
+      camp8c["milestones"][0]["status"] == "EVIDENCE_SUBMITTED"
+      and camp8c["milestones"][0]["evaluations"] == [], str(camp8c["milestones"][0]["status"]))
+check("invariant holds after verdict-consensus tests", invariant(c8b) and invariant(c8c))
+
 # ---------------------------------------------------------------------------
 # 11. failed payables never swallow GEN: invalid backings and challenges
 #     are rejected with the full value credited back (platform fact:

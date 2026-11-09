@@ -1,7 +1,7 @@
 // MilestoneFund site config. Filled in after deployment; the contract
 // address below must match deployment.json exactly.
 window.MF_CONFIG = {
-  contractAddress: "0x9C2C01a1814a109Ef76167d5E13E15d3B7dbB26E",
+  contractAddress: "0x548A3cC8e8841C4F1668A32C92dF03311012d5D9",
   repoUrl: "https://github.com/xiaoyu7799/crowdfund-milestone-genlayer",
   chainId: 61999,
   rpcUrl: "https://studio.genlayer.com/api",

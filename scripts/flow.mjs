@@ -299,9 +299,9 @@ await submitProof(clientFor(accountA), 0, 1, E1, URL_EXAMPLE, "proof-c0-m1");
 await submitProof(clientFor(accountA), 0, 2, E2, URL_REPORT, "proof-c0-m2");
 
 // --- 4. review helper (retryable by design: a failed consensus leaves
-//        the milestone EVIDENCE_SUBMITTED; retry at most twice, then stop) --
+//        the milestone EVIDENCE_SUBMITTED; retry at most four times, then stop) --
 async function review(client, campId, index, label, expectedVerdict) {
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 1; attempt <= 5; attempt++) {
     const { hash } = await write(client, "review_milestone", [BigInt(campId), index], `${label}-attempt${attempt}`, 0n, 240);
     const camp = await readCampaign(campId);
     const m = camp.milestones[index];
@@ -313,7 +313,7 @@ async function review(client, campId, index, label, expectedVerdict) {
       return { camp, hash };
     }
     console.log(`${label}: attempt ${attempt} did not reach MILESTONE_REVIEW (status ${m.status}); tx ${hash}`);
-    if (attempt === 3) throw new Error(`${label} failed consensus 3 times; stopping — see tx ${hash}`);
+    if (attempt === 5) throw new Error(`${label} failed consensus 5 times; stopping — see tx ${hash}`);
   }
 }
 
@@ -702,10 +702,10 @@ const evidence = {
       reason: "Replaced: its payable entry points raised on invalid input, and on Studionet a raising payable keeps the value while the state reverts — a 1 GEN backing sent to a fully funded campaign was observed stranded in the contract (tx 0x34e1b390372c1fb140c5491fe55e9484dd3cf37bf86ee6f14dd3c19d5ac10664). The rescued contract rejects invalid payables with the full value credited back.",
     },
     {
-      address: "0xF9A21019c1CBCE523eBAE0151745128AbEDF87d5",
-      deployTxHash: "0xe82a8f631e353aee68c9c6b5c5ff4c8851cd3c622429c04be435b2f8b841a5bd",
+      address: "0x9C2C01a1814a109Ef76167d5E13E15d3B7dbB26E",
+      deployTxHash: "0x046ab4b1e7e2cb498502dd603b26977878919b2e058101e1ff42212ce55e586c",
       status: "superseded",
-      reason: "Replaced, identical source: the evidence run on this contract was interrupted mid-phase-1 by a transient RPC failure (the endpoint answered a receipt poll with an HTML error page; viem UnknownRpcError). The process exited and the ephemeral creator/backer keys were lost with it, so campaign 0 (20 GEN escrow, 3 GEN refund credits) is stranded with no actor able to confirm or challenge it. The interrupted run itself proved the v2 refund path: the wrong-stake challenge tx 0x20d89b1125dc61f5918a7fc3e6c1f6c99482ae0934bc25fa87ea189b09fa5fa6 FINALIZED and its full 2 GEN was credited back (B credit read back as 3 GEN), and the review of c0 m0 returned ACCEPT with snapshot hash 11c627af… and GitHub SHA 6f51fc51… matching the delivery file. The flow was hardened with receipt/read/balance retries before this redeploy.",
+      reason: "Replaced: its flag-exact consensus check deadlocked the c1 m1 review — the unrelated real page (sensor-kits delivery file for a Dashboard milestone) split validators between [false,false,false] and [false,false,true], both REJECT, and three review attempts all failed to reach MILESTONE_REVIEW (txs 0x153b0b6d…, 0x77ce5184…, 0x4ebbb48c…; milestone left EVIDENCE_SUBMITTED with 0 evaluations). The replacement validates the VERDICT derived from the flags, not the raw flags, and clarifies that corroborating detail must be about this milestone. Stranded on this contract (faucet GEN, keys lost with the crashed flow process): 33 GEN received, 17 GEN credits outstanding, 16 GEN escrow locked, invariant_ok true. The run otherwise proved the mechanism end to end: c0 m0 ACCEPT + challenge FAILED (9 GEN to creator), c0 m1 REJECT (example.org + injection), c0 m2 PARTIAL, c1 m0 REJECT then challenge WON_FROZEN (0.5 GEN reward) then resolve RELEASED ACCEPT (3.5 GEN to creator).",
     },
   ],
   checkedAt: new Date().toISOString(),
