@@ -96,7 +96,7 @@ class _Nondet:
 
 
 class _Message:
-    sender_address = "0x0000000000000000000000000000000000000000"
+    sender_address = "0x1111111111111111111111111111111111111111"
 
 
 class _ContractBase:
