@@ -10,5 +10,7 @@
   "contractFile": "contracts/milestone_fund.py",
   "contractSha256": "3972276b602963ae8ccddd297984cfc5c78d6e8bdb2e52fc98024482a88c4bf4",
   "deployedAt": "2026-11-09T07:51:03.009Z",
-  "receiptStatus": "FINALIZED"
+  "receiptStatus": "FINALIZED",
+  "deploySourceCommit": "16fd8ff33b4f60726d6f7f6e054299e88fc26fe3",
+  "deploySourceCommitNote": "contracts/milestone_fund.py at this commit hashes to contractSha256; the file is identical in later commits unless the hash changes."
 }
