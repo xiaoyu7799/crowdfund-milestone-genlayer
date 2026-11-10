@@ -582,7 +582,7 @@ function applyI18n() {
 // --- boot -------------------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
   $("contract-link").href = EXPLORER_ADDR + CFG.contractAddress;
-  $("contract-link").textContent = shortAddr(CFG.contractAddress);
+  $("contract-link").textContent = CFG.contractAddress;
   $("source-link").href = CFG.repoUrl;
   $("network-note").textContent = "Stable Studionet · 61999";
   document.querySelectorAll(".faucet-link").forEach((el) => { el.href = FAUCET_URL; });
