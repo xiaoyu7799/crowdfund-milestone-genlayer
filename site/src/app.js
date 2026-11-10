@@ -577,12 +577,17 @@ function applyI18n() {
   document.querySelectorAll("[data-i18n-href]").forEach((el) => {
     el.href = el.dataset.i18nHref;
   });
+  // The story line is state, not a static label: a language toggle must
+  // not reset it to "loading" after a FINALIZED readback exists.
+  if (lastReadback) story("story_ready");
 }
 
 // --- boot -------------------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
+  // Footer link href stays in sync with config; the visible address text
+  // is static HTML (docs/index.html) and JS never overwrites it, so no
+  // bundle version can truncate it again.
   $("contract-link").href = EXPLORER_ADDR + CFG.contractAddress;
-  $("contract-link").textContent = CFG.contractAddress;
   $("source-link").href = CFG.repoUrl;
   $("network-note").textContent = "Stable Studionet · 61999";
   document.querySelectorAll(".faucet-link").forEach((el) => { el.href = FAUCET_URL; });
