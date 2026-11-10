@@ -5,6 +5,11 @@ after a FINALIZED transaction. There is no other source: no static
 data, no seed data, no local simulation, no locally computed
 allocation, no default that looks like a value.
 
+Reads are pinned to FINALIZED: `site/src/app.js` passes
+`transactionHashVariant: "latest-final"` on every `readContract`
+call, because genlayer-js defaults to `"latest-nonfinal"`, which can
+return state from a transaction that has not finalized yet.
+
 ## How the page boots (cold start)
 
 1. The page loads with empty containers: no campaign title, no raised

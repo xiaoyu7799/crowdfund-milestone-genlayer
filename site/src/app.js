@@ -93,7 +93,12 @@ function txFeedAdd(entry) {
 
 // --- reads ------------------------------------------------------------------
 async function read(fn, args = []) {
-  const raw = await reader.readContract({ address: CFG.contractAddress, functionName: fn, args });
+  // Gate 11: reads must be FINALIZED. genlayer-js defaults readContract
+  // to transactionHashVariant "latest-nonfinal", which can return state
+  // from a transaction that has not finalized yet — so pin every read
+  // to "latest-final". Verified live: latest-final returns the same
+  // get_count / get_totals as the default on the current contract.
+  const raw = await reader.readContract({ address: CFG.contractAddress, functionName: fn, args, transactionHashVariant: "latest-final" });
   if (typeof raw === "string") {
     try { return JSON.parse(raw); } catch { return raw; }
   }
