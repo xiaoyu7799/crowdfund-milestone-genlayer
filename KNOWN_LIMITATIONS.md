@@ -1,15 +1,20 @@
 # Known limitations
 
 - The verdict is only as good as the validators' independent agreement
-  on three binary snapshot criteria. Exact flag agreement pins the
+  on three binary snapshot criteria. Verdict-level agreement pins the
   verdict to a single value (see `docs/mechanism.md`), but it cannot
   force the underlying LLM judgement to be right: if a majority of
   validators independently misjudge the same evidence the same way,
   the wrong verdict settles. The challenge round is the counterweight.
-- Borderline evidence may need retries. When validators disagree on
-  even one flag, or fetch different snapshot bytes, review fails
-  consensus and the milestone stays open; this is the mechanism
-  working, not a bug.
+- Borderline evidence may need retries. When validators split across
+  a verdict boundary, review fails consensus and the milestone stays
+  open; this is the mechanism working, not a bug. Observed on chain:
+  the unrelated-page case (a real delivery file for the wrong
+  milestone) took 4 review attempts to converge on `REJECT`. The
+  retry budget is 5 attempts; if validators never converge on one
+  verdict, the milestone stays open with its funds escrowed — a
+  liveness limitation, not a safety hole, since nothing can be paid
+  out without a converged verdict.
 - Only the first 4000 characters of a fetched reference are judged.
   Delivery records kept for this contract are short, so the whole
   record is judged; a longer page's tail does not count towards the
