@@ -48,6 +48,7 @@
  * expectations to match. Expected credits are recomputed from the live
  * campaign records, not hardcoded, so either challenge branch verifies.
  */
+import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -57,6 +58,9 @@ import { TransactionStatus } from "genlayer-js/types";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const deployment = JSON.parse(readFileSync(path.join(root, "deployment.json"), "utf-8"));
+const sourceSha = createHash("sha256").update(readFileSync(path.join(root, "contracts/milestone_fund.py"))).digest("hex");
+if (sourceSha !== deployment.contractSha256) throw new Error("Historical flow does not validate the updated paired-challenge source. New deployment and targeted live scenarios are required; no transaction submitted.");
+if (!process.argv.includes("--submit")) throw new Error("Explicit --submit required for live writes");
 const address = process.env.CONTRACT_ADDRESS || deployment.contractAddress;
 if (!address) throw new Error("No contract address: set CONTRACT_ADDRESS or run deploy first");
 
@@ -711,7 +715,7 @@ const evidence = {
       address: "0x548A3cC8e8841C4F1668A32C92dF03311012d5D9",
       deployTxHash: "0xbdc2186d53cc7a11b4672e105a85e8a948d46ab7f1cb43e385b25bac41f2d3c5",
       status: "superseded",
-      reason: "Replaced: the evidence run on this contract completed phase 1 perfectly (all reviews converged on attempt 1, including c1-m1 REJECT — the verdict-level consensus fix proven on chain), but the flow process was killed externally while waiting for the UTC rollover (~22:50 UTC; the long monitor was SIGTERM'd at the same time) and the ephemeral keys were lost with it, so phase 2 could not run. Stranded (faucet GEN, verified from evidence/phase1.json and chain readback): 45 GEN received, 29 GEN credits outstanding, 16 GEN escrow locked, invariant_ok true; 34 transactions, 8 failed calls. Full phase-1 record archived as flow-v3-phase1-killed.log and phase1-v3-contract-0x548A.json. Lesson recorded in WORK_LOG.md §11: no more nohup launches for the long run — the flow must run as a tracked background exec, started late enough that the rollover wait is under an hour.",
+      reason: "Replaced after a process interruption during the UTC confirmation window caused ephemeral signer loss. The unfinished deployment retains 45 GEN received, 29 GEN credits outstanding and 16 GEN escrow locked, with invariant_ok true. The original 34 transactions and 8 failed calls remain historical evidence; no phase-2 completion is claimed.",
     },
   ],
   checkedAt: new Date().toISOString(),

@@ -24,6 +24,14 @@ const code = readFileSync(codePath, "utf-8");
 const codeSha = createHash("sha256").update(code).digest("hex");
 console.log("Source SHA-256:", codeSha);
 
+if (!process.argv.includes("--submit")) {
+  const client = createClient({ chain: studionet });
+  const chainId = Number(await client.request({method: "eth_chainId"}));
+  if (chainId !== 61999) throw new Error(`Wrong chain: ${chainId}`);
+  console.log(JSON.stringify({sourceSha256: codeSha, chainId, rpc: "https://studio.genlayer.com/api", submission: false}));
+  process.exit(0);
+}
+
 const suppliedKey = process.env.GENLAYER_PRIVATE_KEY;
 const privateKey = suppliedKey || generatePrivateKey();
 if (!suppliedKey) {

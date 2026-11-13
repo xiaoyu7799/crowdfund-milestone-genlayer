@@ -61,9 +61,12 @@
         <p class="fineprint" data-i18n="faucet_note">The faucet is the only way to get GEN. There is no in-app claim.</p>
       </div>
       <div class="wallet-card">
-        <p class="card-title" data-i18n="test_account_title">Temporary test account</p>
-        <p class="fineprint" data-i18n="test_account_note">Writes use an in-browser temporary test account. Its key never leaves this browser and is discarded when you close the page. It is never presented as your wallet signature.</p>
-        <button id="btn-enable-test-account" class="btn" type="button" data-i18n="btn_enable_test_account">Enable temporary test account</button>
+        <p class="card-title" data-i18n="test_account_title">Recoverable test signer</p>
+        <p class="fineprint">Historical contract: updated-source writes await redeployment. / 历史合约：新版需重新部署后才能写入。</p>
+        <p class="fineprint" data-i18n="test_account_note">Password-encrypted signer saved in this browser. Export a backup and keep the password to recover it.</p>
+        <button id="btn-export-signer" class="btn" type="button">Export encrypted signer / 导出加密账号</button>
+        <label>Import encrypted signer / 导入加密账号 <input id="import-signer" type="file" accept="application/json"></label>
+        <button id="btn-enable-test-account" class="btn" type="button" data-i18n="btn_enable_test_account">Create / unlock signer</button>
         <p id="test-account-state" class="fineprint"></p>
       </div>
     </div>
@@ -204,6 +207,6 @@
   <p class="fineprint" data-i18n="footer_note">MilestoneFund runs only on GenLayer Stable Studionet, chain 61999, RPC https://studio.genlayer.com/api. Real testnet GEN, free from the faucet.</p>
 </footer>
 
-<script type="module" src="app.bundle.js?v=9b941029da3d"></script>
+<script type="module" src="app.bundle.js?v=2e2122fcdf90"></script>
 </body>
 </html>

@@ -1,0 +1,58 @@
+{
+  "scope": "local deterministic and mocked consensus tests; not live transaction evidence",
+  "sourceSha256": "a7c44f23e733f9022e6bdb67a3d5140d271635160cd4f5cf65042ed9ac1e7192",
+  "historicalDeploymentUnchanged": true,
+  "newDeploymentRequired": true,
+  "checks": [
+    {
+      "command": "npm test",
+      "contractChecksPassed": 212,
+      "contractChecksFailed": 0,
+      "dossierChecksPassed": 8,
+      "signerTestsPassed": 2
+    },
+    {
+      "command": "npm run build-site",
+      "result": "PASS",
+      "bundleVersion": "2e2122fcdf90",
+      "footerMatchesHistoricalConfig": true
+    },
+    {
+      "command": "npm run i18n",
+      "result": "PASS",
+      "enKeys": 125,
+      "zhKeys": 125,
+      "usedKeys": 70
+    },
+    {
+      "command": "python3 -m py_compile contracts/milestone_fund.py",
+      "result": "PASS"
+    },
+    {
+      "command": "node scripts/deploy.mjs --check",
+      "result": "PASS",
+      "chainId": 61999,
+      "transactionsSubmitted": 0
+    },
+    {
+      "command": "node scripts/flow.mjs",
+      "result": "EXPECTED_REFUSAL",
+      "reason": "Updated source does not match historical deployment; no transaction submitted"
+    },
+    {
+      "command": "python3 tests/browser_signer.py",
+      "result": "BLOCKED",
+      "reason": "Chromium process startup failed: socket() Operation not permitted; ptrace Operation not permitted",
+      "interactionAssertionsRun": false
+    }
+  ],
+  "baseline": {
+    "contractChecksPassed": 179,
+    "contractChecksFailed": 0
+  },
+  "liveValidation": {
+    "updatedContractDeployed": false,
+    "updatedContractTransactions": [],
+    "historicalAddressIsNewVersionEvidence": false
+  }
+}

@@ -1,3 +1,11 @@
+# Current source and historical evidence
+
+This mechanism describes the updated source. The existing deployment and
+receipts are historical and require a new deployment before these paths can
+be verified live. Original reference content is fetched again for challenges;
+mutable URLs can change after round 1. Hashes preserve each round's witness,
+not a permanent archive of external content.
+
 # MilestoneFund mechanism
 
 ## Goal
@@ -148,9 +156,9 @@ on a contradicting challenge, resolved by a third review.
   allocation, so the settlement pool is the milestone amount plus
   1 GEN, split by the same verdict rules. Successful challenge
   (verdicts differ): the milestone freezes, the stake returns plus a
-  0.5 GEN reward (`500000000000000000` wei) taken from the milestone
+  reward capped at min(0.5 GEN, milestone amount, available escrow), rounded down to even wei taken from the milestone
   escrow, and the remaining settlement pool is the milestone amount
-  minus 0.5 GEN. Both 1 GEN and 0.5 GEN are even wei, so a
+  minus the actual reward. Stake and reward are even wei, so a
   challenge-adjusted settlement stays even and its PARTIAL split
   stays exact.
 - `withdraw_payout()`: pull payment. The caller's whole credit is
@@ -208,9 +216,9 @@ exactly 1 GEN sent with the call.
 | Operation | Who may call it | What a stranger gets |
 |---|---|---|
 | `create_campaign` | anyone (becomes the creator) | — |
-| `back_campaign` | anyone | — |
+| `back_campaign` | anyone except the creator | self-backing payment credited back |
 | `submit_milestone_proof` | only the campaign creator | `only_creator_submits_evidence` |
-| `review_milestone` | only a backer of the campaign | `only_backer_reviews` |
+| `review_milestone` | only a backer other than the creator | `only_backer_reviews` |
 | `confirm_milestone` | only a backer, not the creator, and only from the next UTC day after `review_date` | `only_backer_confirms` / `creator_cannot_confirm_own_release` / `challenge_window_open` |
 | `challenge_milestone` | only a backer, not the creator, with exactly 1 GEN and new counter-evidence | `only_backer_challenges` / `creator_cannot_challenge_own_milestone` / `challenge_stake_must_be_1_gen` |
 | `resolve_disputed_milestone` | only a backer, not the creator | `only_backer_resolves` / `creator_cannot_resolve_own_dispute` |
@@ -225,10 +233,14 @@ the verdict was made.
 ## Review (nondet + consensus)
 
 `review_milestone` (round 1) judges the milestone's own evidence.
-`challenge_milestone` (round 2) judges the challenger's NEW
-counter-evidence — never the round-1 input again. A challenge that
+`challenge_milestone` (round 2) fetches original and new counter-evidence
+and evaluates them together. A separate `rebuts_original` flag must be
+true under independent validator agreement: unrelated pages, placeholders
+and corroboration without corrective facts are rejected with the stake
+credited back. Both snapshot hashes, GitHub SHAs and verbatim quotes are
+checked. The original quote and rebuttal flag are included in the witness. A challenge that
 disagrees freezes the milestone; `resolve_disputed_milestone`
-(round 3) re-fetches and re-judges the challenger's evidence and its
+(round 3) re-fetches and compares both evidence references and its
 verdict is the tie-break. All three rounds stay in the record as
 witness.
 
@@ -369,8 +381,9 @@ leader outputs be, if both pass validation?
   refund amounts are deterministic functions of the (unique) verdict
   and the (stored) milestone amount: ACCEPT → amount, PARTIAL →
   amount/2 + amount/2 (exact, amount is even wei), REJECT → 0 +
-  amount. The challenge adjustments are fixed constants (1 GEN stake,
-  0.5 GEN reward), not voted on. Pro-rata refunds are computed once,
+  amount. The challenge stake is 1 GEN; its reward is deterministically
+  capped at min(0.5 GEN, milestone amount, available escrow), rounded down
+  to even wei. Neither amount is voted on. Pro-rata refunds are computed once,
   in the contract, after consensus, under a fixed remainder rule —
   validators never vote on the split.
 - Date spread: the current date must match exactly across leader and
@@ -402,22 +415,22 @@ leader outputs be, if both pass validation?
 - A backer other than the creator may challenge first with
   `challenge_milestone`, sending exactly 1 GEN and submitting NEW
   counter-evidence (text, date and reference URL). Round 2 judges
-  only that new input.
+  both fetched references, requiring a substantive rebuttal.
 - Challenge runs a second independent review (round 2). If the
   second verdict equals the first, the challenge fails: the verdict
   settles immediately and the 1 GEN stake is forfeited into the
   milestone's allocation. If it differs, the milestone freezes with
   both verdicts kept as witness, the challenger is credited the
-  1 GEN stake plus a 0.5 GEN reward from escrow, and no settlement
+  1 GEN stake plus a reward bounded by 0.5 GEN and the milestone's available escrow, and no settlement
   happens yet.
 - A frozen milestone is resolved by `resolve_disputed_milestone`
   (round 3), called by a backer other than the creator. The third
-  review re-fetches and re-judges the challenger's evidence; its
+  review re-fetches and compares both evidence references; its
   verdict is the tie-break and settles the milestone over the shrunk
-  pool (milestone amount minus 0.5 GEN); all three review rounds stay
+  pool (milestone amount minus actual reward); all three review rounds stay
   in the record as witness. A settled verdict is never overwritten.
 
-## Cancellation (every non-terminal state has an exit)
+## Cancellation before evidence submission
 
 - `FUNDING`: the creator, or any backer, may cancel. Every backer is
   credited their full backing, escrow drains to zero, the campaign

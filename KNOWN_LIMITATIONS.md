@@ -45,3 +45,14 @@
 - GEN here is testnet GEN on Stable Studionet, free from the faucet
   with zero cash cost. Amounts are wei integers (1 GEN = 10^18 wei);
   the site and the contract display both GEN and wei.
+
+- Updated source has not been deployed. Historical receipts are preserved and
+  cannot be used as evidence of the new challenge/reward/role checks.
+- Rebuttal relevance is a semantic consensus decision. Local fixtures test the
+  decision gate and independent validation; they do not establish real model
+  accuracy. Both references are re-fetched on rounds 2 and 3; mutable URLs can
+  change. A counter page that stops being a valid rebuttal cannot resolve a
+  frozen dispute until valid evidence is available again.
+- The browser stores only a password-encrypted signer backup (PBKDF2-SHA256,
+  310000 iterations, AES-256-GCM). Export it before clearing browser data and
+  retain the password. An unlocked or compromised browser can expose the key.

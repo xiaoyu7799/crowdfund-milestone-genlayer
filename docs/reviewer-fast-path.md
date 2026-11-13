@@ -1,3 +1,10 @@
+# Version notice
+
+The address, balances and live checks below describe the historical deployment.
+They do not verify the updated contract. The updated source needs a new deployment
+and finalized successful transaction receipts plus state readback. Local test
+results and source hash are in `../evidence/local-validation.json`.
+
 # Reviewer fast path
 
 Fastest way to recheck this project end to end (~5 minutes, read-only).
@@ -9,7 +16,7 @@ Fastest way to recheck this project end to end (~5 minutes, read-only).
 - Open the explorer link in `deployment.json` and confirm the deploy
   transaction is `FINALIZED`.
 - Recompute the source hash:
-  `sha256sum contracts/milestone_fund.py` — it must equal
+  `git show 8a0c40f:contracts/milestone_fund.py | sha256sum` — the historical source must equal
   `contractSha256` in `deployment.json`, and `deployedCodeSha256`
   must equal it too (the deployed code was read back with
   `gen_getContractCode` and compared byte for byte).
@@ -58,7 +65,7 @@ With `genlayer-js` (or any Studionet RPC client) against
   contracts are noted there with address, deploy hash, and reason.
 - `evidence/live-verification.json` — the same record, kept with the
   receipts.
-- `tests/local_tests.py` — 179 local mock tests (pure SHA-256 vs
+- `tests/local_tests.py` — 212 local mock checks (pure SHA-256 vs
   hashlib, date math, verdict truth table, full lifecycle money math
   in wei, frozen/resolve path, staleness gate, verdict-level
   consensus, failed-payable refunds). Run with

@@ -94,7 +94,7 @@ GOOD_SNAPSHOT = (
 CHECK_SNAPSHOT = (
     "# Sensor kits assembled — independent check\n\n"
     "12 Riverside garden sensor kits assembled and installed, verified on site.\n"
-    "Check log, 2026-11-09: all 12 kits reporting live on firmware v1.4.2.\n"
+    "Check log, 2026-11-09: all 12 kits reporting live on firmware v1.4.3; this corrects the original v1.4.2 version entry.\n"
 )
 PARTIAL_SNAPSHOT = (
     "# Field report published\n\n"
@@ -151,6 +151,7 @@ class _Nondet:
     # Each judge() call pops one; validate() re-runs judge(), so a single
     # adjudication consumes 2 entries (leader + validator), both equal.
     flag_queue = []
+    rebuttal = "true"
 
     @classmethod
     def exec_prompt(cls, prompt, response_format="json"):
@@ -168,6 +169,9 @@ class _Nondet:
             "corroborating_detail": flags[2],
             "quote": quote,
             "rationale": "Mock rationale.",
+            "rebuts_original": cls.rebuttal,
+            "original_quote": prompt.split(" Original evidence snapshot (untrusted): ", 1)[1][:60].strip() if " Original evidence snapshot (untrusted): " in prompt else "",
+
         }
 
 
@@ -589,7 +593,7 @@ _Nondet.flag_queue = [["false", "false", "false"], ["false", "false", "false"]]
 set_sender(B, 1 * GEN)
 r = json.loads(c2.challenge_milestone(0, 0,
     "Counter-evidence: the delivery record does not show the prototype at all.",
-    "2026-11-09", EXAMPLE_URL))
+    "2026-11-09", CHECK_URL))
 sync_balance(c2)
 check("challenge WON_FROZEN, bond + 0.5 GEN reward credited, no settlement yet",
       r["challenge_outcome"] == "WON_FROZEN" and r["status"] == "FROZEN" and r["settlement"] is None, str(r))
@@ -599,7 +603,7 @@ check("escrow reduced by 0.5 GEN reward (19.5 GEN left)", camp2["escrow_wei"] ==
 check("settlement pool shrunk to 19.5 GEN", camp2["milestones"][0]["settlement_wei"] == str(195 * GEN // 10))
 check("challenge evidence stored on the milestone",
       camp2["milestones"][0]["challenge_evidence"] is not None
-      and camp2["milestones"][0]["challenge_evidence"]["url"] == EXAMPLE_URL, str(camp2["milestones"][0]["challenge_evidence"]))
+      and camp2["milestones"][0]["challenge_evidence"]["url"] == CHECK_URL, str(camp2["milestones"][0]["challenge_evidence"]))
 check("invariant holds while frozen", invariant(c2))
 sup_b2 = json.loads(c2.get_supporter(B))
 check("B challenges_won == 1", sup_b2["challenges_won"] == 1, str(sup_b2))
@@ -951,6 +955,93 @@ sync_balance(c9)
 check("E withdraws the 13 GEN refund", r["withdrawn_wei"] == str(13 * GEN), str(r))
 check("E transfer recorded", TRANSFERS[-1] == (E, 13 * GEN), str(TRANSFERS[-1]))
 check("invariant holds after refund withdraw", invariant(c9))
+
+
+print("== paired challenge security regressions (local mocks) ==")
+# The mock explicitly supplies the semantic decision. These tests verify gates,
+# paired fetches, validator agreement and accounting, not LLM accuracy.
+def ready(amount=20 * GEN):
+    _Web.current_date = "2026-11-09"
+    x = mf.MilestoneFund()
+    x.__init__()
+    set_sender(A)
+    x.create_campaign("Sensor kits", str(amount), json.dumps([{"title": "Sensor kits assembled", "amount": str(amount)}]))
+    set_sender(B, amount)
+    x.back_campaign(0)
+    set_sender(A)
+    x.submit_milestone_proof(0, 0, "Original sensor delivery evidence.", "2026-11-09", GOOD_URL)
+    _Nondet.flag_queue = [["true"] * 3] * 2
+    set_sender(B)
+    x.review_milestone(0, 0)
+    return x
+
+for amount in (2, 10**16, mf.CHALLENGE_REWARD_WEI, 20 * GEN):
+    x = ready(amount)
+    _Nondet.rebuttal = "true"
+    _Nondet.flag_queue = [["false"] * 3] * 2
+    set_sender(B, GEN)
+    r = json.loads(x.challenge_milestone(0, 0, "A relevant corrective delivery record.", "2026-11-09", CHECK_URL))
+    state = json.loads(x.get_campaign(0)); m = state["milestones"][0]
+    reward = int(m["challenge"]["reward_wei"])
+    check("reward bounded for " + str(amount), reward == min(amount, mf.CHALLENGE_REWARD_WEI) and int(m["settlement_wei"]) >= 0 and invariant(x))
+    check("paired witness hashes recorded", m["evaluations"][1]["original_snapshot_hash"] == mf.pure_sha256_hex(GOOD_SNAPSHOT))
+    _Nondet.flag_queue = [["true", "true", "false"]] * 2
+    set_sender(B)
+    x.resolve_disputed_milestone(0, 0)
+    check("single backer resolves and reconciles " + str(amount), invariant(x) and json.loads(x.get_campaign(0))["escrow_wei"] == "0")
+    expect_error("terminal dispute cannot pay twice", lambda: x.resolve_disputed_milestone(0, 0))
+
+for url in (EXAMPLE_URL, CHECK_URL, PARTIAL_URL):
+    x = ready()
+    before = x.campaigns_json
+    _Nondet.rebuttal = "false"
+    _Nondet.flag_queue = [["false"] * 3] * 2
+    set_sender(B, GEN)
+    r = json.loads(x.challenge_milestone(0, 0, "Unrelated or corroborating counter claim.", "2026-11-09", url))
+    check("non-rebuttal refunds full stake " + url, r["reason"] == "counter_evidence_not_rebuttal" and x.campaigns_json == before and int(x.get_credit(B)) == GEN and invariant(x))
+_Nondet.rebuttal = "true"
+x = ready()
+# Simulate old/hostile state with the creator listed as the sole backer.
+d = json.loads(x.campaigns_json); d["0"]["backers"] = [{"address": A, "amount": str(20 * GEN)}]; d["0"]["milestones"][0]["status"] = "EVIDENCE_SUBMITTED"; x.campaigns_json = json.dumps(d)
+set_sender(A)
+expect_error("creator review blocked even with backer record", lambda: x.review_milestone(0, 0))
+x = mf.MilestoneFund(); x.__init__()
+set_sender(A)
+x.create_campaign("No self funding", "2", json.dumps([{"title": "Delivery", "amount": "2"}]))
+set_sender(A, 2)
+r = json.loads(x.back_campaign(0))
+check("self backing credits full payment without funding campaign", r["reason"] == "creator_cannot_back_own_campaign" and int(x.get_credit(A)) == 2 and json.loads(x.get_campaign(0))["backers"] == [] and invariant(x))
+
+
+x = ready()
+before = x.campaigns_json
+_Nondet.flag_queue = [["false"] * 3] * 2
+set_sender(B, GEN)
+r = json.loads(x.challenge_milestone(0, 0, "A replay of the original snapshot.", "2026-11-09", GOOD_URL))
+check("identical original page cannot earn reward even if model claims rebuttal", r["reason"] == "counter_evidence_not_rebuttal" and before == x.campaigns_json and invariant(x))
+x = ready()
+before = x.campaigns_json
+original_content = URL_CONTENT.pop(GOOD_URL)
+set_sender(B, GEN)
+r = json.loads(x.challenge_milestone(0, 0, "Relevant independent counter evidence.", "2026-11-09", CHECK_URL))
+URL_CONTENT[GOOD_URL] = original_content
+check("original fetch failure refunds stake with no campaign change", r["reason"] == "adjudication_failed_retryable" and before == x.campaigns_json and invariant(x))
+
+# Mutated leader proposals must be refused by the real validator callback.
+normal_run = _VM.run_nondet_unsafe
+for field, bad in (("original_snapshot_hash", "fake"), ("original_github_sha", "fake"), ("rebuts_original", "false"), ("original_quote", "not a quotation"), ("quote", None)):
+    x = ready()
+    before = x.campaigns_json
+    def tamper(fn, validate, field=field, bad=bad):
+        proposed = fn(); proposed[field] = bad
+        check("validator refuses forged " + field, validate(Return(proposed)) is False)
+        raise UserError("fixture: forged proposal rejected")
+    _VM.run_nondet_unsafe = staticmethod(tamper)
+    _Nondet.flag_queue = [["false"] * 3] * 2
+    set_sender(B, GEN)
+    r = json.loads(x.challenge_milestone(0, 0, "Relevant independent counter evidence.", "2026-11-09", CHECK_URL))
+    check("forged proposal leaves campaign unchanged " + field, before == x.campaigns_json and r["accepted"] is False and invariant(x))
+    _VM.run_nondet_unsafe = staticmethod(normal_run)
 
 print(f"\n{PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)

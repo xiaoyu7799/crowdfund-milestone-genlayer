@@ -1,6 +1,6 @@
 // MilestoneFund frontend.
 // Reads work without a wallet. Writes use an explicitly labelled in-browser
-// temporary test account (key never leaves browser memory); an injected
+// password-encrypted browser signer with portable backup; an injected
 // wallet (OKX first) is used only to connect and read as yourself.
 // All money is real testnet GEN on Stable Studionet: backing a campaign
 // sends GEN with the call, and settled money is pulled out with
@@ -8,6 +8,7 @@
 import { createClient, createAccount, generatePrivateKey } from "genlayer-js";
 import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
+import { sealKey, openKey } from "./signer.js";
 import { I18N } from "./i18n.js";
 import { buildDossier } from "./dossier.js";
 
@@ -403,6 +404,7 @@ function humanError(err) {
 }
 
 async function requireWriter() {
+  if (!CFG.writesEnabled) throw new Error("Updated contract deployment required; historical deployment is read-only.");
   if (!testAccount) throw new Error(t("err_need_test_account"));
   const chainId = Number(await testAccount.client.request({ method: "eth_chainId" }));
   if (chainId !== CHAIN_ID) throw new Error("WRONG_NETWORK");
@@ -490,20 +492,44 @@ function renderWallet() {
   $("btn-switch-network").style.display = walletChainOk === false ? "" : "none";
 }
 
-function enableTestAccount() {
-  const key = generatePrivateKey();
-  const account = createAccount(key);
-  testAccount = { address: account.address, client: createClient({ chain: studionet, account }) };
-  $("test-account-state").textContent = `${t("test_account_enabled")}: ${shortAddr(account.address)} — ${t("test_account_fund_hint")}`;
-  $("btn-enable-test-account").disabled = true;
-  refreshMyStanding();
+const SIGNER_STORE = "mf-encrypted-signer-v1";
+async function enableTestAccount(imported = null) {
+  try {
+    const password = window.prompt(lang === "zh" ? "签名账号密码（至少12字符）；请保存密码及导出的加密备份。" : "Signer password (12+ characters). Keep your password and exported encrypted backup.");
+    if (password === null) return;
+    const existing = imported || JSON.parse(localStorage.getItem(SIGNER_STORE) || "null");
+    const key = existing ? await openKey(existing, password) : generatePrivateKey();
+    const account = createAccount(key);
+    const backup = existing || await sealKey(key, password);
+    localStorage.setItem(SIGNER_STORE, JSON.stringify(backup));
+    testAccount = { address: account.address, client: createClient({ chain: studionet, account }) };
+    $("test-account-state").textContent = `${t("test_account_enabled")}: ${account.address} — ${t("test_account_fund_hint")}`;
+    $("btn-enable-test-account").disabled = true;
+    await refreshMyStanding();
+  } catch (err) { story("story_error", humanError(err)); }
+}
+function exportSigner() {
+  const backup = localStorage.getItem(SIGNER_STORE);
+  if (!backup) return;
+  const url = URL.createObjectURL(new Blob([backup], {type: "application/json"}));
+  const a = document.createElement("a"); a.href = url; a.download = "milestonefund-signer-encrypted.json"; a.click(); URL.revokeObjectURL(url);
 }
 
 // --- forms ----------------------------------------------------------------------
 function bindForms() {
   $("btn-connect-wallet").addEventListener("click", connectWallet);
   $("btn-switch-network").addEventListener("click", switchNetwork);
-  $("btn-enable-test-account").addEventListener("click", enableTestAccount);
+  $("btn-enable-test-account").addEventListener("click", () => enableTestAccount());
+  $("btn-export-signer").addEventListener("click", exportSigner);
+  $("import-signer").addEventListener("change", async (event) => {
+    try {
+      const file = event.target.files[0];
+      if (!file || file.size > 4096) throw new Error("Invalid signer backup");
+      if (testAccount && !window.confirm("Replace the active signer? Export its backup first.")) return;
+      await enableTestAccount(JSON.parse(await file.text()));
+    } catch (err) { story("story_error", humanError(err)); }
+    event.target.value = "";
+  });
   $("btn-withdraw").addEventListener("click", async () => {
     await doWrite("withdraw_payout", [], "withdraw_payout", 0n);
   });
