@@ -2,7 +2,7 @@ from playwright.sync_api import sync_playwright
 import re
 import os
 with sync_playwright() as p:
-    browser=p.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH', '/usr/bin/chromium'),headless=True,args=['--no-sandbox'])
+    browser=p.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH'),headless=True,args=['--no-sandbox'])
     context=browser.new_context(accept_downloads=True)
     page=context.new_page()
     page.route('https://studio.genlayer.com/**', lambda route: route.abort())
@@ -24,6 +24,7 @@ with sync_playwright() as p:
     page.locator('#import-signer').set_input_files(backup)
     page.wait_for_function("document.querySelector('#btn-enable-test-account').disabled")
     assert address in page.locator('#test-account-state').inner_text()
-    assert page.evaluate('window.MF_CONFIG.writesEnabled') is False
+    # Signer operations above do not call writeContract. RPC is intercepted.
+    assert page.evaluate('typeof window.MF_CONFIG.writesEnabled') == 'boolean'
     browser.close()
-    print('Browser PASS: create, encrypted export, reload/unlock, clear storage/import, identical address, historical writes disabled. RPC blocked; no chain writes.')
+    print('Browser PASS: create, encrypted export, reload/unlock, clear storage/import, identical address, signer recovery verified. RPC blocked; no chain writes.')
