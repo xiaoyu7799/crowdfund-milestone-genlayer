@@ -51,3 +51,20 @@ refund, creator review refusal, single independent backer resolution and payout
 withdrawal. Preserve any failed consensus attempts. Export/import must also be
 checked in a browser that can start Chromium. Publish the matching frontend and
 enable writes only after the deployment source is verified.
+
+## Live runner and receipt gate
+
+`scripts/paired-flow.mjs` defaults to a no-transaction plan. Its live mode uses
+persistent signers from `MF_RECOVERY_FILE`, requires `MF_FIXTURE_REF` to be a
+published 40-character commit SHA, and checks the network and deployed source
+before funding or writes. Every transaction hash is checkpointed before receipt
+polling; a rerun resumes the same hash. Unexpected consensus or execution stops
+the case and retains its receipt. Controlled documents in `docs/evidence/paired`
+are test fixtures, not real-world delivery claims.
+
+`scripts/receipt.mjs` checks finality, successful execution and agreeing consensus
+for both raw Studionet and SDK-normalized receipts. FINALIZED alone is rejected.
+The browser writer and deploy script share this check. Raw receipt shape was
+read from historical transaction
+`0xf91eb9e89c3a8ffe33fea6075084399d2e24676ad2ace98677b87506b8dc193e`;
+that read is not new-version transaction evidence.

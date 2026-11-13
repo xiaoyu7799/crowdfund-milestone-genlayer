@@ -1,0 +1,16 @@
+{
+  "network": "Stable Studionet",
+  "chainId": 61999,
+  "rpcUrl": "https://studio.genlayer.com/api",
+  "explorer": "https://explorer-studio.genlayer.com/address/0x4f1C46Af0C8A5aA853899459ca8bd3532a7f3Ad8",
+  "studio": "https://studio.genlayer.com/?import-contract=0x4f1C46Af0C8A5aA853899459ca8bd3532a7f3Ad8",
+  "contractAddress": "0x4f1C46Af0C8A5aA853899459ca8bd3532a7f3Ad8",
+  "deployTxHash": "0xf91eb9e89c3a8ffe33fea6075084399d2e24676ad2ace98677b87506b8dc193e",
+  "deployer": "0x6df9c49dc7434D5070298B57D95105B3f3bF7E3d",
+  "contractFile": "contracts/milestone_fund.py",
+  "contractSha256": "a43b6509e9684881a525dc88a5237150e7b4f7a91226080a6cb9babcd468ecf6",
+  "deployedCodeSha256": "a43b6509e9684881a525dc88a5237150e7b4f7a91226080a6cb9babcd468ecf6",
+  "deployedCodeMatchesSource": true,
+  "deployedAt": "2026-11-09T22:58:15.042Z",
+  "receiptStatus": "FINALIZED"
+}

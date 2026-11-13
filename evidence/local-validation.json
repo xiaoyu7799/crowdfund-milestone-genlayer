@@ -9,12 +9,13 @@
       "contractChecksPassed": 212,
       "contractChecksFailed": 0,
       "dossierChecksPassed": 8,
-      "signerTestsPassed": 2
+      "signerTestsPassed": 2,
+      "receiptTestsPassed": 2
     },
     {
       "command": "npm run build-site",
       "result": "PASS",
-      "bundleVersion": "2e2122fcdf90",
+      "bundleVersion": "85515ea40cf5",
       "footerMatchesHistoricalConfig": true
     },
     {
@@ -44,6 +45,20 @@
       "result": "BLOCKED",
       "reason": "Chromium process startup failed: socket() Operation not permitted; ptrace Operation not permitted",
       "interactionAssertionsRun": false
+    },
+    {
+      "command": "node scripts/paired-flow.mjs --plan",
+      "result": "PASS",
+      "transactionsSubmitted": 0
+    },
+    {
+      "command": "node --check scripts/paired-flow.mjs",
+      "result": "PASS"
+    },
+    {
+      "method": "shared browser local preview",
+      "result": "BLOCKED",
+      "reason": "Browser returned ERR_CONNECTION_REFUSED for localhost preview; no interaction assertions executed"
     }
   ],
   "baseline": {

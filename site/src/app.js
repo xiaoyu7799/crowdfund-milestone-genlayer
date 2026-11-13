@@ -9,6 +9,7 @@ import { createClient, createAccount, generatePrivateKey } from "genlayer-js";
 import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 import { sealKey, openKey } from "./signer.js";
+import { assertSuccessfulReceipt } from "../../scripts/receipt.mjs";
 import { I18N } from "./i18n.js";
 import { buildDossier } from "./dossier.js";
 
@@ -423,6 +424,7 @@ async function doWrite(functionName, args, label, value = 0n) {
     txFeedAdd({ hash, label, status: "submitted", valueWei: value > 0n ? value.toString() : null });
     story("story_waiting");
     const receipt = await client.waitForTransactionReceipt({ hash, status: TransactionStatus.FINALIZED, retries: 240, interval: 5000 });
+    assertSuccessfulReceipt(receipt);
     txFeedAdd({ hash, label, status: receipt.statusName ?? "FINALIZED", valueWei: value > 0n ? value.toString() : null });
     story("story_finalized");
     await refreshAll();

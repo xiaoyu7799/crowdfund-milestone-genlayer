@@ -1,8 +1,8 @@
 /* Deploy MilestoneFund to Stable Studionet (chain 61999) only.
  *
  * Usage:
- *   node scripts/deploy.mjs            # ephemeral deployer key (this run only)
- *   GENLAYER_PRIVATE_KEY=0x... node scripts/deploy.mjs
+ *   node scripts/deploy.mjs --check     # read-only source/network preflight
+ *   MF_RECOVERY_FILE=/private/signers.json node scripts/deploy.mjs --submit
  *
  * The private key is NEVER written to disk or to deployment.json.
  * After deploy, the deployed code is read back with gen_getContractCode
@@ -10,6 +10,7 @@
  * for byte. A mismatch stops the script: FINALIZED alone is not proof
  * the deployed code is the repo code.
  */
+import { assertSuccessfulReceipt } from "./receipt.mjs";
 import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
@@ -33,8 +34,10 @@ if (!process.argv.includes("--submit")) {
 }
 
 const suppliedKey = process.env.GENLAYER_PRIVATE_KEY;
-const privateKey = suppliedKey || generatePrivateKey();
-if (!suppliedKey) {
+const recoveryPath = process.env.MF_RECOVERY_FILE;
+const recovery = recoveryPath ? JSON.parse(readFileSync(recoveryPath, "utf8")) : null;
+const privateKey = suppliedKey || recovery?.keys?.deployer || generatePrivateKey();
+if (!suppliedKey && !recovery) {
   console.log("No GENLAYER_PRIVATE_KEY supplied: using an ephemeral deployer key for this run only.");
 }
 const account = createAccount(privateKey);
@@ -42,7 +45,14 @@ console.log("Deployer:", account.address);
 console.log("Network: Stable Studionet, chain 61999, https://studio.genlayer.com/api");
 
 const client = createClient({ chain: studionet, account });
-const txHash = await client.deployContract({ code, args: [], leaderOnly: false });
+const chainId = Number(await client.request({method: "eth_chainId"}));
+if (chainId !== 61999) throw new Error("Wrong chain");
+const journalPath = path.join(root, "evidence", "deployment-pending.json");
+let journal = null;
+try { journal = JSON.parse(readFileSync(journalPath, "utf8")); } catch {}
+if (journal && journal.sourceSha256 !== codeSha) throw new Error("Pending deployment source mismatch; inspect its receipt before proceeding");
+const txHash = journal?.txHash || await client.deployContract({ code, args: [], leaderOnly: false });
+writeFileSync(journalPath, JSON.stringify({txHash, sourceSha256:codeSha, deployer:account.address}, null, 2) + "\n");
 console.log("Deploy tx:", txHash);
 
 const STATUS = { 0: "UNINITIALIZED", 1: "PENDING", 2: "PROPOSING", 3: "COMMITTING", 4: "REVEALING", 5: "ACCEPTED", 6: "UNDETERMINED", 7: "FINALIZED", 8: "CANCELED" };
@@ -53,7 +63,9 @@ const receipt = await client.waitForTransactionReceipt({
   interval: 5000,
 });
 const statusName = receipt.statusName ?? STATUS[receipt.status] ?? String(receipt.status ?? "");
-console.log("Receipt status:", statusName);
+writeFileSync(path.join(root, "evidence", "deployment-receipt.json"), JSON.stringify(receipt, (k,v)=>typeof v==="bigint"?v.toString():v, 2) + "\n");
+const proof = assertSuccessfulReceipt(receipt);
+console.log("Receipt status:", statusName, proof.execution, proof.consensus);
 if (statusName !== "FINALIZED") throw new Error(`Deploy did not finalize: ${statusName}`);
 
 const address =
@@ -100,6 +112,8 @@ const deployment = {
   deployedCodeMatchesSource: deployedCodeSha === codeSha,
   deployedAt: new Date().toISOString(),
   receiptStatus: statusName,
+  executionResult: proof.execution,
+  consensusResult: proof.consensus,
 };
 writeFileSync(path.join(root, "deployment.json"), JSON.stringify(deployment, null, 2) + "\n");
 console.log("Wrote deployment.json");

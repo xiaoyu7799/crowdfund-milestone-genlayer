@@ -14,6 +14,8 @@ records for the old contract; their source hash does not describe this revision.
 The branch site sets `writesEnabled: false` until the new deployed source has
 been verified. The production site remains the older release until published.
 Local results are in [evidence/local-validation.json](evidence/local-validation.json).
+The targeted live runner is `scripts/paired-flow.mjs` (default: plan only), using
+persistent signers and immutable fixture URLs; it has not been run on chain.
 
 ## Historical deployed contract and evidence
 
