@@ -1,10 +1,11 @@
-# Correction to MF-PAIR-001 sensor kit delivery
+# Correction to delivery record MF-PAIR-001
 
-Controlled adversarial test document for MilestoneFund validator evaluation.
-This is a direct correction of the original sensor kit record MF-PAIR-001.
+Controlled test fixture; this is not a real installation report.
 
-The statement that all 12 Riverside sensor kits were assembled, installed and
-commissioned is false. No sensor kits were delivered or installed. The reported
-firmware v1.4.2 commissioning result was a simulated log, not a completed field test.
-There is no delivered sensor network and no measurement that corroborates completion.
-The original delivery claim must be rejected rather than partially released.
+No Riverside sensor kits were delivered or installed.
+
+The original record MF-PAIR-001 falsely described twelve installed sensor kits.
+
+The firmware v1.4.2 commissioning log was simulated, not a completed field test.
+
+There is no completed sensor network and no field measurement confirming delivery.
