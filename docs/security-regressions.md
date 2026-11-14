@@ -73,3 +73,5 @@ Current live validation and independent readback completed successfully. Browser
 Rounds 2 and 3 require the fetched original snapshot hash and GitHub SHA to match evaluations[0]. Missing or changed anchors prevent settlement. Round 2 credits the full stake back; round 3 leaves the frozen state unchanged. Regression coverage changes the body and GitHub identity independently in both rounds.
 
 Latest source browser regression: CI run 43611335900, commit 5a9c223b2913e7184d5d2c71fa1467d44f878402, completed successfully. Current source and deployment are independently verified by verify-anchor.mjs; earlier browser outcomes are retained as history.
+
+Final deployed-source CI: [run 43611671316](https://github.com/xiaoyu7799/crowdfund-milestone-genlayer/actions/runs/43611671316), commit cada18caadcf9472cc3d0074d3b40e2dc0dd49b4, passed all checks including Chromium. Subsequent evidence-index-only changes do not change this validated contract, browser source or deployment.

@@ -27,6 +27,14 @@
       "conclusion": "success",
       "url": "https://github.com/xiaoyu7799/crowdfund-milestone-genlayer/actions/runs/43611335900",
       "scope": "220 contract checks, build, i18n and Chromium signer recovery; snapshot-anchor source revision"
+    },
+    {
+      "id": 43611671316,
+      "commit": "cada18caadcf9472cc3d0074d3b40e2dc0dd49b4",
+      "conclusion": "success",
+      "url": "https://github.com/xiaoyu7799/crowdfund-milestone-genlayer/actions/runs/43611671316",
+      "validatedSourceSha256": "2f22d6f47109258e23a7c5ca524d8860fb127780f7f7624ba852d85a155fce88",
+      "scope": "Final deployed source: 220 contract checks, build, i18n and Chromium signer recovery"
     }
   ]
 }
