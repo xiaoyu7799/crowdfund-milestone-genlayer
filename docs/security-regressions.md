@@ -1,7 +1,6 @@
 # Challenge and signer security checks
 
-The updated source requires a fresh Stable Studionet deployment. Historical
-receipts remain unchanged and do not validate these changes.
+The current deployed source and live regression receipts are recorded in deployment.json and evidence/paired-validation.json. Historical receipts remain version-specific.
 
 | Path | Contract / frontend behavior | Local coverage |
 | --- | --- | --- |
@@ -68,3 +67,5 @@ The browser writer and deploy script share this check. Raw receipt shape was
 read from historical transaction
 `0xf91eb9e89c3a8ffe33fea6075084399d2e24676ad2ace98677b87506b8dc193e`;
 that read is not new-version transaction evidence.
+
+Current live validation and independent readback completed successfully. Browser recovery checks passed in GitHub Actions run 43451618071; the local Chromium startup failure remains an environment-specific result.

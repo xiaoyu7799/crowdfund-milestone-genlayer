@@ -1,0 +1,18 @@
+{
+  "runs": [
+    {
+      "id": 43451234338,
+      "commit": "977d7b153e2f84b3a523a438c63d894ea88fd9df",
+      "conclusion": "failure",
+      "scope": "Chromium dependency installation",
+      "reason": "ubuntu-latest resolved to unsupported Ubuntu 26.04 for Playwright 1.56; browser checks did not run"
+    },
+    {
+      "id": 43451618071,
+      "commit": "73601c8243ee37f04f5f18e7843693a8c5600562",
+      "conclusion": "success",
+      "url": "https://github.com/xiaoyu7799/crowdfund-milestone-genlayer/actions/runs/43451618071",
+      "scope": "Local mock checks, build, i18n and Chromium signer create/export/reload/import with RPC blocked"
+    }
+  ]
+}

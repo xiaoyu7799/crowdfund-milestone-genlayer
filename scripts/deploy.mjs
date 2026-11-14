@@ -4,7 +4,8 @@
  *   node scripts/deploy.mjs --check     # read-only source/network preflight
  *   MF_RECOVERY_FILE=/private/signers.json node scripts/deploy.mjs --submit
  *
- * The private key is NEVER written to disk or to deployment.json.
+ * The private key is never included in deployment.json or receipt evidence.
+ * Recovery keys are loaded from the external MF_RECOVERY_FILE when supplied.
  * After deploy, the deployed code is read back with gen_getContractCode
  * (base64), decoded, and SHA-256 compared against the source file byte
  * for byte. A mismatch stops the script: FINALIZED alone is not proof

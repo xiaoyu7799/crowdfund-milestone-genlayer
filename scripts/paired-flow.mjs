@@ -48,7 +48,9 @@ async function step(label,role,functionName,args,value,id,verify,expectedError=n
  if(!record.hash) {record.hash=await clients[role].writeContract({address,functionName,args,value,leaderOnly:false});record.status='SUBMITTED';save();console.log(label,record.hash);}
  const receipt=await reader.waitForTransactionReceipt({hash:record.hash,status:TransactionStatus.FINALIZED,retries:120,interval:5000});
  fs.writeFileSync(path.join(root,'evidence/paired-receipts',label+'.json'),stringify(receipt)+'\n');
- record.proof=receiptProof(receipt);save();
+ const currentProof=receiptProof(receipt);
+ if(record.proof && JSON.stringify(record.proof)!==JSON.stringify(currentProof)) { record.proofHistory ||= [];record.proofHistory.push(record.proof); }
+ record.proof=currentProof;record.status=currentProof.status;save();
  if(expectedError) {
   check(label+' finalized error',record.proof.status==='FINALIZED' && !record.proof.success && /ERROR/.test(record.proof.execution||''));
   check(label+' expected error',stringify(receipt).includes(expectedError));
@@ -70,7 +72,7 @@ const base=`https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-gen
 evidence.evidenceDate ||= new Date().toISOString().slice(0,10); save();
 const date=evidence.evidenceDate,GEN=10n**18n;
 const proofText='Controlled test evidence for sensor kit delivery; validators must fetch the reference.';
-for(const [name,amounts] of [['tiny',[2n,2n]],['normal',[2n*GEN]]]) {
+for(const [name,amounts] of [['paired',[2n,2n*GEN]]]) {
  if(!evidence.cases[name]) {evidence.cases[name]={id:Number(await read('get_count'))};save();}
  const id=evidence.cases[name].id,goal=amounts.reduce((a,b)=>a+b,0n);
  await step(name+'-create','creator','create_campaign',[`Paired evidence ${name}`,String(goal),stringify(amounts.map(amount=>({title:'Sensor kits assembled',amount:String(amount)})))],0n,null,()=>{});
@@ -83,7 +85,7 @@ for(const [name,amounts] of [['tiny',[2n,2n]],['normal',[2n*GEN]]]) {
   if(index===0) await step(label+'-creator-review','creator','review_milestone',[BigInt(id),index],0n,id,(b,a)=>check(label+' creator review unchanged',stringify(b.campaign)===stringify(a.campaign)),'creator_cannot_review_own_milestone');
   await step(label+'-review','backer','review_milestone',[BigInt(id),index],0n,id,(b,a)=>check(label+' original ACCEPT pending',a.campaign.milestones[index].pending_verdict==='ACCEPT' && a.campaign.milestones[index].status==='MILESTONE_REVIEW'));
   if(index===0) for(const file of ['unrelated','corroboration','original']) await step(label+'-reject-'+file,'backer','challenge_milestone',[BigInt(id),index,proofText,date,base+file+'.md'],GEN,id,(b,a)=>{check(label+' '+file+' stake refunded',BigInt(a.credit)-BigInt(b.credit)===GEN);check(label+' '+file+' campaign unchanged',stringify(b.campaign)===stringify(a.campaign));});
-  await step(label+'-challenge','backer','challenge_milestone',[BigInt(id),index,proofText,date,base+'counter.md'],GEN,id,(b,a)=>{
+  await step(label+'-challenge','backer','challenge_milestone',[BigInt(id),index,proofText,date,(process.env.MF_COUNTER_URL || base+'counter.md')],GEN,id,(b,a)=>{
    const m=a.campaign.milestones[index],ev=m.evaluations.at(-1),reward=BigInt(m.challenge?.reward_wei||0);
    check(label+' genuine rebuttal freezes',m.status==='FROZEN' && m.challenge.outcome==='WON_FROZEN' && m.challenge.second_verdict==='REJECT');
    check(label+' reward capped',reward===(amounts[index]<GEN/2n?amounts[index]:GEN/2n) && BigInt(a.credit)-BigInt(b.credit)===GEN+reward);

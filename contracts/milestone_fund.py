@@ -582,6 +582,9 @@ class MilestoneFund(gl.Contract):
                     + " Original reference: " + original["url"]
                     + " Original pending verdict: " + milestone["pending_verdict"]
                     + " Evaluate BOTH snapshots together to determine the corrected milestone verdict. "
+                    "For paired review the three flags describe the final assessment over BOTH "
+                    "snapshots; claims explicitly refuted by corrective facts must not count "
+                    "as completed or corroborated delivery. "
                     "Also return rebuts_original (true/false strings) and original_quote "
                     "(10-300 characters copied verbatim from the original snapshot). "
                     "rebuts_original is true ONLY if the counter snapshot addresses the SAME "
@@ -701,6 +704,11 @@ class MilestoneFund(gl.Contract):
             if (not isinstance(pflags, list) or len(pflags) != 3
                     or any(str(f).strip().lower() not in ("true", "false") for f in pflags)):
                 return False
+            # Non-rebuttals always refund and cannot change the pending verdict.
+            # Their diagnostic delivery flags cannot affect any state or payout.
+            # Eligibility, both snapshots and quotes above must still agree.
+            if original is not None and own["rebuts_original"] == "false":
+                return True
             if _verdict_from_flags([str(f).strip().lower() for f in pflags]) != _verdict_from_flags(own["flags"]):
                 return False
             return True

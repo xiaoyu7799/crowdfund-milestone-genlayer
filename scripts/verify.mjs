@@ -1,3 +1,8 @@
+// Current verification checks paired-evidence transactions. Historical receipts remain inspectable.
+if (!process.argv.includes("--historical")) {
+  await import("./verify-paired.mjs");
+  process.exit(0);
+}
 /* Independent read-back verification of a deployed MilestoneFund contract.
  * Reads only — no writes. Recomputes the money reconciliation from live
  * chain state and compares it against evidence.json, and re-checks the
@@ -13,9 +18,9 @@ import { createClient, createAccount, generatePrivateKey } from "genlayer-js";
 import { studionet } from "genlayer-js/chains";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const deployment = JSON.parse(readFileSync(path.join(root, "deployment.json"), "utf-8"));
-const evidence = JSON.parse(readFileSync(path.join(root, "evidence.json"), "utf-8"));
-const address = process.argv[2] || deployment.contractAddress;
+const deployment = JSON.parse(readFileSync(path.join(root, "evidence/history/pre-paired-deployment.json"), "utf-8"));
+const evidence = JSON.parse(readFileSync(path.join(root, "evidence/history/pre-paired-evidence.json"), "utf-8"));
+const address = deployment.contractAddress;
 const GEN = 10n ** 18n;
 const genStr = (wei) => {
   const w = BigInt(wei);
@@ -39,7 +44,7 @@ function check(name, cond, actual) {
 }
 
 // 0. deployed code matches the repo source file, byte for byte.
-const code = readFileSync(path.join(root, "contracts", "milestone_fund.py"), "utf-8");
+const code = readFileSync(path.join(root, "evidence/history/pre-paired-contract.py"), "utf-8");
 const srcSha = createHash("sha256").update(code).digest("hex");
 check("source SHA == deployment.json contractSha256", srcSha === deployment.contractSha256, srcSha);
 const cc = await client.request({ method: "gen_getContractCode", params: [address] });

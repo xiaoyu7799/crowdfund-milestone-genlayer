@@ -1,3 +1,9 @@
+// Default entry point for the current paired-evidence runner (plan unless --submit).
+if (!process.argv.includes("--historical")) {
+  await import("./paired-flow.mjs");
+  process.exit(0);
+}
+throw new Error("Historical transaction runner is retained for inspection only; use paired-flow.mjs for the current deployment");
 /* End-to-end on-chain flow against the rescued MilestoneFund contract.
  *
  * Usage: node scripts/flow.mjs   (uses deployment.json for the address)

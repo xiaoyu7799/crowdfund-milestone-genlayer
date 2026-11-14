@@ -1043,5 +1043,24 @@ for field, bad in (("original_snapshot_hash", "fake"), ("original_github_sha", "
     check("forged proposal leaves campaign unchanged " + field, before == x.campaigns_json and r["accepted"] is False and invariant(x))
     _VM.run_nondet_unsafe = staticmethod(normal_run)
 
+
+x = ready()
+before = x.campaigns_json
+_Nondet.rebuttal = "false"
+_Nondet.flag_queue = [["true"] * 3, ["false"] * 3]
+set_sender(B, GEN)
+r = json.loads(x.challenge_milestone(0, 0, "Unrelated counter claim with no rebuttal.", "2026-11-09", EXAMPLE_URL))
+check("non-rebuttal verdict split still refunds without changing campaign", r["reason"] == "counter_evidence_not_rebuttal" and before == x.campaigns_json and int(x.get_credit(B)) == GEN and invariant(x))
+_Nondet.rebuttal = "true"
+x = ready()
+before = x.campaigns_json
+_Nondet.flag_queue = [["true"] * 3, ["false"] * 3]
+set_sender(B, GEN)
+try:
+    x.challenge_milestone(0, 0, "Relevant independent counter evidence.", "2026-11-09", CHECK_URL)
+    check("eligible rebuttal verdict split cannot settle", False)
+except RuntimeError:
+    check("eligible rebuttal verdict split cannot settle", before == x.campaigns_json)
+
 print(f"\n{PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)

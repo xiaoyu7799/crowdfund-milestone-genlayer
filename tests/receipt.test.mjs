@@ -11,3 +11,14 @@ test('finality alone and failed or undetermined consensus never count as success
   assert.equal(receiptProof(bad).success,false); assert.throws(()=>assertSuccessfulReceipt(bad));
  }
 });
+
+test('actual leader execution is distinct from a trailing quorum-cancelled validator',()=>{
+ const receipt={status:7,result_name:'MAJORITY_AGREE',consensus_data:{leader_receipt:[
+  {mode:'leader',execution_result:'SUCCESS',genvm_result:{raw_error:null}},
+  {mode:'validator',execution_result:'ERROR',genvm_result:{raw_error:{causes:['VALIDATOR_QUORUM_REACHED']}}}
+ ]}};
+ assert.equal(assertSuccessfulReceipt(receipt).success,true);
+ receipt.consensus_data.leader_receipt[0].execution_result='ERROR';
+ receipt.consensus_data.leader_receipt[1].execution_result='SUCCESS';
+ assert.throws(()=>assertSuccessfulReceipt(receipt));
+});

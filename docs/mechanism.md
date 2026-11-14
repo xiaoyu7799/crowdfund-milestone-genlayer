@@ -1,10 +1,6 @@
-# Current source and historical evidence
+# Source and evidence versions
 
-This mechanism describes the updated source. The existing deployment and
-receipts are historical and require a new deployment before these paths can
-be verified live. Original reference content is fetched again for challenges;
-mutable URLs can change after round 1. Hashes preserve each round's witness,
-not a permanent archive of external content.
+Current deployed source and live checks are identified by deployment.json and evidence/paired-validation.json. Earlier receipts remain under evidence/history. Original reference content is re-fetched for challenges; hashes identify each round, not a permanent archive of mutable web pages.
 
 # MilestoneFund mechanism
 
@@ -463,3 +459,14 @@ leader outputs be, if both pass validation?
   is one UTC day measured by that same fetched date, so a review
   made one minute before midnight UTC has a window of about a
   minute; the window is a floor, not a guarantee of a full day.
+
+## Rebuttal eligibility before delivery scoring
+
+For rounds 2 and 3, both fetched snapshots, dates, hashes, GitHub identities,
+quotes and rebuttal eligibility must agree independently. If the counter page
+is not a rebuttal, the contract always credits back the entire stake and does
+not change campaign state. Diagnostic delivery flags are validated for shape
+but their derived verdict need not agree in this no-settlement branch: neither
+that verdict nor those flags are persisted or used for a payout. For eligible
+rebuttals, exact verdict agreement remains mandatory. This avoids a consensus
+split over delivery scores that cannot affect the rejected challenge's result.

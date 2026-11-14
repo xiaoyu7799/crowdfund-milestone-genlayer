@@ -46,8 +46,7 @@
   with zero cash cost. Amounts are wei integers (1 GEN = 10^18 wei);
   the site and the contract display both GEN and wei.
 
-- Updated source has not been deployed. Historical receipts are preserved and
-  cannot be used as evidence of the new challenge/reward/role checks.
+- Historical receipts describe their own deployments. Current-source live checks are recorded separately in evidence/paired-validation.json.
 - Rebuttal relevance is a semantic consensus decision. Local fixtures test the
   decision gate and independent validation; they do not establish real model
   accuracy. Both references are re-fetched on rounds 2 and 3; mutable URLs can
@@ -56,3 +55,12 @@
 - The browser stores only a password-encrypted signer backup (PBKDF2-SHA256,
   310000 iterations, AES-256-GCM). Export it before clearing browser data and
   retain the password. An unlocked or compromised browser can expose the key.
+
+- A consensus-disagreed payable challenge can leave value in the platform
+  balance without applying contract credits. This occurred on the superseded
+  paired-v1 deployment: one 1 GEN challenge ended MAJORITY_DISAGREE; the 1 GEN
+  remained outside its ledger. The original receipt and balance readback are
+  retained in `evidence/history/paired-v1`. Reducing irrelevant score agreement
+  prevents that observed split but cannot guarantee consensus availability.
+  The accounting ledger invariant alone cannot detect platform-retained surplus;
+  verification must also compare the actual balance with credits plus escrow.

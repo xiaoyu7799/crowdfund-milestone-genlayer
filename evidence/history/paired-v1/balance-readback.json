@@ -1,0 +1,11 @@
+{
+  "total_received_wei": "8",
+  "total_withdrawn_wei": "0",
+  "contract_balance_wei": "1000000000000000008",
+  "credits_outstanding_wei": "4",
+  "escrow_locked_wei": "4",
+  "accounted_wei": "8",
+  "invariant_ok": true,
+  "unaccounted_platform_retained_wei": "1000000000000000000",
+  "reason": "A 1 GEN challenge ended in MAJORITY_DISAGREE; platform retained value while contract writes did not apply. This is not a successful challenge or refundable credit."
+}

@@ -1,0 +1,958 @@
+{
+  "network": "Stable Studionet",
+  "chainId": 61999,
+  "contractAddress": "0xf590d3066c5691b7D7B88661D7e955BcE01bfA81",
+  "sourceSha256": "a7c44f23e733f9022e6bdb67a3d5140d271635160cd4f5cf65042ed9ac1e7192",
+  "accounts": {
+    "creator": "0x97a9FD4CBd9f38f765C83c47cB69801cbc7feb75",
+    "backer": "0xd47F9bA2bBAfc259CDEB96AeBb3A23b88138F45d",
+    "stranger": "0x46abf9EA825d6707e1382e498a28386107ACC071"
+  },
+  "cases": {
+    "tiny": {
+      "id": 0
+    }
+  },
+  "transactions": {
+    "tiny-create": {
+      "role": "creator",
+      "functionName": "create_campaign",
+      "args": [
+        "Paired evidence tiny",
+        "4",
+        "[\n  {\n    \"title\": \"Sensor kits assembled\",\n    \"amount\": \"2\"\n  },\n  {\n    \"title\": \"Sensor kits assembled\",\n    \"amount\": \"2\"\n  }\n]"
+      ],
+      "valueWei": "0",
+      "before": {
+        "campaign": null,
+        "credit": "0"
+      },
+      "hash": "0x89b649b8745c5781172961bd0e176379e7d841a356b10e8de61d3d880c2b6969",
+      "status": "SUBMITTED",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "after": {
+        "campaign": null,
+        "credit": "0"
+      },
+      "validated": true
+    },
+    "tiny-self-back": {
+      "role": "creator",
+      "functionName": "back_campaign",
+      "args": [
+        "0"
+      ],
+      "valueWei": "4",
+      "before": {
+        "campaign": {
+          "id": 0,
+          "title": "Paired evidence tiny",
+          "creator": "0x97a9FD4CBd9f38f765C83c47cB69801cbc7feb75",
+          "goal_wei": "4",
+          "status": "FUNDING",
+          "total_backed_wei": "0",
+          "escrow_wei": "0",
+          "backers": [],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            },
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "0"
+      },
+      "hash": "0x5a569a4dc515d9e1d6efbd0456ed20b981c0ca847928ae6137326ced5643393d",
+      "status": "SUBMITTED",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "after": {
+        "campaign": {
+          "id": 0,
+          "title": "Paired evidence tiny",
+          "creator": "0x97a9FD4CBd9f38f765C83c47cB69801cbc7feb75",
+          "goal_wei": "4",
+          "status": "FUNDING",
+          "total_backed_wei": "0",
+          "escrow_wei": "0",
+          "backers": [],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            },
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "4"
+      },
+      "validated": true
+    },
+    "tiny-back": {
+      "role": "backer",
+      "functionName": "back_campaign",
+      "args": [
+        "0"
+      ],
+      "valueWei": "4",
+      "before": {
+        "campaign": {
+          "id": 0,
+          "title": "Paired evidence tiny",
+          "creator": "0x97a9FD4CBd9f38f765C83c47cB69801cbc7feb75",
+          "goal_wei": "4",
+          "status": "FUNDING",
+          "total_backed_wei": "0",
+          "escrow_wei": "0",
+          "backers": [],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            },
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "0"
+      },
+      "hash": "0xe9720d0d9ec9565f030fa4b25c2da63b1edadc464bb3efed0f35413bb0fdce01",
+      "status": "SUBMITTED",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "after": {
+        "campaign": {
+          "id": 0,
+          "title": "Paired evidence tiny",
+          "creator": "0x97a9FD4CBd9f38f765C83c47cB69801cbc7feb75",
+          "goal_wei": "4",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "4",
+          "escrow_wei": "4",
+          "backers": [
+            {
+              "address": "0xd47F9bA2bBAfc259CDEB96AeBb3A23b88138F45d",
+              "amount": "4"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            },
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "0"
+      },
+      "validated": true
+    },
+    "tiny-m0-proof": {
+      "role": "creator",
+      "functionName": "submit_milestone_proof",
+      "args": [
+        "0",
+        0,
+        "Controlled test evidence for sensor kit delivery; validators must fetch the reference.",
+        "2026-11-13",
+        "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/ae1cc4387f0f9f040beead958292cb46cc39497a/docs/evidence/paired/original.md"
+      ],
+      "valueWei": "0",
+      "before": {
+        "campaign": {
+          "id": 0,
+          "title": "Paired evidence tiny",
+          "creator": "0x97a9FD4CBd9f38f765C83c47cB69801cbc7feb75",
+          "goal_wei": "4",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "4",
+          "escrow_wei": "4",
+          "backers": [
+            {
+              "address": "0xd47F9bA2bBAfc259CDEB96AeBb3A23b88138F45d",
+              "amount": "4"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            },
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "4"
+      },
+      "hash": "0x9374bb82f8609d94f2959b22e2cb3755d28ee9e532ac91c3fd08fca57564706f",
+      "status": "SUBMITTED",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "after": {
+        "campaign": {
+          "id": 0,
+          "title": "Paired evidence tiny",
+          "creator": "0x97a9FD4CBd9f38f765C83c47cB69801cbc7feb75",
+          "goal_wei": "4",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "4",
+          "escrow_wei": "4",
+          "backers": [
+            {
+              "address": "0xd47F9bA2bBAfc259CDEB96AeBb3A23b88138F45d",
+              "amount": "4"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "EVIDENCE_SUBMITTED",
+              "evidence_text": "Controlled test evidence for sensor kit delivery; validators must fetch the reference.",
+              "evidence_date": "2026-11-13",
+              "evidence_hash": "6ac6f1773ebe4c1b2c62f659e5f6162b4caa1f8162bcd7b75f1e141da33445b5",
+              "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/ae1cc4387f0f9f040beead958292cb46cc39497a/docs/evidence/paired/original.md",
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            },
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "4"
+      },
+      "validated": true
+    },
+    "tiny-m0-creator-review": {
+      "role": "creator",
+      "functionName": "review_milestone",
+      "args": [
+        "0",
+        0
+      ],
+      "valueWei": "0",
+      "before": {
+        "campaign": {
+          "id": 0,
+          "title": "Paired evidence tiny",
+          "creator": "0x97a9FD4CBd9f38f765C83c47cB69801cbc7feb75",
+          "goal_wei": "4",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "4",
+          "escrow_wei": "4",
+          "backers": [
+            {
+              "address": "0xd47F9bA2bBAfc259CDEB96AeBb3A23b88138F45d",
+              "amount": "4"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "EVIDENCE_SUBMITTED",
+              "evidence_text": "Controlled test evidence for sensor kit delivery; validators must fetch the reference.",
+              "evidence_date": "2026-11-13",
+              "evidence_hash": "6ac6f1773ebe4c1b2c62f659e5f6162b4caa1f8162bcd7b75f1e141da33445b5",
+              "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/ae1cc4387f0f9f040beead958292cb46cc39497a/docs/evidence/paired/original.md",
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            },
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "4"
+      },
+      "hash": "0x40d6bf0c448fbc40b3d5aa9fce1e3bcae3109272b265a27c1eccb92ccf8cd0f6",
+      "status": "SUBMITTED",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "ERROR",
+        "consensus": "MAJORITY_AGREE",
+        "success": false
+      },
+      "after": {
+        "campaign": {
+          "id": 0,
+          "title": "Paired evidence tiny",
+          "creator": "0x97a9FD4CBd9f38f765C83c47cB69801cbc7feb75",
+          "goal_wei": "4",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "4",
+          "escrow_wei": "4",
+          "backers": [
+            {
+              "address": "0xd47F9bA2bBAfc259CDEB96AeBb3A23b88138F45d",
+              "amount": "4"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "EVIDENCE_SUBMITTED",
+              "evidence_text": "Controlled test evidence for sensor kit delivery; validators must fetch the reference.",
+              "evidence_date": "2026-11-13",
+              "evidence_hash": "6ac6f1773ebe4c1b2c62f659e5f6162b4caa1f8162bcd7b75f1e141da33445b5",
+              "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/ae1cc4387f0f9f040beead958292cb46cc39497a/docs/evidence/paired/original.md",
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            },
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "4"
+      },
+      "validated": true
+    },
+    "tiny-m0-review": {
+      "role": "backer",
+      "functionName": "review_milestone",
+      "args": [
+        "0",
+        0
+      ],
+      "valueWei": "0",
+      "before": {
+        "campaign": {
+          "id": 0,
+          "title": "Paired evidence tiny",
+          "creator": "0x97a9FD4CBd9f38f765C83c47cB69801cbc7feb75",
+          "goal_wei": "4",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "4",
+          "escrow_wei": "4",
+          "backers": [
+            {
+              "address": "0xd47F9bA2bBAfc259CDEB96AeBb3A23b88138F45d",
+              "amount": "4"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "EVIDENCE_SUBMITTED",
+              "evidence_text": "Controlled test evidence for sensor kit delivery; validators must fetch the reference.",
+              "evidence_date": "2026-11-13",
+              "evidence_hash": "6ac6f1773ebe4c1b2c62f659e5f6162b4caa1f8162bcd7b75f1e141da33445b5",
+              "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/ae1cc4387f0f9f040beead958292cb46cc39497a/docs/evidence/paired/original.md",
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            },
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "0"
+      },
+      "hash": "0x2fee88fb5a31032e9814d04c5a9f6a8a7fb99a7dc00c43dfb4d0c424bd76d369",
+      "status": "FINALIZED",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "proofHistory": [
+        {
+          "status": "FINALIZED",
+          "execution": "ERROR",
+          "consensus": "MAJORITY_AGREE",
+          "success": false
+        }
+      ],
+      "after": {
+        "campaign": {
+          "id": 0,
+          "title": "Paired evidence tiny",
+          "creator": "0x97a9FD4CBd9f38f765C83c47cB69801cbc7feb75",
+          "goal_wei": "4",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "4",
+          "escrow_wei": "4",
+          "backers": [
+            {
+              "address": "0xd47F9bA2bBAfc259CDEB96AeBb3A23b88138F45d",
+              "amount": "4"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "MILESTONE_REVIEW",
+              "evidence_text": "Controlled test evidence for sensor kit delivery; validators must fetch the reference.",
+              "evidence_date": "2026-11-13",
+              "evidence_hash": "6ac6f1773ebe4c1b2c62f659e5f6162b4caa1f8162bcd7b75f1e141da33445b5",
+              "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/ae1cc4387f0f9f040beead958292cb46cc39497a/docs/evidence/paired/original.md",
+              "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+              "snapshot_len": 398,
+              "snapshot_excerpt": "# Sensor kit delivery record\n\nControlled test document for MilestoneFund validator evaluation, not a report\nof a real installation or an independent audit.\n\nAll 12 Riverside sensor kits were assembled, installed and completed commissioning.\nFirmware v1.4.2 passed the final 24-hour reporting check on 2026-11-13.\nDelivery record ID MF-PAIR-001: every sensor reports temperature in degrees Celsius.\n",
+              "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+              "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+              "review_date": "2026-11-13",
+              "challenge_evidence": null,
+              "evaluations": [
+                {
+                  "round": 1,
+                  "source": "evidence",
+                  "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/ae1cc4387f0f9f040beead958292cb46cc39497a/docs/evidence/paired/original.md",
+                  "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+                  "snapshot_len": 398,
+                  "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+                  "flags": [
+                    "true",
+                    "true",
+                    "true"
+                  ],
+                  "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+                  "rationale": "The snapshot names sensor kits, states assembly/commissioning completed, and adds firmware version, date, and record ID as checkable details.",
+                  "current_date": "2026-11-13",
+                  "verdict": "ACCEPT"
+                }
+              ],
+              "pending_verdict": "ACCEPT",
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            },
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "0"
+      },
+      "validated": true
+    },
+    "tiny-m0-reject-unrelated": {
+      "role": "backer",
+      "functionName": "challenge_milestone",
+      "args": [
+        "0",
+        0,
+        "Controlled test evidence for sensor kit delivery; validators must fetch the reference.",
+        "2026-11-13",
+        "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/ae1cc4387f0f9f040beead958292cb46cc39497a/docs/evidence/paired/unrelated.md"
+      ],
+      "valueWei": "1000000000000000000",
+      "before": {
+        "campaign": {
+          "id": 0,
+          "title": "Paired evidence tiny",
+          "creator": "0x97a9FD4CBd9f38f765C83c47cB69801cbc7feb75",
+          "goal_wei": "4",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "4",
+          "escrow_wei": "4",
+          "backers": [
+            {
+              "address": "0xd47F9bA2bBAfc259CDEB96AeBb3A23b88138F45d",
+              "amount": "4"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "MILESTONE_REVIEW",
+              "evidence_text": "Controlled test evidence for sensor kit delivery; validators must fetch the reference.",
+              "evidence_date": "2026-11-13",
+              "evidence_hash": "6ac6f1773ebe4c1b2c62f659e5f6162b4caa1f8162bcd7b75f1e141da33445b5",
+              "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/ae1cc4387f0f9f040beead958292cb46cc39497a/docs/evidence/paired/original.md",
+              "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+              "snapshot_len": 398,
+              "snapshot_excerpt": "# Sensor kit delivery record\n\nControlled test document for MilestoneFund validator evaluation, not a report\nof a real installation or an independent audit.\n\nAll 12 Riverside sensor kits were assembled, installed and completed commissioning.\nFirmware v1.4.2 passed the final 24-hour reporting check on 2026-11-13.\nDelivery record ID MF-PAIR-001: every sensor reports temperature in degrees Celsius.\n",
+              "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+              "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+              "review_date": "2026-11-13",
+              "challenge_evidence": null,
+              "evaluations": [
+                {
+                  "round": 1,
+                  "source": "evidence",
+                  "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/ae1cc4387f0f9f040beead958292cb46cc39497a/docs/evidence/paired/original.md",
+                  "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+                  "snapshot_len": 398,
+                  "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+                  "flags": [
+                    "true",
+                    "true",
+                    "true"
+                  ],
+                  "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+                  "rationale": "The snapshot names sensor kits, states assembly/commissioning completed, and adds firmware version, date, and record ID as checkable details.",
+                  "current_date": "2026-11-13",
+                  "verdict": "ACCEPT"
+                }
+              ],
+              "pending_verdict": "ACCEPT",
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            },
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "PENDING",
+              "evidence_text": null,
+              "evidence_date": null,
+              "evidence_hash": null,
+              "reference_url": null,
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "0"
+      },
+      "hash": "0x59e12651579eba35f9ccd79e8657d58581964aa47debc13a4205d0cba33f25a8",
+      "status": "FINALIZED",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_DISAGREE",
+        "success": false
+      }
+    }
+  },
+  "checks": [
+    "tiny creator and allocation",
+    "tiny self-back full credit",
+    "tiny self-back no campaign change",
+    "tiny sole independent backer",
+    "tiny-m0 proof stored",
+    "tiny-m0-creator-review finalized error",
+    "tiny-m0-creator-review expected error",
+    "tiny-m0 creator review unchanged",
+    "tiny-m0 original ACCEPT pending"
+  ],
+  "complete": false,
+  "fixtureCommit": "ae1cc4387f0f9f040beead958292cb46cc39497a",
+  "funding": {
+    "creator": {
+      "result": "0x9c96b6d1b05b97ea2764312b297be4aeffbf707c5622bf2f81b24708c861a3de"
+    },
+    "backer": {
+      "result": "0x435bfb4b887e93ead37289ec7fbbaa5d4a82e03a3987ca6a0af76b3b0748cab0"
+    },
+    "stranger": {
+      "result": "0x412e9042aa2185e6d0b45bdcf68aec0975962b39259045e3c9d258338d07cd42"
+    }
+  },
+  "evidenceDate": "2026-11-13"
+}
