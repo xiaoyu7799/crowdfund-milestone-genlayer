@@ -1,9 +1,7 @@
 # Verify MilestoneFund
 
-The current address, deployment transaction and source hash are in [deployment.json](../deployment.json). Deployed source is compared byte for byte by `node scripts/verify-paired.mjs`.
+Current address, source hash and finalized deployment receipt are in [deployment.json](../deployment.json). Run `node scripts/verify-anchor.mjs` for independent read-only verification of the current deployed source, receipts and funds.
 
-[Live validation](../evidence/paired-validation.json) records 17 checked transactions and 33 assertions, including creator review refusal, three non-rebuttal refunds, paired disputes, 2 wei and 0.5 GEN reward limits, sole-backer resolution and withdrawals. Expected negative calls are distinguished from successful business operations.
+[Current live journal](../evidence/anchor-validation.json) demonstrates that rounds 2 and 3 remain bound to the original first-review snapshot hash and GitHub identity. Changing the original causes a round-two full stake refund and prevents round-three settlement. Restoring the reviewed content permits settlement. Final actual balance, credits and escrow are zero.
 
-[Independent readback](../evidence/live-verification.json) checks current deployed code, final receipts and settled state. Actual contract balance, outstanding credits and locked escrow are zero. Two quote-rejected corrective attempts refunded full stakes and remain in failedAttempts. [Historical records](../evidence/history/) preserve the earlier consensus-disagreed call and platform-retained surplus.
-
-[Browser CI](../evidence/ci-validation.json) records signer recovery tests and the earlier runner incompatibility. Local mock tests are not chain evidence.
+[Previous-version regression journal](../evidence/history/pre-anchor/paired-validation.json) preserves the earlier 17-transaction suite. It is not current-source evidence. Failed and retried fixture/restore calls remain in the current journal and receipt directory. [CI evidence](../evidence/ci-validation.json) distinguishes historical environment failures from successful browser recovery checks.

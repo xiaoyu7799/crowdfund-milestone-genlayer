@@ -1,5 +1,5 @@
 {
-  "hash": "0xa40815f5e364cee54a4defcad416246c96f8c49800f2fc105cd42b080bc087b2",
+  "hash": "0x9ce2ab1782526c71a8ad77de20d2f7c4f59185212d68f3ba866c82734dbcf218",
   "from_address": "0xd47F9bA2bBAfc259CDEB96AeBb3A23b88138F45d",
   "to_address": "0xF49D710b0bBB23058D2ED08d141b2E28a4a9A692",
   "data": {
@@ -12,14 +12,14 @@
   "consensus_data": {
     "votes": {
       "0x173a86dBe046c0c6aA3A48Bb8dd9d20c001a2ac1": "idle",
-      "0x364A7fb8bf37b1D388c4A81B4b109d91334dC9fd": "idle",
-      "0xB64c3Fa67e1f33aA1EFc721B7Ac763f2070fCcA3": "agree",
-      "0xd608c9ABb63F1776c7F0EE447194d8D7ea441b8b": "agree",
-      "0xeA908540c5FBB68Da844cC1BE5eaC8b23391e908": "agree"
+      "0xDc5B687ca37c3C65a16Dd456e6Ce4CF8Be2FfC9d": "disagree",
+      "0xE826F4232546894b7F1C6939309f22334de6d68a": "agree",
+      "0xeA908540c5FBB68Da844cC1BE5eaC8b23391e908": "agree",
+      "0xf20Cb474E5be2f56EA6Be925D057c28f458270da": "agree"
     },
     "leader_receipt": [
       {
-        "execution_result": "ERROR",
+        "execution_result": "SUCCESS",
         "genvm_result": {
           "stderr": "/py/libs/genlayer/gl/_internal/storage.py:21: UserWarning: Detected pickling storage class. Reading storage in nondet mode is not supported\n  warnings.warn(\n",
           "stdout": "",
@@ -31,9 +31,9 @@
         "vote": null,
         "node_config": {
           "stake": 100,
-          "address": "0xB64c3Fa67e1f33aA1EFc721B7Ac763f2070fCcA3",
+          "address": "0xE826F4232546894b7F1C6939309f22334de6d68a",
           "primary_model": {
-            "model": "policy:prd-qwen3.8-27b",
+            "model": "policy:prd-minimax-m3",
             "config": {
               "policy_ir": [
                 "policy",
@@ -59,11 +59,11 @@
                     "or",
                     [
                       "family_eq",
-                      "qwen3.8-27b"
+                      "minimax-m3"
                     ],
                     [
                       "family_eq",
-                      "gpt-oss-120b"
+                      "minimax-m3.1-flash"
                     ],
                     [
                       "family_eq",
@@ -80,7 +80,7 @@
                       "gate",
                       [
                         "family_eq",
-                        "qwen3.8-27b"
+                        "minimax-m3"
                       ],
                       [
                         "lit",
@@ -95,7 +95,7 @@
                       "gate",
                       [
                         "family_eq",
-                        "gpt-oss-120b"
+                        "minimax-m3.1-flash"
                       ],
                       [
                         "lit",
@@ -191,7 +191,7 @@
               "api_url": "https://router.ygr.ai",
               "api_key_env_var": "LLM_ROUTER_API_KEY"
             },
-            "fallback_validator": "0xf298378Fba762Ebf0cDf0c3dA90C33E730e1CdC3"
+            "fallback_validator": "0x29e027b307e32d2FB76825aB3cB21bcF79A433Aa"
           },
           "secondary_model": {
             "model": "openai/gpt-6.1-sol",
@@ -203,7 +203,7 @@
               ]
             },
             "plugin": "openai-compatible",
-            "address": "0xf298378Fba762Ebf0cDf0c3dA90C33E730e1CdC3",
+            "address": "0x29e027b307e32d2FB76825aB3cB21bcF79A433Aa",
             "provider": "openrouter",
             "plugin_config": {
               "api_url": "https://openrouter.ai/api",
@@ -216,17 +216,21 @@
         },
         "eq_outputs": {
           "0": {
-            "status": "rollback",
-            "payload": "EXPECTED: original_evidence_changed"
+            "status": "return",
+            "payload": {
+              "readable": "{\"current_date\":\"2026-11-14\"\"evidence_hash\":\"6d8aff917402f906ceba2b10694814d4d1600d15b6c0618afeb86eba0fea80d4\"\"flags\":[\"false\",\"false\",\"false\",]\"github_sha\":\"8078180b936a512bf1c96d6ceea2dc11e2dfa3e5\"\"original_github_sha\":\"38dac5d9090fb71bd0b121619fa968af4b5026e3\"\"original_quote\":\"All 12 Riverside sensor kits were assembled, installed and completed commissioning.\"\"original_snapshot\":\"# Sensor kit delivery record\\n\\nControlled test document for MilestoneFund validator evaluation, not a report\\nof a real installation or an independent audit.\\n\\nAll 12 Riverside sensor kits were assembled, installed and completed commissioning.\\nFirmware v1.4.2 passed the final 24-hour reporting check on 2026-11-13.\\nDelivery record ID MF-PAIR-001: every sensor reports temperature in degrees Celsius.\\n\"\"original_snapshot_hash\":\"f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e\"\"quote\":\"No Riverside sensor kits were delivered or installed.\"\"rationale\":\"The correction snapshot explicitly refutes the original claim of 12 assembled sensor kits, stating none were delivered or installed.\"\"rebuts_original\":\"true\"\"reference_url\":\"https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/counter.md\"\"snapshot\":\"# Correction to delivery record MF-PAIR-001\\n\\nControlled test fixture; this is not a real installation report.\\n\\nNo Riverside sensor kits were delivered or installed.\\n\\nThe original record MF-PAIR-001 falsely described twelve installed sensor kits.\\n\\nThe firmware v1.4.2 commissioning log was simulated, not a completed field test.\\n\\nThere is no completed sensor network and no field measurement confirming delivery.\\n\"\"snapshot_hash\":\"62f2093896a5913b4347bdf0fb827ddb891d9313307a194baa290be555917396\"\"snapshot_len\":412}"
+            }
           }
         },
         "result": {
-          "status": "rollback",
-          "payload": "EXPECTED: original_evidence_changed"
+          "status": "return",
+          "payload": {
+            "readable": "\"{\\\"campaign_id\\\": 0, \\\"milestone_index\\\": 0, \\\"status\\\": \\\"REFUNDED\\\", \\\"final_verdict\\\": \\\"REJECT\\\", \\\"witness_verdicts\\\": [\\\"ACCEPT\\\", \\\"REJECT\\\", \\\"REJECT\\\"], \\\"settlement\\\": {\\\"released_wei\\\": \\\"0\\\", \\\"refunded_wei\\\": \\\"0\\\", \\\"payouts\\\": []}}\""
+          }
         }
       },
       {
-        "execution_result": "ERROR",
+        "execution_result": "SUCCESS",
         "genvm_result": {
           "stderr": "/py/libs/genlayer/gl/_internal/storage.py:21: UserWarning: Detected pickling storage class. Reading storage in nondet mode is not supported\n  warnings.warn(\n",
           "stdout": "",
@@ -238,9 +242,9 @@
         "vote": "agree",
         "node_config": {
           "stake": 100,
-          "address": "0xB64c3Fa67e1f33aA1EFc721B7Ac763f2070fCcA3",
+          "address": "0xE826F4232546894b7F1C6939309f22334de6d68a",
           "primary_model": {
-            "model": "policy:prd-qwen3.8-27b",
+            "model": "policy:prd-minimax-m3",
             "config": {
               "policy_ir": [
                 "policy",
@@ -266,11 +270,11 @@
                     "or",
                     [
                       "family_eq",
-                      "qwen3.8-27b"
+                      "minimax-m3"
                     ],
                     [
                       "family_eq",
-                      "gpt-oss-120b"
+                      "minimax-m3.1-flash"
                     ],
                     [
                       "family_eq",
@@ -287,7 +291,7 @@
                       "gate",
                       [
                         "family_eq",
-                        "qwen3.8-27b"
+                        "minimax-m3"
                       ],
                       [
                         "lit",
@@ -302,7 +306,7 @@
                       "gate",
                       [
                         "family_eq",
-                        "gpt-oss-120b"
+                        "minimax-m3.1-flash"
                       ],
                       [
                         "lit",
@@ -398,7 +402,7 @@
               "api_url": "https://router.ygr.ai",
               "api_key_env_var": "LLM_ROUTER_API_KEY"
             },
-            "fallback_validator": "0xf298378Fba762Ebf0cDf0c3dA90C33E730e1CdC3"
+            "fallback_validator": "0x29e027b307e32d2FB76825aB3cB21bcF79A433Aa"
           },
           "secondary_model": {
             "model": "openai/gpt-6.1-sol",
@@ -410,7 +414,7 @@
               ]
             },
             "plugin": "openai-compatible",
-            "address": "0xf298378Fba762Ebf0cDf0c3dA90C33E730e1CdC3",
+            "address": "0x29e027b307e32d2FB76825aB3cB21bcF79A433Aa",
             "provider": "openrouter",
             "plugin_config": {
               "api_url": "https://openrouter.ai/api",
@@ -422,14 +426,16 @@
           "readable": "{\"args\":[0,0,]\"method\":\"resolve_disputed_milestone\"}"
         },
         "result": {
-          "status": "rollback",
-          "payload": "EXPECTED: original_evidence_changed"
+          "status": "return",
+          "payload": {
+            "readable": "\"{\\\"campaign_id\\\": 0, \\\"milestone_index\\\": 0, \\\"status\\\": \\\"REFUNDED\\\", \\\"final_verdict\\\": \\\"REJECT\\\", \\\"witness_verdicts\\\": [\\\"ACCEPT\\\", \\\"REJECT\\\", \\\"REJECT\\\"], \\\"settlement\\\": {\\\"released_wei\\\": \\\"0\\\", \\\"refunded_wei\\\": \\\"0\\\", \\\"payouts\\\": []}}\""
+          }
         }
       }
     ],
     "validators": [
       {
-        "execution_result": "ERROR",
+        "execution_result": "SUCCESS",
         "genvm_result": {
           "stderr": "/py/libs/genlayer/gl/_internal/storage.py:21: UserWarning: Detected pickling storage class. Reading storage in nondet mode is not supported\n  warnings.warn(\n",
           "stdout": "",
@@ -601,19 +607,19 @@
               "api_url": "https://router.ygr.ai",
               "api_key_env_var": "LLM_ROUTER_API_KEY"
             },
-            "fallback_validator": "0x29e027b307e32d2FB76825aB3cB21bcF79A433Aa"
+            "fallback_validator": "0xDc5B687ca37c3C65a16Dd456e6Ce4CF8Be2FfC9d"
           },
           "secondary_model": {
-            "model": "openai/gpt-6.1-sol",
+            "model": "google/gemini-3.5-flash-lite",
             "config": {
               "models": [
+                "google/gemini-3.5-flash-lite",
                 "openai/gpt-6.1-sol",
-                "anthropic/claude-sonnet-4.6",
-                "google/gemini-3.5-flash-lite"
+                "anthropic/claude-sonnet-4.6"
               ]
             },
             "plugin": "openai-compatible",
-            "address": "0x29e027b307e32d2FB76825aB3cB21bcF79A433Aa",
+            "address": "0xDc5B687ca37c3C65a16Dd456e6Ce4CF8Be2FfC9d",
             "provider": "openrouter",
             "plugin_config": {
               "api_url": "https://openrouter.ai/api",
@@ -623,187 +629,7 @@
         }
       },
       {
-        "execution_result": "ERROR",
-        "genvm_result": {
-          "stderr": "Validator execution cancelled after quorum",
-          "stdout": "",
-          "raw_error": {
-            "fatal": false,
-            "causes": [
-              "VALIDATOR_QUORUM_REACHED"
-            ]
-          },
-          "error_code": "CONSENSUS_VALIDATOR_QUORUM_REACHED"
-        },
-        "mode": "validator",
-        "vote": "idle",
-        "node_config": {
-          "id": 5871,
-          "model": "policy:prd-gpt-6.1-sol",
-          "stake": 100,
-          "config": {
-            "policy_ir": [
-              "policy",
-              [
-                "and",
-                [
-                  "meets_req"
-                ],
-                [
-                  "not",
-                  [
-                    "is",
-                    "disabled"
-                  ]
-                ],
-                [
-                  "cmp",
-                  "success_rate",
-                  "ge",
-                  0.2
-                ],
-                [
-                  "or",
-                  [
-                    "family_eq",
-                    "gpt-6.1-sol"
-                  ],
-                  [
-                    "family_eq",
-                    "gemini-3.5-flash-lite"
-                  ],
-                  [
-                    "family_eq",
-                    "gpt-oss-120b"
-                  ]
-                ]
-              ],
-              [
-                "add",
-                [
-                  "scale",
-                  100,
-                  [
-                    "gate",
-                    [
-                      "family_eq",
-                      "gpt-6.1-sol"
-                    ],
-                    [
-                      "lit",
-                      1
-                    ]
-                  ]
-                ],
-                [
-                  "scale",
-                  10,
-                  [
-                    "gate",
-                    [
-                      "family_eq",
-                      "gemini-3.5-flash-lite"
-                    ],
-                    [
-                      "lit",
-                      1
-                    ]
-                  ]
-                ],
-                [
-                  "scale",
-                  1,
-                  [
-                    "gate",
-                    [
-                      "family_eq",
-                      "gpt-oss-120b"
-                    ],
-                    [
-                      "lit",
-                      1
-                    ]
-                  ]
-                ],
-                [
-                  "scale",
-                  0.25,
-                  [
-                    "neg",
-                    [
-                      "normalize",
-                      [
-                        "field",
-                        "price_in"
-                      ]
-                    ]
-                  ]
-                ],
-                [
-                  "scale",
-                  0.45,
-                  [
-                    "neg",
-                    [
-                      "normalize",
-                      [
-                        "field",
-                        "price_out"
-                      ]
-                    ]
-                  ]
-                ],
-                [
-                  "scale",
-                  0.2,
-                  [
-                    "field",
-                    "success_rate"
-                  ]
-                ],
-                [
-                  "scale",
-                  0.1,
-                  [
-                    "neg",
-                    [
-                      "normalize",
-                      [
-                        "field",
-                        "latency_ms"
-                      ]
-                    ]
-                  ]
-                ]
-              ],
-              [
-                "argmax"
-              ],
-              [
-                "id"
-              ],
-              [
-                "always",
-                {
-                  "action": "next_candidate"
-                }
-              ]
-            ],
-            "timeout_ms": 22000,
-            "first_token_timeout_ms": 7000
-          },
-          "plugin": "openai-compatible",
-          "address": "0x364A7fb8bf37b1D388c4A81B4b109d91334dC9fd",
-          "provider": "llm-router",
-          "plugin_config": {
-            "api_url": "https://router.ygr.ai",
-            "api_key_env_var": "LLM_ROUTER_API_KEY"
-          },
-          "fallback_validator": "0xc4Ab6B9D74c72EB38D43645318Bb4aFb518a09be"
-        }
-      },
-      {
-        "execution_result": "ERROR",
+        "execution_result": "SUCCESS",
         "genvm_result": {
           "stderr": "/py/libs/genlayer/gl/_internal/storage.py:21: UserWarning: Detected pickling storage class. Reading storage in nondet mode is not supported\n  warnings.warn(\n",
           "stdout": "",
@@ -812,12 +638,29 @@
           "error_description": null
         },
         "mode": "validator",
-        "vote": "agree",
+        "vote": "disagree",
         "node_config": {
           "stake": 100,
-          "address": "0xd608c9ABb63F1776c7F0EE447194d8D7ea441b8b",
+          "address": "0xDc5B687ca37c3C65a16Dd456e6Ce4CF8Be2FfC9d",
           "primary_model": {
-            "model": "policy:prd-gemini-3.5-flash-lite",
+            "model": "google/gemini-3.5-flash-lite",
+            "config": {
+              "models": [
+                "google/gemini-3.5-flash-lite",
+                "openai/gpt-6.1-sol",
+                "anthropic/claude-sonnet-4.6"
+              ]
+            },
+            "plugin": "openai-compatible",
+            "provider": "openrouter",
+            "plugin_config": {
+              "api_url": "https://openrouter.ai/api",
+              "api_key_env_var": "OPENROUTERAPIKEY"
+            },
+            "fallback_validator": "0x0533e32Ae90B9065476eB89C2Bb655eCD98764BD"
+          },
+          "secondary_model": {
+            "model": "policy:prd-deepseek-v4.1-flash-1017",
             "config": {
               "policy_ir": [
                 "policy",
@@ -843,7 +686,7 @@
                     "or",
                     [
                       "family_eq",
-                      "gemini-3.5-flash-lite"
+                      "deepseek-v4.1-flash-1017"
                     ],
                     [
                       "family_eq",
@@ -864,7 +707,7 @@
                       "gate",
                       [
                         "family_eq",
-                        "gemini-3.5-flash-lite"
+                        "deepseek-v4.1-flash-1017"
                       ],
                       [
                         "lit",
@@ -970,28 +813,11 @@
               "first_token_timeout_ms": 7000
             },
             "plugin": "openai-compatible",
+            "address": "0x0533e32Ae90B9065476eB89C2Bb655eCD98764BD",
             "provider": "llm-router",
             "plugin_config": {
               "api_url": "https://router.ygr.ai",
               "api_key_env_var": "LLM_ROUTER_API_KEY"
-            },
-            "fallback_validator": "0xDc5B687ca37c3C65a16Dd456e6Ce4CF8Be2FfC9d"
-          },
-          "secondary_model": {
-            "model": "google/gemini-3.5-flash-lite",
-            "config": {
-              "models": [
-                "google/gemini-3.5-flash-lite",
-                "openai/gpt-6.1-sol",
-                "anthropic/claude-sonnet-4.6"
-              ]
-            },
-            "plugin": "openai-compatible",
-            "address": "0xDc5B687ca37c3C65a16Dd456e6Ce4CF8Be2FfC9d",
-            "provider": "openrouter",
-            "plugin_config": {
-              "api_url": "https://openrouter.ai/api",
-              "api_key_env_var": "OPENROUTERAPIKEY"
             }
           }
         }
@@ -1173,28 +999,222 @@
             "api_url": "https://router.ygr.ai",
             "api_key_env_var": "LLM_ROUTER_API_KEY"
           },
-          "fallback_validator": "0x29e027b307e32d2FB76825aB3cB21bcF79A433Aa"
+          "fallback_validator": "0xc4Ab6B9D74c72EB38D43645318Bb4aFb518a09be"
+        }
+      },
+      {
+        "execution_result": "SUCCESS",
+        "genvm_result": {
+          "stderr": "/py/libs/genlayer/gl/_internal/storage.py:21: UserWarning: Detected pickling storage class. Reading storage in nondet mode is not supported\n  warnings.warn(\n",
+          "stdout": "",
+          "raw_error": null,
+          "error_code": null,
+          "error_description": null
+        },
+        "mode": "validator",
+        "vote": "agree",
+        "node_config": {
+          "stake": 100,
+          "address": "0xf20Cb474E5be2f56EA6Be925D057c28f458270da",
+          "primary_model": {
+            "model": "policy:prd-kimi-k2.7-code",
+            "config": {
+              "policy_ir": [
+                "policy",
+                [
+                  "and",
+                  [
+                    "meets_req"
+                  ],
+                  [
+                    "not",
+                    [
+                      "is",
+                      "disabled"
+                    ]
+                  ],
+                  [
+                    "cmp",
+                    "success_rate",
+                    "ge",
+                    0.2
+                  ],
+                  [
+                    "or",
+                    [
+                      "family_eq",
+                      "kimi-k2.7-code"
+                    ],
+                    [
+                      "family_eq",
+                      "claude-sonnet-4-6"
+                    ],
+                    [
+                      "family_eq",
+                      "gpt-6.1-sol"
+                    ]
+                  ]
+                ],
+                [
+                  "add",
+                  [
+                    "scale",
+                    100,
+                    [
+                      "gate",
+                      [
+                        "family_eq",
+                        "kimi-k2.7-code"
+                      ],
+                      [
+                        "lit",
+                        1
+                      ]
+                    ]
+                  ],
+                  [
+                    "scale",
+                    10,
+                    [
+                      "gate",
+                      [
+                        "family_eq",
+                        "claude-sonnet-4-6"
+                      ],
+                      [
+                        "lit",
+                        1
+                      ]
+                    ]
+                  ],
+                  [
+                    "scale",
+                    1,
+                    [
+                      "gate",
+                      [
+                        "family_eq",
+                        "gpt-6.1-sol"
+                      ],
+                      [
+                        "lit",
+                        1
+                      ]
+                    ]
+                  ],
+                  [
+                    "scale",
+                    0.25,
+                    [
+                      "neg",
+                      [
+                        "normalize",
+                        [
+                          "field",
+                          "price_in"
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "scale",
+                    0.45,
+                    [
+                      "neg",
+                      [
+                        "normalize",
+                        [
+                          "field",
+                          "price_out"
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "scale",
+                    0.2,
+                    [
+                      "field",
+                      "success_rate"
+                    ]
+                  ],
+                  [
+                    "scale",
+                    0.1,
+                    [
+                      "neg",
+                      [
+                        "normalize",
+                        [
+                          "field",
+                          "latency_ms"
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "argmax"
+                ],
+                [
+                  "id"
+                ],
+                [
+                  "always",
+                  {
+                    "action": "next_candidate"
+                  }
+                ]
+              ],
+              "timeout_ms": 22000,
+              "first_token_timeout_ms": 7000
+            },
+            "plugin": "openai-compatible",
+            "provider": "llm-router",
+            "plugin_config": {
+              "api_url": "https://router.ygr.ai",
+              "api_key_env_var": "LLM_ROUTER_API_KEY"
+            },
+            "fallback_validator": "0xf298378Fba762Ebf0cDf0c3dA90C33E730e1CdC3"
+          },
+          "secondary_model": {
+            "model": "openai/gpt-6.1-sol",
+            "config": {
+              "models": [
+                "openai/gpt-6.1-sol",
+                "anthropic/claude-sonnet-4.6",
+                "google/gemini-3.5-flash-lite"
+              ]
+            },
+            "plugin": "openai-compatible",
+            "address": "0xf298378Fba762Ebf0cDf0c3dA90C33E730e1CdC3",
+            "provider": "openrouter",
+            "plugin_config": {
+              "api_url": "https://openrouter.ai/api",
+              "api_key_env_var": "OPENROUTERAPIKEY"
+            }
+          }
         }
       }
     ]
   },
-  "gaslimit": 23,
-  "nonce": 23,
-  "created_at": "2026-11-14T15:36:20.538816+00:00",
+  "gaslimit": 24,
+  "nonce": 24,
+  "created_at": "2026-11-14T15:39:46.838794+00:00",
   "leader_only": false,
   "execution_mode": "NORMAL",
   "origin_address": "0xd47F9bA2bBAfc259CDEB96AeBb3A23b88138F45d",
   "triggered_on": null,
   "appeal_validators_timeout": false,
   "sim_config": {
-    "signed_rollup_transaction": "0xf9016917808307a12094b7278a61aa25c888815afc32ad3cc52ff24fe57580b9010427241a99000000000000000000000000d47f9ba2bbafc259cdeb96aebb3a23b88138f45d000000000000000000000000f49d710b0bbb23058d2ed08d141b2e28a4a9a6920000000000000000000000000000000000000000000000000000000000000005000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000002feeac160461726773150101066d6574686f64d4017265736f6c76655f64697370757465645f6d696c6573746f6e650000000000000000000000000000000000008301e482a005d5d4982b6f91bf25b1cfee33a5caac586d781c32d7b5c009f3fe23610b62e0a00537f24d960b1c74b4d458a02f906b1dcebed8d3ce4846ffe0f6e1a67de6a04c"
+    "signed_rollup_transaction": "0xf9016918808307a12094b7278a61aa25c888815afc32ad3cc52ff24fe57580b9010427241a99000000000000000000000000d47f9ba2bbafc259cdeb96aebb3a23b88138f45d000000000000000000000000f49d710b0bbb23058d2ed08d141b2e28a4a9a6920000000000000000000000000000000000000000000000000000000000000005000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000002feeac160461726773150101066d6574686f64d4017265736f6c76655f64697370757465645f6d696c6573746f6e650000000000000000000000000000000000008301e482a0c2536049676dc107239a3241b660b4880583ead04f88e8ba57112df6c3b2c243a04a981e6997da1464313a3524f3a9d3ff18c557e81375e834b9f61220ce3a41d7"
   },
   "value_credited": false,
   "sender": "0xd47F9bA2bBAfc259CDEB96AeBb3A23b88138F45d",
   "recipient": "0xF49D710b0bBB23058D2ED08d141b2E28a4a9A692",
-  "tx_id": "0xa40815f5e364cee54a4defcad416246c96f8c49800f2fc105cd42b080bc087b2",
-  "activator": "0xB64c3Fa67e1f33aA1EFc721B7Ac763f2070fCcA3",
-  "last_leader": "0xB64c3Fa67e1f33aA1EFc721B7Ac763f2070fCcA3",
+  "tx_id": "0x9ce2ab1782526c71a8ad77de20d2f7c4f59185212d68f3ba866c82734dbcf218",
+  "activator": "0xE826F4232546894b7F1C6939309f22334de6d68a",
+  "last_leader": "0xE826F4232546894b7F1C6939309f22334de6d68a",
   "result_name": "MAJORITY_AGREE",
   "num_of_rounds": "1",
   "last_round": {
@@ -1206,32 +1226,32 @@
     "rotations_left": "3",
     "result": 6,
     "round_validators": [
-      "0xB64c3Fa67e1f33aA1EFc721B7Ac763f2070fCcA3",
+      "0xE826F4232546894b7F1C6939309f22334de6d68a",
       "0xeA908540c5FBB68Da844cC1BE5eaC8b23391e908",
-      "0x364A7fb8bf37b1D388c4A81B4b109d91334dC9fd",
-      "0xd608c9ABb63F1776c7F0EE447194d8D7ea441b8b",
-      "0x173a86dBe046c0c6aA3A48Bb8dd9d20c001a2ac1"
+      "0xDc5B687ca37c3C65a16Dd456e6Ce4CF8Be2FfC9d",
+      "0x173a86dBe046c0c6aA3A48Bb8dd9d20c001a2ac1",
+      "0xf20Cb474E5be2f56EA6Be925D057c28f458270da"
     ],
     "validator_votes_hash": [
-      "0x041e6eb64b06a1368959a31bf2d1162f6aca0915cfcc1dd0f1b680fd6ec58574",
-      "0x076c85ac95ceb2b4fc7d351a70e46454b02038861eff237d5885b5b6a8974946",
-      "0xa0c047d8d44cfb56b4bfd8124ebc090c47c615e721f889ce74b0fe741e0dc518",
-      "0x2ccb9d842629c6828eb302d777ee4ee9f0f7074c129adde3189090a0b5a8ef23",
-      "0xec5fc4fd6eef0a649ca0d20bb0065b9330b88cbd277300bc309857d1ac20654a"
+      "0x989fe619756f8fce8f109b7e2f0199f7592663ea24c383829da7ceef13964c84",
+      "0xb42240e0389c4c938e31bf155b1bccb904e72102ba658dbb9ef8b22ce67fb0eb",
+      "0xcdd5504c55d88e335b18d1823ebed250b3bf4945d5c17cb4fed22f80ccb3acd6",
+      "0xbf7412c8a65bb6ff7e71f0f00a9240ddf065905deaa49c76ddef3497f2d25435",
+      "0x39a3924d1940b68816bb85aa7d4a6930a81f6cdaae02d1edc14805cd8181568e"
     ],
     "validator_votes": [
       1,
       1,
+      2,
       5,
-      1,
-      5
+      1
     ],
     "validator_votes_name": [
       "AGREE",
       "AGREE",
+      "DISAGREE",
       "IDLE",
-      "AGREE",
-      "IDLE"
+      "AGREE"
     ]
   },
   "type": 2,

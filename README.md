@@ -11,7 +11,7 @@ Crowdfunding with testnet GEN held in escrow until GenLayer validators review ea
 - Deployment: https://explorer-studio.genlayer.com/tx/0x603436a4edfaee528025620fbedafa3f022d5f48710534715e72e2c304c373e5
 - Deployment status: FINALIZED, execution SUCCESS, consensus MAJORITY_AGREE.
 - Source SHA-256: `2f22d6f47109258e23a7c5ca524d8860fb127780f7f7624ba852d85a155fce88`; deployed code readback matches byte for byte.
-- [Evidence index](evidence.json), [live journal](evidence/paired-validation.json), [independent readback](evidence/live-verification.json), [browser CI](evidence/ci-validation.json).
+- [Evidence index](evidence.json), [current live journal](evidence/anchor-validation.json), [independent readback](evidence/live-verification.json), [browser CI](evidence/ci-validation.json).
 
 ## Challenge mechanism
 
@@ -21,7 +21,7 @@ A changed verdict freezes the milestone. The challenger receives the 1 GEN stake
 
 ## Original evidence anchor
 
-Both later review rounds reject a re-fetched original snapshot hash or GitHub SHA that differs from round one. A changed original refunds the round-two stake and cannot settle a frozen round-three dispute. The current deployment's targeted journal is `evidence/anchor-validation.json`; previous 17-transaction coverage remains version-specific under `evidence/history/pre-anchor`.
+Both later review rounds reject a re-fetched original snapshot hash or GitHub SHA that differs from round one. A changed original refunds the round-two stake and cannot settle a frozen round-three dispute. The current deployment completed 9 checked calls, including changed-original rejection in rounds 2 and 3, restoration, settlement and withdrawal. Its targeted journal is `evidence/anchor-validation.json`; previous 17-transaction coverage remains version-specific under `evidence/history/pre-anchor`.
 
 ## Previous-version live regression coverage
 

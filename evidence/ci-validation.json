@@ -20,6 +20,13 @@
       "conclusion": "success",
       "url": "https://github.com/xiaoyu7799/crowdfund-milestone-genlayer/actions/runs/43548835987",
       "scope": "Browser signer create/export/reload/import, local tests, build and i18n"
+    },
+    {
+      "id": 43611335900,
+      "commit": "5a9c223b2913e7184d5d2c71fa1467d44f878402",
+      "conclusion": "success",
+      "url": "https://github.com/xiaoyu7799/crowdfund-milestone-genlayer/actions/runs/43611335900",
+      "scope": "220 contract checks, build, i18n and Chromium signer recovery; snapshot-anchor source revision"
     }
   ]
 }
