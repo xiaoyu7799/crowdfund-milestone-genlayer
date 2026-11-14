@@ -1,0 +1,14 @@
+{
+  "verified": true,
+  "contractAddress": "0x2dd504b10b2a11A7c4106a7c72662B97fDB78591",
+  "transactions": 17,
+  "totals": {
+    "total_received_wei": "11000000000000000004",
+    "total_withdrawn_wei": "11000000000000000004",
+    "contract_balance_wei": "0",
+    "credits_outstanding_wei": "0",
+    "escrow_locked_wei": "0",
+    "accounted_wei": "11000000000000000004",
+    "invariant_ok": true
+  }
+}

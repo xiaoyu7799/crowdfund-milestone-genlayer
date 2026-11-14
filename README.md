@@ -7,10 +7,10 @@ Crowdfunding with testnet GEN held in escrow until GenLayer validators review ea
 ## Contract and verification
 
 - Stable Studionet, chain 61999, RPC https://studio.genlayer.com/api
-- Contract: https://explorer-studio.genlayer.com/address/0x2dd504b10b2a11A7c4106a7c72662B97fDB78591
-- Deployment: https://explorer-studio.genlayer.com/tx/0x894d491d3db2bf30d4ecd90a651d6f7346cc79f4a54baacef25318ad85c14780
+- Contract: https://explorer-studio.genlayer.com/address/0xF49D710b0bBB23058D2ED08d141b2E28a4a9A692
+- Deployment: https://explorer-studio.genlayer.com/tx/0x603436a4edfaee528025620fbedafa3f022d5f48710534715e72e2c304c373e5
 - Deployment status: FINALIZED, execution SUCCESS, consensus MAJORITY_AGREE.
-- Source SHA-256: `44274544a3f9f7ed9451ff1bb2078f84611c0b519b8a01a10566a75dbf110c1c`; deployed code readback matches byte for byte.
+- Source SHA-256: `2f22d6f47109258e23a7c5ca524d8860fb127780f7f7624ba852d85a155fce88`; deployed code readback matches byte for byte.
 - [Evidence index](evidence.json), [live journal](evidence/paired-validation.json), [independent readback](evidence/live-verification.json), [browser CI](evidence/ci-validation.json).
 
 ## Challenge mechanism
@@ -19,9 +19,13 @@ Challenge and dispute resolution fetch original and counter-evidence together. V
 
 A changed verdict freezes the milestone. The challenger receives the 1 GEN stake back plus a reward capped at the minimum of 0.5 GEN, the milestone allocation and available escrow, rounded down to even wei. A third paired review settles the remaining pool. Creators cannot back or review their own campaign. A sole independent backer can resolve a dispute.
 
-## Live regression coverage
+## Original evidence anchor
 
-The current deployment completed 17 checked transactions, including expected creator-review rejection. Controlled test documents exercise the real network's fetching and consensus; they are not real-world delivery claims.
+Both later review rounds reject a re-fetched original snapshot hash or GitHub SHA that differs from round one. A changed original refunds the round-two stake and cannot settle a frozen round-three dispute. The current deployment's targeted journal is `evidence/anchor-validation.json`; previous 17-transaction coverage remains version-specific under `evidence/history/pre-anchor`.
+
+## Previous-version live regression coverage
+
+The preceding deployment completed 17 checked transactions, including expected creator-review rejection. Controlled test documents exercise the real network's fetching and consensus; they are not real-world delivery claims.
 
 The 2 wei milestone paid only a 2 wei reward and left the separate 2 GEN milestone unchanged. Both disputes were resolved by the sole independent backer. The 2 GEN milestone reward was 0.5 GEN. Creator and backer withdrew their credits. Final actual contract balance, outstanding credits and locked escrow are all zero.
 
@@ -38,7 +42,7 @@ npm ci --ignore-scripts
 npm test
 npm run build-site
 npm run i18n
-node scripts/verify-paired.mjs
+node scripts/verify-anchor.mjs
 node scripts/paired-flow.mjs --plan
 ```
 

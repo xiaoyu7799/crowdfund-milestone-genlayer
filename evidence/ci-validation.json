@@ -13,6 +13,13 @@
       "conclusion": "success",
       "url": "https://github.com/xiaoyu7799/crowdfund-milestone-genlayer/actions/runs/43451618071",
       "scope": "Local mock checks, build, i18n and Chromium signer create/export/reload/import with RPC blocked"
+    },
+    {
+      "id": 43548835987,
+      "commit": "6051793f42376501124860a90bf623930124db57",
+      "conclusion": "success",
+      "url": "https://github.com/xiaoyu7799/crowdfund-milestone-genlayer/actions/runs/43548835987",
+      "scope": "Browser signer create/export/reload/import, local tests, build and i18n"
     }
   ]
 }

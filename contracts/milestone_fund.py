@@ -546,6 +546,13 @@ class MilestoneFund(gl.Contract):
             if original is not None:
                 original_url, original_sha = self._resolve_reference(original["url"])
                 original_snapshot = self._fetch_snapshot(original_url)[:MAX_SNAPSHOT_CHARS]
+                first_rounds = milestone.get("evaluations", [])
+                if not first_rounds or first_rounds[0].get("round") != 1:
+                    raise gl.vm.UserError("EXPECTED: missing_original_review_anchor")
+                anchor = first_rounds[0]
+                if (pure_sha256_hex(original_snapshot) != anchor.get("snapshot_hash")
+                        or original_sha != anchor.get("github_sha")):
+                    raise gl.vm.UserError("EXPECTED: original_evidence_changed")
             prompt = (
                 "You are a milestone evidence checker for a crowdfunding contract. "
                 + ("Judge BOTH fetched snapshots together against the milestone title. " if original is not None

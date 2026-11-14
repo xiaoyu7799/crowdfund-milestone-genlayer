@@ -36,9 +36,7 @@ acceptance evidence.
 
 For browser interaction tests, serve `docs` on localhost port 8765, install
 Playwright with Chromium, then run `python3 tests/browser_signer.py`. RPC calls
-are blocked by the test so it cannot submit chain transactions. This environment's
-Chromium attempt failed at process startup (`socket(): Operation not permitted`);
-no browser interaction pass is claimed. See `evidence/local-validation.json`.
+are blocked by the test so it cannot submit chain transactions. Browser signer recovery passed in CI run 43548835987 for commit 6051793. Earlier environment-specific startup failures are historical results, not the current browser outcome.
 
 ## Live validation required
 
@@ -69,3 +67,7 @@ read from historical transaction
 that read is not new-version transaction evidence.
 
 Current live validation and independent readback completed successfully. Browser recovery checks passed in GitHub Actions run 43451618071; the local Chromium startup failure remains an environment-specific result.
+
+## First-review snapshot anchor
+
+Rounds 2 and 3 require the fetched original snapshot hash and GitHub SHA to match evaluations[0]. Missing or changed anchors prevent settlement. Round 2 credits the full stake back; round 3 leaves the frozen state unchanged. Regression coverage changes the body and GitHub identity independently in both rounds.

@@ -1062,5 +1062,34 @@ try:
 except RuntimeError:
     check("eligible rebuttal verdict split cannot settle", before == x.campaigns_json)
 
+
+# The original reference must stay bound to round 1 in both later rounds.
+for mutation in ("body", "github_sha"):
+    x = ready()
+    before = x.campaigns_json
+    old_body = URL_CONTENT[GOOD_URL]
+    old_sha = MOCK_GITHUB_SHA
+    if mutation == "body": URL_CONTENT[GOOD_URL] += "Modified after first review."
+    else: MOCK_GITHUB_SHA = "f" * 40
+    set_sender(B, GEN)
+    r = json.loads(x.challenge_milestone(0, 0, "Relevant corrective counter evidence.", "2026-11-09", CHECK_URL))
+    check("round 2 rejects changed original " + mutation, r["accepted"] is False and "original_evidence_changed" in r.get("error", "") and before == x.campaigns_json and int(x.get_credit(B)) == GEN and invariant(x))
+    URL_CONTENT[GOOD_URL] = old_body
+    MOCK_GITHUB_SHA = old_sha
+
+    x = ready()
+    _Nondet.rebuttal = "true"
+    _Nondet.flag_queue = [["false"] * 3] * 2
+    set_sender(B, GEN)
+    x.challenge_milestone(0, 0, "Relevant corrective counter evidence.", "2026-11-09", CHECK_URL)
+    before = x.campaigns_json
+    if mutation == "body": URL_CONTENT[GOOD_URL] += "Modified before third review."
+    else: MOCK_GITHUB_SHA = "f" * 40
+    set_sender(B)
+    expect_error("round 3 rejects changed original " + mutation, lambda: x.resolve_disputed_milestone(0, 0))
+    check("round 3 preserves frozen escrow " + mutation, before == x.campaigns_json and invariant(x))
+    URL_CONTENT[GOOD_URL] = old_body
+    MOCK_GITHUB_SHA = old_sha
+
 print(f"\n{PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)

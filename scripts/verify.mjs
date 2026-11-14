@@ -1,6 +1,6 @@
 // Current verification checks paired-evidence transactions. Historical receipts remain inspectable.
 if (!process.argv.includes("--historical")) {
-  await import("./verify-paired.mjs");
+  await import("./verify-anchor.mjs");
   process.exit(0);
 }
 /* Independent read-back verification of a deployed MilestoneFund contract.
