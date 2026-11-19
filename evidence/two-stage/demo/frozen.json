@@ -1,0 +1,329 @@
+{
+  "contractAddress": "0x593fF4e4E5b5F73d34c7C29509D75E8B537EC853",
+  "isDemoFixture": true,
+  "scenario": "frozen",
+  "transactions": {
+    "create": {
+      "functionName": "create_campaign",
+      "args": [
+        "[Demo] Wetland monitoring equipment",
+        "4000000000000000000",
+        "[\n  {\n    \"title\": \"Sensor kits assembled\",\n    \"amount\": \"2000000000000000000\"\n  },\n  {\n    \"title\": \"Publish installation notes\",\n    \"amount\": \"2000000000000000000\"\n  }\n]"
+      ],
+      "valueWei": "0",
+      "hash": "0xfca8f55471708e13d66f1ce4ca17705d35321ef8ff1c689b4b36fbf054a221cb",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "id": 3,
+        "title": "[Demo] Wetland monitoring equipment",
+        "creator": "0x1595280de87ABdd315b16f25Ed6CA7Fa93Cc32a8",
+        "goal_wei": "4000000000000000000",
+        "status": "FUNDING",
+        "total_backed_wei": "0",
+        "escrow_wei": "0",
+        "backers": [],
+        "milestones": [
+          {
+            "title": "Sensor kits assembled",
+            "amount": "2000000000000000000",
+            "status": "PENDING",
+            "evidence_text": null,
+            "evidence_date": null,
+            "evidence_hash": null,
+            "reference_url": null,
+            "snapshot_hash": null,
+            "snapshot_len": null,
+            "snapshot_excerpt": null,
+            "github_sha": null,
+            "quote": null,
+            "review_date": null,
+            "challenge_evidence": null,
+            "evaluations": [],
+            "pending_verdict": null,
+            "final_verdict": null,
+            "released_wei": "0",
+            "refunded_wei": "0",
+            "refund_payouts": [],
+            "settlement_wei": null,
+            "challenge": null
+          },
+          {
+            "title": "Publish installation notes",
+            "amount": "2000000000000000000",
+            "status": "PENDING",
+            "evidence_text": null,
+            "evidence_date": null,
+            "evidence_hash": null,
+            "reference_url": null,
+            "snapshot_hash": null,
+            "snapshot_len": null,
+            "snapshot_excerpt": null,
+            "github_sha": null,
+            "quote": null,
+            "review_date": null,
+            "challenge_evidence": null,
+            "evaluations": [],
+            "pending_verdict": null,
+            "final_verdict": null,
+            "released_wei": "0",
+            "refunded_wei": "0",
+            "refund_payouts": [],
+            "settlement_wei": null,
+            "challenge": null
+          }
+        ]
+      }
+    },
+    "back": {
+      "functionName": "back_campaign",
+      "args": [
+        "3"
+      ],
+      "valueWei": "4000000000000000000",
+      "hash": "0x8557d75a7d0bbf4990c108ff81595ecf11711e1171c6fb75c5cd58a7a82758cb",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "accepted": true,
+        "campaign_id": 3,
+        "total_backed_wei": "4000000000000000000",
+        "goal_wei": "4000000000000000000",
+        "status": "MILESTONE_REVIEW",
+        "backed_wei": "4000000000000000000",
+        "contract_balance_wei": "7000000000000000002"
+      }
+    },
+    "proof": {
+      "functionName": "submit_milestone_proof",
+      "args": [
+        "3",
+        0,
+        "Controlled demo fixture describing sensor kit delivery.",
+        "2026-11-19",
+        "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md"
+      ],
+      "valueWei": "0",
+      "hash": "0x4526292ba532d17c3cd153b96d7c411193a9ec165d4b19a94087363c90c84009",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "campaign_id": 3,
+        "milestone_index": 0,
+        "status": "EVIDENCE_SUBMITTED",
+        "evidence_hash": "9be219de569f287b822d293e09bd082fee836cb1f50a53565de058fbc945aa20",
+        "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+        "evidence_date": "2026-11-19"
+      }
+    },
+    "review": {
+      "functionName": "review_milestone",
+      "args": [
+        "3",
+        0
+      ],
+      "valueWei": "0",
+      "hash": "0xef7458d6dd38a4ce73ebba8252745c1d1a1ea7a8c6b0e15f3a6d7cf663f0c99c",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "campaign_id": 3,
+        "milestone_index": 0,
+        "status": "MILESTONE_REVIEW",
+        "round": 1,
+        "pending_verdict": "ACCEPT",
+        "flags": [
+          "true",
+          "true",
+          "true"
+        ],
+        "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+        "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+        "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+        "review_date": "2026-11-19",
+        "current_date": "2026-11-19"
+      }
+    },
+    "file": {
+      "functionName": "file_challenge",
+      "args": [
+        "3",
+        0,
+        "Controlled demo fixture documenting contradictory delivery evidence.",
+        "2026-11-19",
+        "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/counter.md"
+      ],
+      "valueWei": "1000000000000000000",
+      "hash": "0x7597549d3ea27081ce10dc935229cea7737ac05bc95f6b148736404fc3a18850",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "accepted": true,
+        "challenge_id": "3",
+        "expires_at": 1795189127
+      }
+    },
+    "challenge-review": {
+      "functionName": "review_challenge",
+      "args": [
+        "3",
+        0,
+        "3"
+      ],
+      "valueWei": "0",
+      "hash": "0xd5dc0c131ab50543c5e580c08ca984ec5752006f1735880e863d063b3ebd637c",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "accepted": true,
+        "campaign_id": 3,
+        "milestone_index": 0,
+        "status": "FROZEN",
+        "first_verdict": "ACCEPT",
+        "second_verdict": "REJECT",
+        "challenge_outcome": "WON_FROZEN",
+        "settlement": null
+      }
+    }
+  },
+  "campaign": {
+    "id": 3,
+    "title": "[Demo] Wetland monitoring equipment",
+    "creator": "0x1595280de87ABdd315b16f25Ed6CA7Fa93Cc32a8",
+    "goal_wei": "4000000000000000000",
+    "status": "MILESTONE_REVIEW",
+    "total_backed_wei": "4000000000000000000",
+    "escrow_wei": "3500000000000000000",
+    "backers": [
+      {
+        "address": "0x2531929B4E8A4c2E6393391779967119898ec2E3",
+        "amount": "4000000000000000000"
+      }
+    ],
+    "milestones": [
+      {
+        "title": "Sensor kits assembled",
+        "amount": "2000000000000000000",
+        "status": "FROZEN",
+        "evidence_text": "Controlled demo fixture describing sensor kit delivery.",
+        "evidence_date": "2026-11-19",
+        "evidence_hash": "9be219de569f287b822d293e09bd082fee836cb1f50a53565de058fbc945aa20",
+        "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+        "snapshot_hash": "62f2093896a5913b4347bdf0fb827ddb891d9313307a194baa290be555917396",
+        "snapshot_len": 412,
+        "snapshot_excerpt": "# Correction to delivery record MF-PAIR-001\n\nControlled test fixture; this is not a real installation report.\n\nNo Riverside sensor kits were delivered or installed.\n\nThe original record MF-PAIR-001 falsely described twelve installed sensor kits.\n\nThe firmware v1.4.2 commissioning log was simulated, not a completed field test.\n\nThere is no completed sensor network and no field measurement confirming delivery.\n",
+        "github_sha": "8078180b936a512bf1c96d6ceea2dc11e2dfa3e5",
+        "quote": "No Riverside sensor kits were delivered or installed.",
+        "review_date": "2026-11-19",
+        "challenge_evidence": {
+          "text": "Controlled demo fixture documenting contradictory delivery evidence.",
+          "date": "2026-11-19",
+          "url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/counter.md",
+          "hash": "15ffd830975938b2c4e5644919004a2f9d6d0c4f92bd1916f2497717fb386058"
+        },
+        "evaluations": [
+          {
+            "round": 1,
+            "source": "evidence",
+            "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+            "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+            "snapshot_len": 398,
+            "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+            "flags": [
+              "true",
+              "true",
+              "true"
+            ],
+            "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+            "rationale": "Snapshot names assembled sensor kits, describes completed commissioning in past tense, and includes firmware version, dated check, and delivery record ID.",
+            "current_date": "2026-11-19",
+            "verdict": "ACCEPT"
+          },
+          {
+            "original_snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+            "original_github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+            "original_quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+            "rebuts_original": "true",
+            "round": 2,
+            "source": "challenge",
+            "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/counter.md",
+            "snapshot_hash": "62f2093896a5913b4347bdf0fb827ddb891d9313307a194baa290be555917396",
+            "snapshot_len": 412,
+            "github_sha": "8078180b936a512bf1c96d6ceea2dc11e2dfa3e5",
+            "flags": [
+              "false",
+              "false",
+              "false"
+            ],
+            "quote": "No Riverside sensor kits were delivered or installed.",
+            "rationale": "Both snapshots conflict, and the corrective snapshot disproves the original claim, leaving no verifiable assembled kits.",
+            "current_date": "2026-11-19",
+            "verdict": "REJECT"
+          }
+        ],
+        "pending_verdict": "ACCEPT",
+        "final_verdict": null,
+        "released_wei": "0",
+        "refunded_wei": "0",
+        "refund_payouts": [],
+        "settlement_wei": "1500000000000000000",
+        "challenge": {
+          "challenger": "0x2531929B4E8A4c2E6393391779967119898ec2E3",
+          "stake_wei": "1000000000000000000",
+          "reward_wei": "500000000000000000",
+          "second_verdict": "REJECT",
+          "outcome": "WON_FROZEN"
+        }
+      },
+      {
+        "title": "Publish installation notes",
+        "amount": "2000000000000000000",
+        "status": "PENDING",
+        "evidence_text": null,
+        "evidence_date": null,
+        "evidence_hash": null,
+        "reference_url": null,
+        "snapshot_hash": null,
+        "snapshot_len": null,
+        "snapshot_excerpt": null,
+        "github_sha": null,
+        "quote": null,
+        "review_date": null,
+        "challenge_evidence": null,
+        "evaluations": [],
+        "pending_verdict": null,
+        "final_verdict": null,
+        "released_wei": "0",
+        "refunded_wei": "0",
+        "refund_payouts": [],
+        "settlement_wei": null,
+        "challenge": null
+      }
+    ]
+  },
+  "complete": true
+}

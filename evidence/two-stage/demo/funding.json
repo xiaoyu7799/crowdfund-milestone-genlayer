@@ -1,0 +1,172 @@
+{
+  "contractAddress": "0x593fF4e4E5b5F73d34c7C29509D75E8B537EC853",
+  "isDemoFixture": true,
+  "scenario": "funding",
+  "transactions": {
+    "create": {
+      "functionName": "create_campaign",
+      "args": [
+        "[Demo] Community tool library",
+        "6000000000000000000",
+        "[\n  {\n    \"title\": \"Inventory tool kits\",\n    \"amount\": \"3000000000000000000\"\n  },\n  {\n    \"title\": \"Open weekend checkout\",\n    \"amount\": \"3000000000000000000\"\n  }\n]"
+      ],
+      "valueWei": "0",
+      "hash": "0x0a599e3439f4d1169f7cdece82bba1960b1ad607dd1f51e9d5594bd945fd476a",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "id": 2,
+        "title": "[Demo] Community tool library",
+        "creator": "0xC104DF600EF1bfDC5947981A505aab9B74d32bd6",
+        "goal_wei": "6000000000000000000",
+        "status": "FUNDING",
+        "total_backed_wei": "0",
+        "escrow_wei": "0",
+        "backers": [],
+        "milestones": [
+          {
+            "title": "Inventory tool kits",
+            "amount": "3000000000000000000",
+            "status": "PENDING",
+            "evidence_text": null,
+            "evidence_date": null,
+            "evidence_hash": null,
+            "reference_url": null,
+            "snapshot_hash": null,
+            "snapshot_len": null,
+            "snapshot_excerpt": null,
+            "github_sha": null,
+            "quote": null,
+            "review_date": null,
+            "challenge_evidence": null,
+            "evaluations": [],
+            "pending_verdict": null,
+            "final_verdict": null,
+            "released_wei": "0",
+            "refunded_wei": "0",
+            "refund_payouts": [],
+            "settlement_wei": null,
+            "challenge": null
+          },
+          {
+            "title": "Open weekend checkout",
+            "amount": "3000000000000000000",
+            "status": "PENDING",
+            "evidence_text": null,
+            "evidence_date": null,
+            "evidence_hash": null,
+            "reference_url": null,
+            "snapshot_hash": null,
+            "snapshot_len": null,
+            "snapshot_excerpt": null,
+            "github_sha": null,
+            "quote": null,
+            "review_date": null,
+            "challenge_evidence": null,
+            "evaluations": [],
+            "pending_verdict": null,
+            "final_verdict": null,
+            "released_wei": "0",
+            "refunded_wei": "0",
+            "refund_payouts": [],
+            "settlement_wei": null,
+            "challenge": null
+          }
+        ]
+      }
+    },
+    "back": {
+      "functionName": "back_campaign",
+      "args": [
+        "2"
+      ],
+      "valueWei": "2000000000000000000",
+      "hash": "0xd6f923ac42d81b87dff13dedc41166ae3849628d03b074dd1cfbaa03d8b02087",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "accepted": true,
+        "campaign_id": 2,
+        "total_backed_wei": "2000000000000000000",
+        "goal_wei": "6000000000000000000",
+        "status": "FUNDING",
+        "backed_wei": "2000000000000000000",
+        "contract_balance_wei": "3000000000000000002"
+      }
+    }
+  },
+  "campaign": {
+    "id": 2,
+    "title": "[Demo] Community tool library",
+    "creator": "0xC104DF600EF1bfDC5947981A505aab9B74d32bd6",
+    "goal_wei": "6000000000000000000",
+    "status": "FUNDING",
+    "total_backed_wei": "2000000000000000000",
+    "escrow_wei": "2000000000000000000",
+    "backers": [
+      {
+        "address": "0xcd96C31BB9E7543007E323139F4099B52C7c21A4",
+        "amount": "2000000000000000000"
+      }
+    ],
+    "milestones": [
+      {
+        "title": "Inventory tool kits",
+        "amount": "3000000000000000000",
+        "status": "PENDING",
+        "evidence_text": null,
+        "evidence_date": null,
+        "evidence_hash": null,
+        "reference_url": null,
+        "snapshot_hash": null,
+        "snapshot_len": null,
+        "snapshot_excerpt": null,
+        "github_sha": null,
+        "quote": null,
+        "review_date": null,
+        "challenge_evidence": null,
+        "evaluations": [],
+        "pending_verdict": null,
+        "final_verdict": null,
+        "released_wei": "0",
+        "refunded_wei": "0",
+        "refund_payouts": [],
+        "settlement_wei": null,
+        "challenge": null
+      },
+      {
+        "title": "Open weekend checkout",
+        "amount": "3000000000000000000",
+        "status": "PENDING",
+        "evidence_text": null,
+        "evidence_date": null,
+        "evidence_hash": null,
+        "reference_url": null,
+        "snapshot_hash": null,
+        "snapshot_len": null,
+        "snapshot_excerpt": null,
+        "github_sha": null,
+        "quote": null,
+        "review_date": null,
+        "challenge_evidence": null,
+        "evaluations": [],
+        "pending_verdict": null,
+        "final_verdict": null,
+        "released_wei": "0",
+        "refunded_wei": "0",
+        "refund_payouts": [],
+        "settlement_wei": null,
+        "challenge": null
+      }
+    ]
+  },
+  "complete": true
+}

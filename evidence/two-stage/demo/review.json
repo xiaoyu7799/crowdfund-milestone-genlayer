@@ -1,0 +1,248 @@
+{
+  "contractAddress": "0x593fF4e4E5b5F73d34c7C29509D75E8B537EC853",
+  "isDemoFixture": true,
+  "scenario": "review",
+  "transactions": {
+    "create": {
+      "functionName": "create_campaign",
+      "args": [
+        "[Demo] School garden sensor delivery",
+        "4000000000000000000",
+        "[\n  {\n    \"title\": \"Sensor kits assembled\",\n    \"amount\": \"2000000000000000000\"\n  },\n  {\n    \"title\": \"Publish field notes\",\n    \"amount\": \"2000000000000000000\"\n  }\n]"
+      ],
+      "valueWei": "0",
+      "hash": "0x7be14f4443fd070443cc5230a7b291110d284e612b6398a581d014e690fe1717",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "id": 5,
+        "title": "[Demo] School garden sensor delivery",
+        "creator": "0x393963F1f949Fdfb60331Be2cD18285ea65d22B3",
+        "goal_wei": "4000000000000000000",
+        "status": "FUNDING",
+        "total_backed_wei": "0",
+        "escrow_wei": "0",
+        "backers": [],
+        "milestones": [
+          {
+            "title": "Sensor kits assembled",
+            "amount": "2000000000000000000",
+            "status": "PENDING",
+            "evidence_text": null,
+            "evidence_date": null,
+            "evidence_hash": null,
+            "reference_url": null,
+            "snapshot_hash": null,
+            "snapshot_len": null,
+            "snapshot_excerpt": null,
+            "github_sha": null,
+            "quote": null,
+            "review_date": null,
+            "challenge_evidence": null,
+            "evaluations": [],
+            "pending_verdict": null,
+            "final_verdict": null,
+            "released_wei": "0",
+            "refunded_wei": "0",
+            "refund_payouts": [],
+            "settlement_wei": null,
+            "challenge": null
+          },
+          {
+            "title": "Publish field notes",
+            "amount": "2000000000000000000",
+            "status": "PENDING",
+            "evidence_text": null,
+            "evidence_date": null,
+            "evidence_hash": null,
+            "reference_url": null,
+            "snapshot_hash": null,
+            "snapshot_len": null,
+            "snapshot_excerpt": null,
+            "github_sha": null,
+            "quote": null,
+            "review_date": null,
+            "challenge_evidence": null,
+            "evaluations": [],
+            "pending_verdict": null,
+            "final_verdict": null,
+            "released_wei": "0",
+            "refunded_wei": "0",
+            "refund_payouts": [],
+            "settlement_wei": null,
+            "challenge": null
+          }
+        ]
+      }
+    },
+    "back": {
+      "functionName": "back_campaign",
+      "args": [
+        "5"
+      ],
+      "valueWei": "4000000000000000000",
+      "hash": "0x4c2cca678dc7678266f0670a30f192d126d5bc597b0ad7eae28a8bf3a01d98d2",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "accepted": true,
+        "campaign_id": 5,
+        "total_backed_wei": "4000000000000000000",
+        "goal_wei": "4000000000000000000",
+        "status": "MILESTONE_REVIEW",
+        "backed_wei": "4000000000000000000",
+        "contract_balance_wei": "15000000000000000002"
+      }
+    },
+    "proof": {
+      "functionName": "submit_milestone_proof",
+      "args": [
+        "5",
+        0,
+        "Controlled demo fixture describing sensor kit delivery.",
+        "2026-11-19",
+        "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md"
+      ],
+      "valueWei": "0",
+      "hash": "0x8b794504d1bc5f85663d08a54a9bc489fbb8e45d149423218b6e0be763a70eec",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "campaign_id": 5,
+        "milestone_index": 0,
+        "status": "EVIDENCE_SUBMITTED",
+        "evidence_hash": "9be219de569f287b822d293e09bd082fee836cb1f50a53565de058fbc945aa20",
+        "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+        "evidence_date": "2026-11-19"
+      }
+    },
+    "review": {
+      "functionName": "review_milestone",
+      "args": [
+        "5",
+        0
+      ],
+      "valueWei": "0",
+      "hash": "0x5a7c186f8a05e53fcfd5ff379bb38ca7e677a1f74ae46a9e83265e60ab31e687",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "campaign_id": 5,
+        "milestone_index": 0,
+        "status": "MILESTONE_REVIEW",
+        "round": 1,
+        "pending_verdict": "ACCEPT",
+        "flags": [
+          "true",
+          "true",
+          "true"
+        ],
+        "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+        "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+        "quote": "Firmware v1.4.2 passed the final 24-hour reporting check on 2026-11-13.",
+        "review_date": "2026-11-19",
+        "current_date": "2026-11-19"
+      }
+    }
+  },
+  "campaign": {
+    "id": 5,
+    "title": "[Demo] School garden sensor delivery",
+    "creator": "0x393963F1f949Fdfb60331Be2cD18285ea65d22B3",
+    "goal_wei": "4000000000000000000",
+    "status": "MILESTONE_REVIEW",
+    "total_backed_wei": "4000000000000000000",
+    "escrow_wei": "4000000000000000000",
+    "backers": [
+      {
+        "address": "0x8a4BB4Bd89f612c807D65E94CdCad6848302D4DE",
+        "amount": "4000000000000000000"
+      }
+    ],
+    "milestones": [
+      {
+        "title": "Sensor kits assembled",
+        "amount": "2000000000000000000",
+        "status": "MILESTONE_REVIEW",
+        "evidence_text": "Controlled demo fixture describing sensor kit delivery.",
+        "evidence_date": "2026-11-19",
+        "evidence_hash": "9be219de569f287b822d293e09bd082fee836cb1f50a53565de058fbc945aa20",
+        "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+        "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+        "snapshot_len": 398,
+        "snapshot_excerpt": "# Sensor kit delivery record\n\nControlled test document for MilestoneFund validator evaluation, not a report\nof a real installation or an independent audit.\n\nAll 12 Riverside sensor kits were assembled, installed and completed commissioning.\nFirmware v1.4.2 passed the final 24-hour reporting check on 2026-11-13.\nDelivery record ID MF-PAIR-001: every sensor reports temperature in degrees Celsius.\n",
+        "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+        "quote": "Firmware v1.4.2 passed the final 24-hour reporting check on 2026-11-13.",
+        "review_date": "2026-11-19",
+        "challenge_evidence": null,
+        "evaluations": [
+          {
+            "round": 1,
+            "source": "evidence",
+            "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+            "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+            "snapshot_len": 398,
+            "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+            "flags": [
+              "true",
+              "true",
+              "true"
+            ],
+            "quote": "Firmware v1.4.2 passed the final 24-hour reporting check on 2026-11-13.",
+            "rationale": "The snapshot says 12 Riverside sensor kits were assembled and commissioned, and it gives a firmware version and a dated check as detail. It also calls itself a controlled test document, not a real report.",
+            "current_date": "2026-11-19",
+            "verdict": "ACCEPT"
+          }
+        ],
+        "pending_verdict": "ACCEPT",
+        "final_verdict": null,
+        "released_wei": "0",
+        "refunded_wei": "0",
+        "refund_payouts": [],
+        "settlement_wei": null,
+        "challenge": null
+      },
+      {
+        "title": "Publish field notes",
+        "amount": "2000000000000000000",
+        "status": "PENDING",
+        "evidence_text": null,
+        "evidence_date": null,
+        "evidence_hash": null,
+        "reference_url": null,
+        "snapshot_hash": null,
+        "snapshot_len": null,
+        "snapshot_excerpt": null,
+        "github_sha": null,
+        "quote": null,
+        "review_date": null,
+        "challenge_evidence": null,
+        "evaluations": [],
+        "pending_verdict": null,
+        "final_verdict": null,
+        "released_wei": "0",
+        "refunded_wei": "0",
+        "refund_payouts": [],
+        "settlement_wei": null,
+        "challenge": null
+      }
+    ]
+  },
+  "complete": true
+}

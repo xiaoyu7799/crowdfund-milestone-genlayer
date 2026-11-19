@@ -1,0 +1,198 @@
+{
+  "contractAddress": "0x593fF4e4E5b5F73d34c7C29509D75E8B537EC853",
+  "isDemoFixture": true,
+  "scenario": "evidence",
+  "transactions": {
+    "create": {
+      "functionName": "create_campaign",
+      "args": [
+        "[Demo] Trailhead sensor kits",
+        "4000000000000000000",
+        "[\n  {\n    \"title\": \"Sensor kits assembled\",\n    \"amount\": \"2000000000000000000\"\n  },\n  {\n    \"title\": \"Publish maintenance notes\",\n    \"amount\": \"2000000000000000000\"\n  }\n]"
+      ],
+      "valueWei": "0",
+      "hash": "0x2621f352cbe36135d5d9bda42d91ff2e12deae3f487fa5529a37db34467f5685",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "id": 7,
+        "title": "[Demo] Trailhead sensor kits",
+        "creator": "0xff6b404395845Dcc3C680bbDaa427706aeb0e7d1",
+        "goal_wei": "4000000000000000000",
+        "status": "FUNDING",
+        "total_backed_wei": "0",
+        "escrow_wei": "0",
+        "backers": [],
+        "milestones": [
+          {
+            "title": "Sensor kits assembled",
+            "amount": "2000000000000000000",
+            "status": "PENDING",
+            "evidence_text": null,
+            "evidence_date": null,
+            "evidence_hash": null,
+            "reference_url": null,
+            "snapshot_hash": null,
+            "snapshot_len": null,
+            "snapshot_excerpt": null,
+            "github_sha": null,
+            "quote": null,
+            "review_date": null,
+            "challenge_evidence": null,
+            "evaluations": [],
+            "pending_verdict": null,
+            "final_verdict": null,
+            "released_wei": "0",
+            "refunded_wei": "0",
+            "refund_payouts": [],
+            "settlement_wei": null,
+            "challenge": null
+          },
+          {
+            "title": "Publish maintenance notes",
+            "amount": "2000000000000000000",
+            "status": "PENDING",
+            "evidence_text": null,
+            "evidence_date": null,
+            "evidence_hash": null,
+            "reference_url": null,
+            "snapshot_hash": null,
+            "snapshot_len": null,
+            "snapshot_excerpt": null,
+            "github_sha": null,
+            "quote": null,
+            "review_date": null,
+            "challenge_evidence": null,
+            "evaluations": [],
+            "pending_verdict": null,
+            "final_verdict": null,
+            "released_wei": "0",
+            "refunded_wei": "0",
+            "refund_payouts": [],
+            "settlement_wei": null,
+            "challenge": null
+          }
+        ]
+      }
+    },
+    "back": {
+      "functionName": "back_campaign",
+      "args": [
+        "7"
+      ],
+      "valueWei": "4000000000000000000",
+      "hash": "0x70210f1cad719b9a158b78a3fdbba42656d44eb5b9e48ea04b8295d5346f86ba",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "accepted": true,
+        "campaign_id": 7,
+        "total_backed_wei": "4000000000000000000",
+        "goal_wei": "4000000000000000000",
+        "status": "MILESTONE_REVIEW",
+        "backed_wei": "4000000000000000000",
+        "contract_balance_wei": "20000000000000000002"
+      }
+    },
+    "proof": {
+      "functionName": "submit_milestone_proof",
+      "args": [
+        "7",
+        0,
+        "Controlled demo fixture describing sensor kit delivery.",
+        "2026-11-19",
+        "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md"
+      ],
+      "valueWei": "0",
+      "hash": "0x7f41b9641fb07d5f5ba33eb1c60d5f12f76ca67daaabe3a0e0ebd624eead8cc5",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "campaign_id": 7,
+        "milestone_index": 0,
+        "status": "EVIDENCE_SUBMITTED",
+        "evidence_hash": "9be219de569f287b822d293e09bd082fee836cb1f50a53565de058fbc945aa20",
+        "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+        "evidence_date": "2026-11-19"
+      }
+    }
+  },
+  "campaign": {
+    "id": 7,
+    "title": "[Demo] Trailhead sensor kits",
+    "creator": "0xff6b404395845Dcc3C680bbDaa427706aeb0e7d1",
+    "goal_wei": "4000000000000000000",
+    "status": "MILESTONE_REVIEW",
+    "total_backed_wei": "4000000000000000000",
+    "escrow_wei": "4000000000000000000",
+    "backers": [
+      {
+        "address": "0xeB3a1BaAD54383a74329d06F67D4840aCA3149BD",
+        "amount": "4000000000000000000"
+      }
+    ],
+    "milestones": [
+      {
+        "title": "Sensor kits assembled",
+        "amount": "2000000000000000000",
+        "status": "EVIDENCE_SUBMITTED",
+        "evidence_text": "Controlled demo fixture describing sensor kit delivery.",
+        "evidence_date": "2026-11-19",
+        "evidence_hash": "9be219de569f287b822d293e09bd082fee836cb1f50a53565de058fbc945aa20",
+        "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+        "snapshot_hash": null,
+        "snapshot_len": null,
+        "snapshot_excerpt": null,
+        "github_sha": null,
+        "quote": null,
+        "review_date": null,
+        "challenge_evidence": null,
+        "evaluations": [],
+        "pending_verdict": null,
+        "final_verdict": null,
+        "released_wei": "0",
+        "refunded_wei": "0",
+        "refund_payouts": [],
+        "settlement_wei": null,
+        "challenge": null
+      },
+      {
+        "title": "Publish maintenance notes",
+        "amount": "2000000000000000000",
+        "status": "PENDING",
+        "evidence_text": null,
+        "evidence_date": null,
+        "evidence_hash": null,
+        "reference_url": null,
+        "snapshot_hash": null,
+        "snapshot_len": null,
+        "snapshot_excerpt": null,
+        "github_sha": null,
+        "quote": null,
+        "review_date": null,
+        "challenge_evidence": null,
+        "evaluations": [],
+        "pending_verdict": null,
+        "final_verdict": null,
+        "released_wei": "0",
+        "refunded_wei": "0",
+        "refund_payouts": [],
+        "settlement_wei": null,
+        "challenge": null
+      }
+    ]
+  },
+  "complete": true
+}

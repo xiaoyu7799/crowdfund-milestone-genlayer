@@ -24,6 +24,23 @@ The actual contract balance is checked against campaign escrow, pending challeng
 - The [failed-review receipt](../evidence/two-stage/receipts/expiry-failed-review.json) records a zero-value review using a missing reference. The contract returned a retryable outcome. The readback shows the same challenge ID and stake, with no movement in actual balance or credits.
 - The pending challenge becomes eligible for on-chain expiry at **2026-11-20 15:16:28 UTC**. Local tests cover the exact boundary, duplicate protection and withdrawal. The journal remains incomplete until the timed on-chain refund and subsequent withdrawals are recorded.
 
+## Public testnet demo states
+
+The following records are controlled testnet fixtures. Each new campaign title starts with `[Demo]`. The backing, reviews and withdrawals are Stable Studionet transactions signed by separate test participants. The fixtures document product behavior and do not represent real-world fundraising or adoption.
+
+| Campaign ID | Demo | Verified state |
+| --- | --- | --- |
+| 0 | Settlement acceptance fixture | Refunded after adjudication and withdrawal |
+| 1 | Failed-review acceptance fixture | Filed 1 GEN challenge remains pending |
+| 2 | Community tool library | Partially funded, with 2 of 6 GEN raised |
+| 3 | Wetland monitoring equipment | Milestone frozen after a successful challenge |
+| 4 | Neighborhood seed exchange | Fully funded, first milestone awaiting evidence |
+| 5 | School garden sensor delivery | First milestone reviewed, awaiting confirmation |
+| 6 | Community workshop pilot | Cancelled after backing, with refund withdrawn |
+| 7 | Trailhead sensor kits | Evidence submitted, awaiting review |
+
+The [scenario journals](../evidence/two-stage/demo/) include finalized transaction hashes and the readbacks for the new records. The [ledger snapshot](../evidence/two-stage/demo/ledger.json) reconciles the contract's actual balance with campaign escrow, pending challenge deposits and credits.
+
 ## Submission note
 
 MilestoneFund now records challenge deposits before evidence review. GenLayer validators assess the original delivery and the rebuttal in a separate, zero-value transaction. A failed review can be retried using the same deposit, or the challenger can recover it after expiry. The upgrade adds on-chain challenge state, a stake ledger reconciled against the chain balance, and a browser workflow for reviewing and refunding pending challenges.

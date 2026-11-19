@@ -1,0 +1,15 @@
+{
+  "address": "0x593fF4e4E5b5F73d34c7C29509D75E8B537EC853",
+  "actualBalanceWei": "20000000000000000002",
+  "totals": {
+    "total_received_wei": "22000000000000000004",
+    "total_withdrawn_wei": "2000000000000000002",
+    "contract_balance_wei": "20000000000000000002",
+    "credits_outstanding_wei": "1500000000000000000",
+    "escrow_locked_wei": "17500000000000000002",
+    "challenge_stakes_locked_wei": "1000000000000000000",
+    "accounted_wei": "22000000000000000004",
+    "invariant_ok": true
+  },
+  "readAt": "2026-11-19T15:42:28.909Z"
+}

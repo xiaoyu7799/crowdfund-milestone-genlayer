@@ -1,0 +1,165 @@
+{
+  "contractAddress": "0x593fF4e4E5b5F73d34c7C29509D75E8B537EC853",
+  "isDemoFixture": true,
+  "scenario": "cancelled",
+  "transactions": {
+    "create": {
+      "functionName": "create_campaign",
+      "args": [
+        "[Demo] Community workshop pilot",
+        "4000000000000000000",
+        "[\n  {\n    \"title\": \"Book the workshop venue\",\n    \"amount\": \"4000000000000000000\"\n  }\n]"
+      ],
+      "valueWei": "0",
+      "hash": "0x39674fbad55b62642703d79b2d2c38b1cab2a321d6650a3bd19825bc6784427f",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "id": 6,
+        "title": "[Demo] Community workshop pilot",
+        "creator": "0x4aB024E76fC915da2372E620c1d48857a99F6777",
+        "goal_wei": "4000000000000000000",
+        "status": "FUNDING",
+        "total_backed_wei": "0",
+        "escrow_wei": "0",
+        "backers": [],
+        "milestones": [
+          {
+            "title": "Book the workshop venue",
+            "amount": "4000000000000000000",
+            "status": "PENDING",
+            "evidence_text": null,
+            "evidence_date": null,
+            "evidence_hash": null,
+            "reference_url": null,
+            "snapshot_hash": null,
+            "snapshot_len": null,
+            "snapshot_excerpt": null,
+            "github_sha": null,
+            "quote": null,
+            "review_date": null,
+            "challenge_evidence": null,
+            "evaluations": [],
+            "pending_verdict": null,
+            "final_verdict": null,
+            "released_wei": "0",
+            "refunded_wei": "0",
+            "refund_payouts": [],
+            "settlement_wei": null,
+            "challenge": null
+          }
+        ]
+      }
+    },
+    "back": {
+      "functionName": "back_campaign",
+      "args": [
+        "6"
+      ],
+      "valueWei": "1000000000000000000",
+      "hash": "0x114c562fa0c9cadc799c923b1b94b8a13479589b7da7691e4498bcf142c056cf",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "accepted": true,
+        "campaign_id": 6,
+        "total_backed_wei": "1000000000000000000",
+        "goal_wei": "4000000000000000000",
+        "status": "FUNDING",
+        "backed_wei": "1000000000000000000",
+        "contract_balance_wei": "16000000000000000002"
+      }
+    },
+    "cancel": {
+      "functionName": "cancel_campaign",
+      "args": [
+        "6"
+      ],
+      "valueWei": "0",
+      "hash": "0xeb95c4a16a3c07d131a369bc747571551176424220a0e9340f7f6263019ac348",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "campaign_id": 6,
+        "status": "CANCELLED",
+        "refunded": [
+          {
+            "address": "0x3Ec7e28f7453b2629A42199C661CBAC81AF04420",
+            "amount_wei": "1000000000000000000"
+          }
+        ]
+      }
+    },
+    "withdraw": {
+      "functionName": "withdraw_payout",
+      "args": [],
+      "valueWei": "0",
+      "hash": "0x184e1d94b540d06cc6056dd01b275908efbc6cd2ae82fd9e66b54f5a11c59a56",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "address": "0x3Ec7e28f7453b2629A42199C661CBAC81AF04420",
+        "withdrawn_wei": "1000000000000000000",
+        "total_withdrawn_wei": "2000000000000000002"
+      }
+    }
+  },
+  "campaign": {
+    "id": 6,
+    "title": "[Demo] Community workshop pilot",
+    "creator": "0x4aB024E76fC915da2372E620c1d48857a99F6777",
+    "goal_wei": "4000000000000000000",
+    "status": "CANCELLED",
+    "total_backed_wei": "1000000000000000000",
+    "escrow_wei": "0",
+    "backers": [
+      {
+        "address": "0x3Ec7e28f7453b2629A42199C661CBAC81AF04420",
+        "amount": "1000000000000000000"
+      }
+    ],
+    "milestones": [
+      {
+        "title": "Book the workshop venue",
+        "amount": "4000000000000000000",
+        "status": "PENDING",
+        "evidence_text": null,
+        "evidence_date": null,
+        "evidence_hash": null,
+        "reference_url": null,
+        "snapshot_hash": null,
+        "snapshot_len": null,
+        "snapshot_excerpt": null,
+        "github_sha": null,
+        "quote": null,
+        "review_date": null,
+        "challenge_evidence": null,
+        "evaluations": [],
+        "pending_verdict": null,
+        "final_verdict": null,
+        "released_wei": "0",
+        "refunded_wei": "0",
+        "refund_payouts": [],
+        "settlement_wei": null,
+        "challenge": null
+      }
+    ]
+  },
+  "complete": true
+}
