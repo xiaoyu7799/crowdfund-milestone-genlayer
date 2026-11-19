@@ -1,0 +1,172 @@
+{
+  "contractAddress": "0x593fF4e4E5b5F73d34c7C29509D75E8B537EC853",
+  "isDemoFixture": true,
+  "scenario": "pending",
+  "transactions": {
+    "create": {
+      "functionName": "create_campaign",
+      "args": [
+        "[Demo] Neighborhood seed exchange",
+        "4000000000000000000",
+        "[\n  {\n    \"title\": \"Prepare seed packets\",\n    \"amount\": \"2000000000000000000\"\n  },\n  {\n    \"title\": \"Run the exchange\",\n    \"amount\": \"2000000000000000000\"\n  }\n]"
+      ],
+      "valueWei": "0",
+      "hash": "0x7b94e60012998a7a6f3168625539bb370f58cc450a48b257149a3bf1b0184a0e",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "id": 4,
+        "title": "[Demo] Neighborhood seed exchange",
+        "creator": "0x96a6fA35eD812657262A27855858c8C16e13ee63",
+        "goal_wei": "4000000000000000000",
+        "status": "FUNDING",
+        "total_backed_wei": "0",
+        "escrow_wei": "0",
+        "backers": [],
+        "milestones": [
+          {
+            "title": "Prepare seed packets",
+            "amount": "2000000000000000000",
+            "status": "PENDING",
+            "evidence_text": null,
+            "evidence_date": null,
+            "evidence_hash": null,
+            "reference_url": null,
+            "snapshot_hash": null,
+            "snapshot_len": null,
+            "snapshot_excerpt": null,
+            "github_sha": null,
+            "quote": null,
+            "review_date": null,
+            "challenge_evidence": null,
+            "evaluations": [],
+            "pending_verdict": null,
+            "final_verdict": null,
+            "released_wei": "0",
+            "refunded_wei": "0",
+            "refund_payouts": [],
+            "settlement_wei": null,
+            "challenge": null
+          },
+          {
+            "title": "Run the exchange",
+            "amount": "2000000000000000000",
+            "status": "PENDING",
+            "evidence_text": null,
+            "evidence_date": null,
+            "evidence_hash": null,
+            "reference_url": null,
+            "snapshot_hash": null,
+            "snapshot_len": null,
+            "snapshot_excerpt": null,
+            "github_sha": null,
+            "quote": null,
+            "review_date": null,
+            "challenge_evidence": null,
+            "evaluations": [],
+            "pending_verdict": null,
+            "final_verdict": null,
+            "released_wei": "0",
+            "refunded_wei": "0",
+            "refund_payouts": [],
+            "settlement_wei": null,
+            "challenge": null
+          }
+        ]
+      }
+    },
+    "back": {
+      "functionName": "back_campaign",
+      "args": [
+        "4"
+      ],
+      "valueWei": "4000000000000000000",
+      "hash": "0xaaaaa1e1a6ce928f6adce25caeae13c1e56e20e8fc8cbd928fa3f4bc72169b48",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "result": {
+        "accepted": true,
+        "campaign_id": 4,
+        "total_backed_wei": "4000000000000000000",
+        "goal_wei": "4000000000000000000",
+        "status": "MILESTONE_REVIEW",
+        "backed_wei": "4000000000000000000",
+        "contract_balance_wei": "11000000000000000002"
+      }
+    }
+  },
+  "campaign": {
+    "id": 4,
+    "title": "[Demo] Neighborhood seed exchange",
+    "creator": "0x96a6fA35eD812657262A27855858c8C16e13ee63",
+    "goal_wei": "4000000000000000000",
+    "status": "MILESTONE_REVIEW",
+    "total_backed_wei": "4000000000000000000",
+    "escrow_wei": "4000000000000000000",
+    "backers": [
+      {
+        "address": "0x9C86541dC3bB4bd30a899e8C5E684C2E45c0aCC0",
+        "amount": "4000000000000000000"
+      }
+    ],
+    "milestones": [
+      {
+        "title": "Prepare seed packets",
+        "amount": "2000000000000000000",
+        "status": "PENDING",
+        "evidence_text": null,
+        "evidence_date": null,
+        "evidence_hash": null,
+        "reference_url": null,
+        "snapshot_hash": null,
+        "snapshot_len": null,
+        "snapshot_excerpt": null,
+        "github_sha": null,
+        "quote": null,
+        "review_date": null,
+        "challenge_evidence": null,
+        "evaluations": [],
+        "pending_verdict": null,
+        "final_verdict": null,
+        "released_wei": "0",
+        "refunded_wei": "0",
+        "refund_payouts": [],
+        "settlement_wei": null,
+        "challenge": null
+      },
+      {
+        "title": "Run the exchange",
+        "amount": "2000000000000000000",
+        "status": "PENDING",
+        "evidence_text": null,
+        "evidence_date": null,
+        "evidence_hash": null,
+        "reference_url": null,
+        "snapshot_hash": null,
+        "snapshot_len": null,
+        "snapshot_excerpt": null,
+        "github_sha": null,
+        "quote": null,
+        "review_date": null,
+        "challenge_evidence": null,
+        "evaluations": [],
+        "pending_verdict": null,
+        "final_verdict": null,
+        "released_wei": "0",
+        "refunded_wei": "0",
+        "refund_payouts": [],
+        "settlement_wei": null,
+        "challenge": null
+      }
+    ]
+  },
+  "complete": true
+}

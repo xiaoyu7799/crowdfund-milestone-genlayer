@@ -12,7 +12,7 @@
  * the deployed code is the repo code.
  */
 import { assertSuccessfulReceipt } from "./receipt.mjs";
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -48,7 +48,10 @@ console.log("Network: Stable Studionet, chain 61999, https://studio.genlayer.com
 const client = createClient({ chain: studionet, account });
 const chainId = Number(await client.request({method: "eth_chainId"}));
 if (chainId !== 61999) throw new Error("Wrong chain");
-const journalPath = path.join(root, "evidence", "deployment-pending.json");
+const output = process.env.MF_DEPLOYMENT_DIR;
+const evidenceDir = output ? path.resolve(root, output) : path.join(root, "evidence");
+mkdirSync(evidenceDir, { recursive: true });
+const journalPath = path.join(evidenceDir, "deployment-pending.json");
 let journal = null;
 try { journal = JSON.parse(readFileSync(journalPath, "utf8")); } catch {}
 if (journal && journal.sourceSha256 !== codeSha) throw new Error("Pending deployment source mismatch; inspect its receipt before proceeding");
@@ -64,7 +67,7 @@ const receipt = await client.waitForTransactionReceipt({
   interval: 5000,
 });
 const statusName = receipt.statusName ?? STATUS[receipt.status] ?? String(receipt.status ?? "");
-writeFileSync(path.join(root, "evidence", "deployment-receipt.json"), JSON.stringify(receipt, (k,v)=>typeof v==="bigint"?v.toString():v, 2) + "\n");
+writeFileSync(path.join(evidenceDir, "deployment-receipt.json"), JSON.stringify(receipt, (k,v)=>typeof v==="bigint"?v.toString():v, 2) + "\n");
 const proof = assertSuccessfulReceipt(receipt);
 console.log("Receipt status:", statusName, proof.execution, proof.consensus);
 if (statusName !== "FINALIZED") throw new Error(`Deploy did not finalize: ${statusName}`);
@@ -116,5 +119,5 @@ const deployment = {
   executionResult: proof.execution,
   consensusResult: proof.consensus,
 };
-writeFileSync(path.join(root, "deployment.json"), JSON.stringify(deployment, null, 2) + "\n");
+writeFileSync(path.join(output ? evidenceDir : root, "deployment.json"), JSON.stringify(deployment, null, 2) + "\n");
 console.log("Wrote deployment.json");

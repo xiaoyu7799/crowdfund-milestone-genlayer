@@ -4,7 +4,11 @@
 
 Crowdfunding with testnet GEN held in escrow until GenLayer validators review each milestone. ACCEPT credits the creator, REJECT refunds backers pro rata, and PARTIAL splits the allocation. Beneficiaries withdraw their own credits.
 
-## Contract and verification
+## Milestone upgrade
+
+[Two-stage challenge escrow](docs/milestone-two-stage.md) introduces deterministic stake filing, retryable zero-value review and expiry refunds. The updated browser targets the [two-stage contract](https://explorer-studio.genlayer.com/address/0x593fF4e4E5b5F73d34c7C29509D75E8B537EC853). See its [deployment manifest](evidence/two-stage/deployment.json) and [live validation journal](evidence/two-stage/validation.json).
+
+## Accepted baseline and historical verification
 
 - Stable Studionet, chain 61999, RPC https://studio.genlayer.com/api
 - Contract: https://explorer-studio.genlayer.com/address/0xF49D710b0bBB23058D2ED08d141b2E28a4a9A692

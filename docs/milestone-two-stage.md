@@ -1,0 +1,46 @@
+# MilestoneFund — Two-stage challenge escrow
+
+The GenLayer-accepted baseline is commit [f2c6647](https://github.com/xiaoyu7799/crowdfund-milestone-genlayer/tree/f2c6647a81f5b179ad5d222eb01340e8a45925fb), deployed at [0xF49D…A692](https://explorer-studio.genlayer.com/address/0xF49D710b0bBB23058D2ED08d141b2E28a4a9A692). Its challenge combined payment, web fetching and adjudication in one transaction. An earlier deployment recorded a consensus failure with 1 GEN in the chain balance but no matching ledger entry. See the baseline's known limitations and historical receipt archive.
+
+## What changed
+
+1. An eligible backer files one challenge per pending milestone, before the end of the initial review's UTC day. The 1 GEN deposit and evidence reference are recorded in a deterministic transaction with no network access. The new escrow appears in `get_totals.challenge_stakes_locked_wei`.
+2. Anyone can request a zero-value review using the filed challenge ID. This preserves the existing paired-evidence and original snapshot checks. A failed adjudication leaves the same stake and evidence pending for retry. Evidence that is evaluated and found ineligible credits the challenger in full.
+3. A filed challenge blocks ordinary confirmation. After 24 hours from filing, anyone can release the pending stake as withdrawable credit to the original challenger. Review and expiry have disjoint time windows. The challenger withdraws the credit with the existing payout method. Unique challenge IDs prevent a stale review or refund request from acting on a later filing.
+4. The browser shows the recorded stake, UTC expiry and the available review or refund action. The exported audit dossier includes pending stakes in the ledger totals.
+
+The actual contract balance is checked against campaign escrow, pending challenge stakes and withdrawable credits. A project may be held open for up to 24 hours by a filed challenge. Expiry is settled by a transaction. Pending funds on historical deployments remain governed by their original contracts. The [accepted-deployment view](https://xiaoyu7799.github.io/crowdfund-milestone-genlayer/?version=accepted) preserves access to earlier campaigns and withdrawals.
+
+## Verification
+
+- [New deployment and source hash](../evidence/two-stage/deployment.json)
+- [New deployment receipt](../evidence/two-stage/deployment-receipt.json)
+- Run `npm test` for mocked consensus disagreement, same-stake retry, deadline boundaries, permissionless expiry, duplicate refund prevention, withdrawal and actual-balance reconciliation.
+- Run `node scripts/two-stage-flow.mjs` for the live validation plan. With funded test accounts provided through an external `MF_RECOVERY_FILE`, pass `--submit` to run or resume the Stable Studionet journal. The journal records zero-value adjudication, payouts and independent RPC balance checks. Its `complete` flag is set only after the on-chain expiry and withdrawals finish.
+
+## Live evidence recorded
+
+- The [valid-case journal](../evidence/two-stage/validation.json) records a booked 1 GEN stake, zero-value review by a separate account, a frozen milestone, third-round settlement and successful withdrawal. The actual contract balance returned to zero after this case.
+- The [failed-review receipt](../evidence/two-stage/receipts/expiry-failed-review.json) records a zero-value review using a missing reference. The contract returned a retryable outcome. The readback shows the same challenge ID and stake, with no movement in actual balance or credits.
+- The pending challenge becomes eligible for on-chain expiry at **2026-11-20 15:16:28 UTC**. Local tests cover the exact boundary, duplicate protection and withdrawal. The journal remains incomplete until the timed on-chain refund and subsequent withdrawals are recorded.
+
+## Public testnet demo states
+
+The following records are controlled testnet fixtures. Each new campaign title starts with `[Demo]`. The backing, reviews and withdrawals are Stable Studionet transactions signed by separate test participants. The fixtures document product behavior and do not represent real-world fundraising or adoption.
+
+| Campaign ID | Demo | Verified state |
+| --- | --- | --- |
+| 0 | Settlement acceptance fixture | Refunded after adjudication and withdrawal |
+| 1 | Failed-review acceptance fixture | Filed 1 GEN challenge remains pending |
+| 2 | Community tool library | Partially funded, with 2 of 6 GEN raised |
+| 3 | Wetland monitoring equipment | Milestone frozen after a successful challenge |
+| 4 | Neighborhood seed exchange | Fully funded, first milestone awaiting evidence |
+| 5 | School garden sensor delivery | First milestone reviewed, awaiting confirmation |
+| 6 | Community workshop pilot | Cancelled after backing, with refund withdrawn |
+| 7 | Trailhead sensor kits | Evidence submitted, awaiting review |
+
+The [scenario journals](../evidence/two-stage/demo/) include finalized transaction hashes and the readbacks for the new records. The [ledger snapshot](../evidence/two-stage/demo/ledger.json) reconciles the contract's actual balance with campaign escrow, pending challenge deposits and credits.
+
+## Submission note
+
+MilestoneFund now records challenge deposits before evidence review. GenLayer validators assess the original delivery and the rebuttal in a separate, zero-value transaction. A failed review can be retried using the same deposit, or the challenger can recover it after expiry. The upgrade adds on-chain challenge state, a stake ledger reconciled against the chain balance, and a browser workflow for reviewing and refunding pending challenges.

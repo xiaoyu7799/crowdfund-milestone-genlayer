@@ -22,7 +22,7 @@ import json
 import os
 import sys
 import types
-from datetime import date
+from datetime import date, datetime, timezone, timedelta
 
 # ---------------------------------------------------------------------------
 # genlayer stub
@@ -268,12 +268,36 @@ def set_sender(addr, value=0):
     mf.gl.message.value = value
 
 
+class TransactionClock:
+    value = None
+
+    @classmethod
+    def now(cls, tz):
+        return cls.value or datetime.fromisoformat(_Web.current_date).replace(tzinfo=tz)
+
+
+mf.datetime = TransactionClock
+
+
+def run_challenge(contract, campaign_id, index, text, date, url):
+    """Adapt historical happy-path checks to the two separate transactions."""
+    sender = mf.gl.message.sender_address
+    filed = contract.file_challenge(campaign_id, index, text, date, url)
+    sync_balance(contract)
+    result = json.loads(filed)
+    if not result["accepted"]:
+        return filed
+    set_sender(sender)
+    return contract.review_challenge(campaign_id, index, int(result["challenge_id"]))
+
+
 def sync_balance(c):
     """Mock self.balance = received - withdrawn (what the chain holds)."""
     c.balance = int(c.total_received_wei) - int(c.total_withdrawn_wei)
 
 
 def invariant(c):
+    sync_balance(c)
     totals = json.loads(c.get_totals())
     return (
         totals["invariant_ok"] is True
@@ -281,6 +305,7 @@ def invariant(c):
         == int(totals["total_withdrawn_wei"])
         + int(totals["credits_outstanding_wei"])
         + int(totals["escrow_locked_wei"])
+        + int(totals["challenge_stakes_locked_wei"])
     )
 
 
@@ -462,12 +487,12 @@ expect_error("stranger cannot confirm", lambda: c.confirm_milestone(0, 0))
 # challenge pre-checks with value are covered in section 11 (refund
 # path). Here the stake checks run with zero value attached.
 set_sender(B, 0)
-r = json.loads(c.challenge_milestone(0, 0, "x" * 30, "2026-11-09", CHECK_URL))
+r = json.loads(run_challenge(c, 0, 0, "x" * 30, "2026-11-09", CHECK_URL))
 check("challenge with zero stake rejected", r["accepted"] is False and r["reason"] == "challenge_stake_must_be_1_gen", str(r))
 # challenge by backer C with NEW counter-evidence (check file) agrees -> FAILED
 _Nondet.flag_queue = [["true", "true", "true"], ["true", "true", "true"]]
 set_sender(C, 1 * GEN)
-r = json.loads(c.challenge_milestone(0, 0,
+r = json.loads(run_challenge(c, 0, 0,
     "Independent check: 12 sensor kits assembled and installed, verified on site.",
     "2026-11-09", CHECK_URL))
 sync_balance(c)
@@ -591,7 +616,7 @@ r = json.loads(c2.review_milestone(0, 0))
 check("frozen-path m0 pending ACCEPT", r["pending_verdict"] == "ACCEPT", str(r))
 _Nondet.flag_queue = [["false", "false", "false"], ["false", "false", "false"]]
 set_sender(B, 1 * GEN)
-r = json.loads(c2.challenge_milestone(0, 0,
+r = json.loads(run_challenge(c2, 0, 0,
     "Counter-evidence: the delivery record does not show the prototype at all.",
     "2026-11-09", CHECK_URL))
 sync_balance(c2)
@@ -898,7 +923,7 @@ r = json.loads(c9.review_milestone(0, 0))
 check("c9 m0 pending ACCEPT", r["pending_verdict"] == "ACCEPT", str(r))
 # wrong stake: rejected, 2 GEN credited back to B
 set_sender(B, 2 * GEN)
-r = json.loads(c9.challenge_milestone(0, 0, "x" * 30, "2026-11-09", CHECK_URL))
+r = json.loads(run_challenge(c9, 0, 0, "x" * 30, "2026-11-09", CHECK_URL))
 sync_balance(c9)
 check("wrong-stake challenge rejected with full refund",
       r["accepted"] is False and r["reason"] == "challenge_stake_must_be_1_gen"
@@ -906,7 +931,7 @@ check("wrong-stake challenge rejected with full refund",
 check("B credit 2 GEN after wrong-stake refund", int(c9.get_credit(B)) == 2 * GEN)
 # creator challenge: rejected, 1 GEN credited back to A
 set_sender(A, 1 * GEN)
-r = json.loads(c9.challenge_milestone(0, 0, "x" * 30, "2026-11-09", CHECK_URL))
+r = json.loads(run_challenge(c9, 0, 0, "x" * 30, "2026-11-09", CHECK_URL))
 sync_balance(c9)
 check("creator challenge rejected with full refund",
       r["accepted"] is False and r["reason"] == "creator_cannot_challenge_own_milestone"
@@ -914,17 +939,17 @@ check("creator challenge rejected with full refund",
 check("A credit 1 GEN after creator-challenge refund", int(c9.get_credit(A)) == 1 * GEN)
 # adjudication failure (counter URL 404s on the GitHub API): the 1 GEN
 # stake is credited back, the milestone stays challengeable, and the
-# unjudged counter-evidence is NOT stored.
+# Failed adjudication keeps the independently filed stake available for retry or expiry.
 set_sender(B, 1 * GEN)
-r = json.loads(c9.challenge_milestone(0, 0,
+r = json.loads(run_challenge(c9, 0, 0,
     "Counter-evidence pointing at a file that does not exist.",
     "2026-11-09",
     "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/main/docs/evidence/does-not-exist.md"))
 sync_balance(c9)
-check("failed adjudication refunds the stake",
+check("failed adjudication keeps the stake pending",
       r["accepted"] is False and r["reason"] == "adjudication_failed_retryable"
-      and r["refunded_credit_wei"] == str(1 * GEN), str(r))
-check("B credit 3 GEN after adjudication-failure refund", int(c9.get_credit(B)) == 3 * GEN)
+      and json.loads(c9.get_totals())["challenge_stakes_locked_wei"] == str(GEN), str(r))
+check("B credit unchanged after adjudication failure", int(c9.get_credit(B)) == 2 * GEN)
 camp9 = json.loads(c9.get_campaign(0))
 check("milestone still MILESTONE_REVIEW / ACCEPT after failed challenge",
       camp9["milestones"][0]["status"] == "MILESTONE_REVIEW"
@@ -937,13 +962,13 @@ r = json.loads(c9.review_milestone(0, 0))
 sync_balance(c9)
 check("value to a non-payable write is credited back, call refused",
       r["accepted"] is False and r["reason"] == "value_not_accepted", str(r))
-check("B credit 4 GEN after non-payable refund", int(c9.get_credit(B)) == 4 * GEN)
+check("B credit 3 GEN after non-payable refund", int(c9.get_credit(B)) == 3 * GEN)
 set_sender(B)
-# money: received 20 + 10 + 3 + 2 + 1 + 1 + 1 = 38 GEN; credits 18 GEN; escrow 20 GEN.
+# money: received 20 + 10 + 3 + 2 + 1 + 1 + 1 = 38 GEN; credits 17 GEN; escrow 20 GEN.
 totals9 = json.loads(c9.get_totals())
-check("refund-path totals: received 38 GEN, credits 18 GEN, escrow 20 GEN",
+check("refund-path totals: received 38 GEN, credits 17 GEN, escrow 20 GEN",
       totals9["total_received_wei"] == str(38 * GEN)
-      and totals9["credits_outstanding_wei"] == str(18 * GEN)
+      and totals9["credits_outstanding_wei"] == str(17 * GEN)
       and totals9["escrow_locked_wei"] == str(20 * GEN), str(totals9))
 check("refund-path contract balance equals received minus withdrawn",
       totals9["contract_balance_wei"] == str(38 * GEN), str(totals9))
@@ -980,7 +1005,7 @@ for amount in (2, 10**16, mf.CHALLENGE_REWARD_WEI, 20 * GEN):
     _Nondet.rebuttal = "true"
     _Nondet.flag_queue = [["false"] * 3] * 2
     set_sender(B, GEN)
-    r = json.loads(x.challenge_milestone(0, 0, "A relevant corrective delivery record.", "2026-11-09", CHECK_URL))
+    r = json.loads(run_challenge(x, 0, 0, "A relevant corrective delivery record.", "2026-11-09", CHECK_URL))
     state = json.loads(x.get_campaign(0)); m = state["milestones"][0]
     reward = int(m["challenge"]["reward_wei"])
     check("reward bounded for " + str(amount), reward == min(amount, mf.CHALLENGE_REWARD_WEI) and int(m["settlement_wei"]) >= 0 and invariant(x))
@@ -997,7 +1022,7 @@ for url in (EXAMPLE_URL, CHECK_URL, PARTIAL_URL):
     _Nondet.rebuttal = "false"
     _Nondet.flag_queue = [["false"] * 3] * 2
     set_sender(B, GEN)
-    r = json.loads(x.challenge_milestone(0, 0, "Unrelated or corroborating counter claim.", "2026-11-09", url))
+    r = json.loads(run_challenge(x, 0, 0, "Unrelated or corroborating counter claim.", "2026-11-09", url))
     check("non-rebuttal refunds full stake " + url, r["reason"] == "counter_evidence_not_rebuttal" and x.campaigns_json == before and int(x.get_credit(B)) == GEN and invariant(x))
 _Nondet.rebuttal = "true"
 x = ready()
@@ -1017,15 +1042,15 @@ x = ready()
 before = x.campaigns_json
 _Nondet.flag_queue = [["false"] * 3] * 2
 set_sender(B, GEN)
-r = json.loads(x.challenge_milestone(0, 0, "A replay of the original snapshot.", "2026-11-09", GOOD_URL))
+r = json.loads(run_challenge(x, 0, 0, "A replay of the original snapshot.", "2026-11-09", GOOD_URL))
 check("identical original page cannot earn reward even if model claims rebuttal", r["reason"] == "counter_evidence_not_rebuttal" and before == x.campaigns_json and invariant(x))
 x = ready()
 before = x.campaigns_json
 original_content = URL_CONTENT.pop(GOOD_URL)
 set_sender(B, GEN)
-r = json.loads(x.challenge_milestone(0, 0, "Relevant independent counter evidence.", "2026-11-09", CHECK_URL))
+r = json.loads(run_challenge(x, 0, 0, "Relevant independent counter evidence.", "2026-11-09", CHECK_URL))
 URL_CONTENT[GOOD_URL] = original_content
-check("original fetch failure refunds stake with no campaign change", r["reason"] == "adjudication_failed_retryable" and before == x.campaigns_json and invariant(x))
+check("original fetch failure leaves stake pending", r["reason"] == "adjudication_failed_retryable" and json.loads(x.get_campaign(0))["milestones"][0]["pending_challenge"]["stake_wei"] == str(GEN) and invariant(x))
 
 # Mutated leader proposals must be refused by the real validator callback.
 normal_run = _VM.run_nondet_unsafe
@@ -1039,8 +1064,8 @@ for field, bad in (("original_snapshot_hash", "fake"), ("original_github_sha", "
     _VM.run_nondet_unsafe = staticmethod(tamper)
     _Nondet.flag_queue = [["false"] * 3] * 2
     set_sender(B, GEN)
-    r = json.loads(x.challenge_milestone(0, 0, "Relevant independent counter evidence.", "2026-11-09", CHECK_URL))
-    check("forged proposal leaves campaign unchanged " + field, before == x.campaigns_json and r["accepted"] is False and invariant(x))
+    r = json.loads(run_challenge(x, 0, 0, "Relevant independent counter evidence.", "2026-11-09", CHECK_URL))
+    check("forged proposal leaves campaign unchanged " + field, json.loads(x.get_campaign(0))["milestones"][0]["pending_challenge"]["stake_wei"] == str(GEN) and r["accepted"] is False and invariant(x))
     _VM.run_nondet_unsafe = staticmethod(normal_run)
 
 
@@ -1049,7 +1074,7 @@ before = x.campaigns_json
 _Nondet.rebuttal = "false"
 _Nondet.flag_queue = [["true"] * 3, ["false"] * 3]
 set_sender(B, GEN)
-r = json.loads(x.challenge_milestone(0, 0, "Unrelated counter claim with no rebuttal.", "2026-11-09", EXAMPLE_URL))
+r = json.loads(run_challenge(x, 0, 0, "Unrelated counter claim with no rebuttal.", "2026-11-09", EXAMPLE_URL))
 check("non-rebuttal verdict split still refunds without changing campaign", r["reason"] == "counter_evidence_not_rebuttal" and before == x.campaigns_json and int(x.get_credit(B)) == GEN and invariant(x))
 _Nondet.rebuttal = "true"
 x = ready()
@@ -1057,10 +1082,10 @@ before = x.campaigns_json
 _Nondet.flag_queue = [["true"] * 3, ["false"] * 3]
 set_sender(B, GEN)
 try:
-    x.challenge_milestone(0, 0, "Relevant independent counter evidence.", "2026-11-09", CHECK_URL)
+    run_challenge(x, 0, 0, "Relevant independent counter evidence.", "2026-11-09", CHECK_URL)
     check("eligible rebuttal verdict split cannot settle", False)
 except RuntimeError:
-    check("eligible rebuttal verdict split cannot settle", before == x.campaigns_json)
+    check("eligible rebuttal verdict split cannot settle", json.loads(x.get_campaign(0))["milestones"][0]["pending_challenge"]["stake_wei"] == str(GEN) and invariant(x))
 
 
 # The original reference must stay bound to round 1 in both later rounds.
@@ -1072,8 +1097,8 @@ for mutation in ("body", "github_sha"):
     if mutation == "body": URL_CONTENT[GOOD_URL] += "Modified after first review."
     else: MOCK_GITHUB_SHA = "f" * 40
     set_sender(B, GEN)
-    r = json.loads(x.challenge_milestone(0, 0, "Relevant corrective counter evidence.", "2026-11-09", CHECK_URL))
-    check("round 2 rejects changed original " + mutation, r["accepted"] is False and "original_evidence_changed" in r.get("error", "") and before == x.campaigns_json and int(x.get_credit(B)) == GEN and invariant(x))
+    r = json.loads(run_challenge(x, 0, 0, "Relevant corrective counter evidence.", "2026-11-09", CHECK_URL))
+    check("round 2 rejects changed original " + mutation, r["accepted"] is False and "original_evidence_changed" in r.get("error", "") and int(x.get_credit(B)) == 0 and invariant(x))
     URL_CONTENT[GOOD_URL] = old_body
     MOCK_GITHUB_SHA = old_sha
 
@@ -1081,7 +1106,7 @@ for mutation in ("body", "github_sha"):
     _Nondet.rebuttal = "true"
     _Nondet.flag_queue = [["false"] * 3] * 2
     set_sender(B, GEN)
-    x.challenge_milestone(0, 0, "Relevant corrective counter evidence.", "2026-11-09", CHECK_URL)
+    run_challenge(x, 0, 0, "Relevant corrective counter evidence.", "2026-11-09", CHECK_URL)
     before = x.campaigns_json
     if mutation == "body": URL_CONTENT[GOOD_URL] += "Modified before third review."
     else: MOCK_GITHUB_SHA = "f" * 40
@@ -1090,6 +1115,53 @@ for mutation in ("body", "github_sha"):
     check("round 3 preserves frozen escrow " + mutation, before == x.campaigns_json and invariant(x))
     URL_CONTENT[GOOD_URL] = old_body
     MOCK_GITHUB_SHA = old_sha
+
+print("== two-stage retry and balance ==")
+x = ready()
+set_sender(B, GEN)
+filed = json.loads(x.file_challenge(0, 0, "Relevant independent counter evidence.", "2026-11-09", CHECK_URL))
+challenge_id = int(filed["challenge_id"])
+sync_balance(x)
+snapshot_before = x.get_campaign(0)
+totals_before = x.get_totals()
+set_sender(C)
+_Nondet.flag_queue = [["true"] * 3, ["false"] * 3]
+try:
+    x.review_challenge(0, 0, challenge_id)
+    check("validator disagreement rejects zero-value review", False)
+except RuntimeError:
+    check("validator disagreement preserves filed stake and actual balance",
+          snapshot_before == x.get_campaign(0) and totals_before == x.get_totals())
+_Nondet.flag_queue = [["false"] * 3] * 2
+retried = json.loads(x.review_challenge(0, 0, challenge_id))
+check("same challenge retries without another deposit",
+      retried["status"] == "FROZEN" and json.loads(x.get_totals())["challenge_stakes_locked_wei"] == "0"
+      and int(x.get_credit(B)) == GEN + mf.CHALLENGE_REWARD_WEI and int(x.get_credit(C)) == 0 and invariant(x))
+
+print("== two-stage expiry and balance ==")
+x = ready()
+TransactionClock.value = datetime(2026, 11, 9, 12, tzinfo=timezone.utc)
+set_sender(B, GEN)
+filed = json.loads(x.file_challenge(0, 0, "Relevant independent counter evidence.", "2026-11-09", CHECK_URL))
+challenge_id = int(filed["challenge_id"])
+check("file records 1 GEN before any adjudication", filed["accepted"] and invariant(x) and json.loads(x.get_totals())["challenge_stakes_locked_wei"] == str(GEN))
+set_sender(C)
+expect_error("early refund rejected", lambda: x.refund_expired_challenge(0, 0, challenge_id))
+expect_error("wrong challenge id rejected", lambda: x.review_challenge(0, 0, challenge_id + 1))
+set_sender(B)
+expect_error("pending challenge blocks confirmation", lambda: x.confirm_milestone(0, 0))
+TransactionClock.value += timedelta(hours=24)
+expect_error("review at expiry rejected", lambda: x.review_challenge(0, 0, challenge_id))
+set_sender(C)
+x.refund_expired_challenge(0, 0, challenge_id)
+check("permissionless refund credits challenger only", int(x.get_credit(B)) == GEN and int(x.get_credit(C)) == 0 and invariant(x))
+expect_error("duplicate refund rejected", lambda: x.refund_expired_challenge(0, 0, challenge_id))
+set_sender(B)
+x.withdraw_payout()
+check("challenger withdraws expired stake", int(x.get_credit(B)) == 0 and invariant(x))
+x.balance += 1
+check("ledger detects actual balance discrepancy", not json.loads(x.get_totals())["invariant_ok"])
+TransactionClock.value = None
 
 print(f"\n{PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)
