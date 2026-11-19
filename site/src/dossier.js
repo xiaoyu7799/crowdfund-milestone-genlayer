@@ -118,6 +118,7 @@ export function buildDossier(readback) {
       total_withdrawn_wei: totals.total_withdrawn_wei,
       credits_outstanding_wei: totals.credits_outstanding_wei,
       escrow_locked_wei: totals.escrow_locked_wei,
+      challenge_stakes_locked_wei: totals.challenge_stakes_locked_wei ?? "0",
       contract_balance_wei: totals.contract_balance_wei,
       invariant_ok: totals.invariant_ok,
     },

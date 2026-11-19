@@ -31,9 +31,11 @@ receipts describe older deployed code, not this updated source.
 """
 
 import json
+from datetime import datetime, timezone
 
 from genlayer import *
 
+CHALLENGE_REVIEW_SECONDS = 86400
 CHALLENGE_STAKE_WEI = 1000000000000000000
 CHALLENGE_REWARD_WEI = 500000000000000000
 EVIDENCE_FRESH_DAYS = 30
@@ -209,6 +211,7 @@ class MilestoneFund(gl.Contract):
     credits_json: str
     standing_json: str
     participants_json: str
+    next_challenge_id: u256
     total_received_wei: u256
     total_withdrawn_wei: u256
     next_id: u256
@@ -218,6 +221,7 @@ class MilestoneFund(gl.Contract):
         self.credits_json = "{}"
         self.standing_json = "{}"
         self.participants_json = "[]"
+        self.next_challenge_id = u256(1)
         self.total_received_wei = u256(0)
         self.total_withdrawn_wei = u256(0)
         self.next_id = u256(0)
@@ -944,7 +948,7 @@ class MilestoneFund(gl.Contract):
         })
 
     @gl.public.write.payable
-    def challenge_milestone(self, campaign_id: u256, milestone_index: int, counter_text: str, counter_date: str, counter_url: str) -> str:
+    def file_challenge(self, campaign_id: u256, milestone_index: int, counter_text: str, counter_date: str, counter_url: str) -> str:
         campaigns, credits, standing, participants = self._load_all()
         sender = str(gl.message.sender_address)
         stake = int(gl.message.value)
@@ -967,6 +971,10 @@ class MilestoneFund(gl.Contract):
             reason = "only_backer_challenges"
         elif milestone["status"] != "MILESTONE_REVIEW" or milestone["pending_verdict"] is None:
             reason = "milestone_not_challengeable"
+        elif milestone.get("pending_challenge") is not None:
+            reason = "challenge_already_pending"
+        elif datetime.now(timezone.utc).date().isoformat() > milestone["review_date"]:
+            reason = "challenge_filing_closed"
         elif not isinstance(counter_text, str) or len(counter_text.strip()) < MIN_EVIDENCE_LEN or len(counter_text) > MAX_EVIDENCE_LEN:
             reason = "counter_evidence_must_be_20_to_2000_chars"
         elif not _valid_date_format(counter_date):
@@ -981,39 +989,65 @@ class MilestoneFund(gl.Contract):
                 campaigns, credits, standing, participants, reason, stake,
                 {"campaign_id": int(campaign_id), "milestone_index": milestone_index},
             )
-        first_verdict = milestone["pending_verdict"]
-        self._ensure_standing(sender, standing, participants)
-        counter = {
-            "text": counter_text.strip(),
-            "date": counter_date,
-            "url": counter_url,
-            "hash": pure_sha256_hex(counter_text.strip()),
+        challenge_id = int(self.next_challenge_id)
+        self.next_challenge_id = u256(challenge_id + 1)
+        expires_at = int(datetime.now(timezone.utc).timestamp()) + CHALLENGE_REVIEW_SECONDS
+        milestone["pending_challenge"] = {
+            "id": str(challenge_id), "challenger": sender, "stake_wei": _ws(stake),
+            "expires_at": expires_at, "text": counter_text.strip(), "date": counter_date,
+            "url": counter_url, "hash": pure_sha256_hex(counter_text.strip()),
         }
+        self.total_received_wei = self.total_received_wei + gl.message.value
+        self._save_all(campaigns, credits, standing, participants)
+        return json.dumps({"accepted": True, "challenge_id": str(challenge_id), "expires_at": expires_at})
+
+    def _load_pending_challenge(self, campaigns, campaign_id, milestone_index, challenge_id):
+        campaign = self._load_campaign(campaigns, campaign_id)
+        milestone = self._load_milestone(campaign, milestone_index)
+        pending = milestone.get("pending_challenge")
+        if pending is None or pending["id"] != str(int(challenge_id)):
+            raise gl.vm.UserError("EXPECTED: pending_challenge_not_found")
+        return campaign, milestone, pending
+
+    @gl.public.write
+    def refund_expired_challenge(self, campaign_id: u256, milestone_index: int, challenge_id: u256) -> str:
+        campaigns, credits, standing, participants = self._load_all()
+        if self._refund_unexpected_value(credits):
+            self._save_all(campaigns, credits, standing, participants)
+            return json.dumps({"accepted": False, "reason": "value_not_accepted"})
+        _, milestone, pending = self._load_pending_challenge(campaigns, campaign_id, milestone_index, challenge_id)
+        if int(datetime.now(timezone.utc).timestamp()) < pending["expires_at"]:
+            raise gl.vm.UserError("EXPECTED: challenge_not_expired")
+        self._credit(credits, pending["challenger"], _wn(pending["stake_wei"]))
+        del milestone["pending_challenge"]
+        self._save_all(campaigns, credits, standing, participants)
+        return json.dumps({"accepted": True, "status": "CHALLENGE_REFUNDED", "challenge_id": pending["id"]})
+
+    @gl.public.write
+    def review_challenge(self, campaign_id: u256, milestone_index: int, challenge_id: u256) -> str:
+        campaigns, credits, standing, participants = self._load_all()
+        if self._refund_unexpected_value(credits):
+            self._save_all(campaigns, credits, standing, participants)
+            return json.dumps({"accepted": False, "reason": "value_not_accepted"})
+        campaign, milestone, pending = self._load_pending_challenge(campaigns, campaign_id, milestone_index, challenge_id)
+        if int(datetime.now(timezone.utc).timestamp()) >= pending["expires_at"]:
+            raise gl.vm.UserError("EXPECTED: challenge_expired")
+        sender = pending["challenger"]
+        first_verdict = milestone["pending_verdict"]
+        counter = {key: pending[key] for key in ("text", "date", "url", "hash")}
         source = {"text": counter["text"], "date": counter["date"], "url": counter["url"]}
         try:
-            result = self._adjudicate(campaign, milestone, source, {
-                "url": milestone["reference_url"],
-            })
-            if (result["rebuts_original"] != "true"
-                    or result["original_snapshot_hash"] == result["snapshot_hash"]):
-                return self._reject_with_refund(
-                    campaigns, credits, standing, participants,
-                    "counter_evidence_not_rebuttal", stake,
-                    {"campaign_id": int(campaign_id), "milestone_index": milestone_index},
-                )
+            result = self._adjudicate(campaign, milestone, source, {"url": milestone["reference_url"]})
         except gl.vm.UserError as exc:
-            # Adjudication failed (fetch down, stale evidence, judge
-            # failure): the stake is credited back in full, nothing
-            # else changes, and the milestone stays challengeable.
-            # The challenge evidence is NOT stored: it was never judged.
-            return self._reject_with_refund(
-                campaigns, credits, standing, participants,
-                "adjudication_failed_retryable", stake,
-                {"campaign_id": int(campaign_id), "milestone_index": milestone_index,
-                 "error": str(exc)},
-            )
+            return json.dumps({"accepted": False, "reason": "adjudication_failed_retryable", "error": str(exc)})
+        del milestone["pending_challenge"]
+        if (result["rebuts_original"] != "true"
+                or result["original_snapshot_hash"] == result["snapshot_hash"]):
+            self._credit(credits, sender, _wn(pending["stake_wei"]))
+            self._save_all(campaigns, credits, standing, participants)
+            return json.dumps({"accepted": False, "reason": "counter_evidence_not_rebuttal"})
+        self._ensure_standing(sender, standing, participants)
         milestone["challenge_evidence"] = counter
-        self.total_received_wei = self.total_received_wei + gl.message.value
         second_verdict = _verdict_from_flags(result["flags"])
         milestone["evaluations"].append({
             "original_snapshot_hash": result["original_snapshot_hash"],
@@ -1099,6 +1133,8 @@ class MilestoneFund(gl.Contract):
             raise gl.vm.UserError("EXPECTED: creator_cannot_confirm_own_release")
         if not self._is_backer(campaign, sender):
             raise gl.vm.UserError("EXPECTED: only_backer_confirms")
+        if milestone.get("pending_challenge") is not None:
+            raise gl.vm.UserError("EXPECTED: challenge_review_pending")
         # Challenge window: the pending verdict can only settle from
         # the next UTC day after the review date. A same-day confirm
         # is rejected on chain, so challengers always have until the
@@ -1301,17 +1337,22 @@ class MilestoneFund(gl.Contract):
         escrow_locked = 0
         for key in campaigns:
             escrow_locked += _wn(campaigns[key]["escrow_wei"])
+        stakes_locked = sum(
+            _wn(milestone.get("pending_challenge", {}).get("stake_wei", "0"))
+            for campaign in campaigns.values() for milestone in campaign["milestones"]
+        )
         received = int(self.total_received_wei)
         withdrawn = int(self.total_withdrawn_wei)
-        accounted = withdrawn + credits_outstanding + escrow_locked
+        accounted = withdrawn + credits_outstanding + escrow_locked + stakes_locked
         return json.dumps({
             "total_received_wei": _ws(received),
             "total_withdrawn_wei": _ws(withdrawn),
             "contract_balance_wei": _ws(int(self.balance)),
             "credits_outstanding_wei": _ws(credits_outstanding),
             "escrow_locked_wei": _ws(escrow_locked),
+            "challenge_stakes_locked_wei": _ws(stakes_locked),
             "accounted_wei": _ws(accounted),
-            "invariant_ok": received == accounted,
+            "invariant_ok": received == accounted and int(self.balance) == received - withdrawn,
         })
 
     @gl.public.view

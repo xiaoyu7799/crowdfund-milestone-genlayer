@@ -340,7 +340,19 @@ function milestoneCard(camp, m, index) {
     mkBtn(t("btn_submit_evidence"), () => openEvidenceForm(camp.id, index));
   }
   if (m.status === "EVIDENCE_SUBMITTED") mkBtn(t("btn_review"), () => doWrite("review_milestone", [BigInt(camp.id), index], "review", 0n));
-  if (m.status === "MILESTONE_REVIEW") {
+  if (m.status === "MILESTONE_REVIEW" && m.pending_challenge) {
+    const pending = m.pending_challenge;
+    const expires = new Date(pending.expires_at * 1000);
+    const info = document.createElement("p");
+    info.textContent = `${t("challenge_pending")} · ${fmtGen(pending.stake_wei)} · ${expires.toISOString()}`;
+    card.appendChild(info);
+    const args = [BigInt(camp.id), index, BigInt(pending.id)];
+    if (Date.now() < expires.getTime()) {
+      mkBtn(t("btn_review_challenge"), () => doWrite("review_challenge", args, "challenge-review"));
+    } else {
+      mkBtn(t("btn_refund_challenge"), () => doWrite("refund_expired_challenge", args, "challenge-refund"));
+    }
+  } else if (m.status === "MILESTONE_REVIEW") {
     mkBtn(t("btn_confirm"), () => doWrite("confirm_milestone", [BigInt(camp.id), index], "confirm", 0n));
     mkBtn(t("btn_challenge"), () => openChallengeForm(camp.id, index));
   }
@@ -577,7 +589,8 @@ function bindForms() {
     const date = $("challenge-date").value;
     const url = $("challenge-url").value.trim();
     if (text.length < 20 || !date || !url.startsWith("https://")) { story("story_error", t("err_need_amount")); return; }
-    await doWrite("challenge_milestone", [BigInt(challengeTarget.campaignId), challengeTarget.index, text, date, url], "challenge", CHALLENGE_STAKE_WEI);
+    const method = CFG.twoStageChallenges ? "file_challenge" : "challenge_milestone";
+    await doWrite(method, [BigInt(challengeTarget.campaignId), challengeTarget.index, text, date, url], "challenge", CHALLENGE_STAKE_WEI);
     $("challenge-box").style.display = "none";
   });
   $("btn-cancel").addEventListener("click", async () => {
