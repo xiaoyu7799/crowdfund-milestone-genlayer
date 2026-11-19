@@ -18,6 +18,12 @@ The actual contract balance is checked against campaign escrow, pending challeng
 - Run `npm test` for mocked consensus disagreement, same-stake retry, deadline boundaries, permissionless expiry, duplicate refund prevention, withdrawal and actual-balance reconciliation.
 - Run `node scripts/two-stage-flow.mjs` for the live validation plan. With funded test accounts provided through an external `MF_RECOVERY_FILE`, pass `--submit` to run or resume the Stable Studionet journal. The journal records zero-value adjudication, payouts and independent RPC balance checks. Its `complete` flag is set only after the on-chain expiry and withdrawals finish.
 
+## Live evidence recorded
+
+- The [valid-case journal](../evidence/two-stage/validation.json) records a booked 1 GEN stake, zero-value review by a separate account, a frozen milestone, third-round settlement and successful withdrawal. The actual contract balance returned to zero after this case.
+- The [failed-review receipt](../evidence/two-stage/receipts/expiry-failed-review.json) records a zero-value review using a missing reference. The contract returned a retryable outcome. The readback shows the same challenge ID and stake, with no movement in actual balance or credits.
+- The pending challenge becomes eligible for on-chain expiry at **2026-11-20 15:16:28 UTC**. Local tests cover the exact boundary, duplicate protection and withdrawal. The journal remains incomplete until the timed on-chain refund and subsequent withdrawals are recorded.
+
 ## Submission note
 
 MilestoneFund now records challenge deposits before evidence review. GenLayer validators assess the original delivery and the rebuttal in a separate, zero-value transaction. A failed review can be retried using the same deposit, or the challenger can recover it after expiry. The upgrade adds on-chain challenge state, a stake ledger reconciled against the chain balance, and a browser workflow for reviewing and refunding pending challenges.

@@ -1377,7 +1377,587 @@
         "actualBalance": "2"
       },
       "hash": "0xa149acb97c40622d1442d53b0c29ed81787df59668c8a53b30b3397ad667f335",
-      "status": "SUBMITTED"
+      "status": "FINALIZED",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "after": {
+        "campaign": {
+          "id": 1,
+          "title": "Sensor kit delivery expiry",
+          "creator": "0x9602c1466cF5b565BAd58b1f69645Fc7c82617b5",
+          "goal_wei": "2",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "2",
+          "escrow_wei": "2",
+          "backers": [
+            {
+              "address": "0x7690111429b860D6a17554bE6b15Cd83eb26cfDF",
+              "amount": "2"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "EVIDENCE_SUBMITTED",
+              "evidence_text": "Controlled original or corrective sensor kit delivery evidence.",
+              "evidence_date": "2026-11-19",
+              "evidence_hash": "6d8aff917402f906ceba2b10694814d4d1600d15b6c0618afeb86eba0fea80d4",
+              "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "0",
+        "totals": {
+          "total_received_wei": "1000000000000000004",
+          "total_withdrawn_wei": "1000000000000000002",
+          "contract_balance_wei": "2",
+          "credits_outstanding_wei": "0",
+          "escrow_locked_wei": "2",
+          "challenge_stakes_locked_wei": "0",
+          "accounted_wei": "1000000000000000004",
+          "invariant_ok": true
+        },
+        "actualBalance": "2"
+      },
+      "validated": true
+    },
+    "expiry-review": {
+      "role": "backer",
+      "functionName": "review_milestone",
+      "args": [
+        "1",
+        0
+      ],
+      "valueWei": "0",
+      "before": {
+        "campaign": {
+          "id": 1,
+          "title": "Sensor kit delivery expiry",
+          "creator": "0x9602c1466cF5b565BAd58b1f69645Fc7c82617b5",
+          "goal_wei": "2",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "2",
+          "escrow_wei": "2",
+          "backers": [
+            {
+              "address": "0x7690111429b860D6a17554bE6b15Cd83eb26cfDF",
+              "amount": "2"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "EVIDENCE_SUBMITTED",
+              "evidence_text": "Controlled original or corrective sensor kit delivery evidence.",
+              "evidence_date": "2026-11-19",
+              "evidence_hash": "6d8aff917402f906ceba2b10694814d4d1600d15b6c0618afeb86eba0fea80d4",
+              "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+              "snapshot_hash": null,
+              "snapshot_len": null,
+              "snapshot_excerpt": null,
+              "github_sha": null,
+              "quote": null,
+              "review_date": null,
+              "challenge_evidence": null,
+              "evaluations": [],
+              "pending_verdict": null,
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "0",
+        "totals": {
+          "total_received_wei": "1000000000000000004",
+          "total_withdrawn_wei": "1000000000000000002",
+          "contract_balance_wei": "2",
+          "credits_outstanding_wei": "0",
+          "escrow_locked_wei": "2",
+          "challenge_stakes_locked_wei": "0",
+          "accounted_wei": "1000000000000000004",
+          "invariant_ok": true
+        },
+        "actualBalance": "2"
+      },
+      "hash": "0xb35c7c1aaa8a1e3ac68c6e2f69bff55a7ea8ca846f540cf63f1c3d6460c7bcf7",
+      "status": "FINALIZED",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "after": {
+        "campaign": {
+          "id": 1,
+          "title": "Sensor kit delivery expiry",
+          "creator": "0x9602c1466cF5b565BAd58b1f69645Fc7c82617b5",
+          "goal_wei": "2",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "2",
+          "escrow_wei": "2",
+          "backers": [
+            {
+              "address": "0x7690111429b860D6a17554bE6b15Cd83eb26cfDF",
+              "amount": "2"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "MILESTONE_REVIEW",
+              "evidence_text": "Controlled original or corrective sensor kit delivery evidence.",
+              "evidence_date": "2026-11-19",
+              "evidence_hash": "6d8aff917402f906ceba2b10694814d4d1600d15b6c0618afeb86eba0fea80d4",
+              "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+              "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+              "snapshot_len": 398,
+              "snapshot_excerpt": "# Sensor kit delivery record\n\nControlled test document for MilestoneFund validator evaluation, not a report\nof a real installation or an independent audit.\n\nAll 12 Riverside sensor kits were assembled, installed and completed commissioning.\nFirmware v1.4.2 passed the final 24-hour reporting check on 2026-11-13.\nDelivery record ID MF-PAIR-001: every sensor reports temperature in degrees Celsius.\n",
+              "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+              "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+              "review_date": "2026-11-19",
+              "challenge_evidence": null,
+              "evaluations": [
+                {
+                  "round": 1,
+                  "source": "evidence",
+                  "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+                  "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+                  "snapshot_len": 398,
+                  "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+                  "flags": [
+                    "true",
+                    "true",
+                    "true"
+                  ],
+                  "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+                  "rationale": "The snapshot names Riverside sensor kits, explicitly states assembly was completed, and provides firmware version v1.4.2 and a dated 24-hour reporting check as checkable details.",
+                  "current_date": "2026-11-19",
+                  "verdict": "ACCEPT"
+                }
+              ],
+              "pending_verdict": "ACCEPT",
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "0",
+        "totals": {
+          "total_received_wei": "1000000000000000004",
+          "total_withdrawn_wei": "1000000000000000002",
+          "contract_balance_wei": "2",
+          "credits_outstanding_wei": "0",
+          "escrow_locked_wei": "2",
+          "challenge_stakes_locked_wei": "0",
+          "accounted_wei": "1000000000000000004",
+          "invariant_ok": true
+        },
+        "actualBalance": "2"
+      },
+      "validated": true
+    },
+    "expiry-file": {
+      "role": "backer",
+      "functionName": "file_challenge",
+      "args": [
+        "1",
+        0,
+        "Controlled original or corrective sensor kit delivery evidence.",
+        "2026-11-19",
+        "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/missing-counter.md"
+      ],
+      "valueWei": "1000000000000000000",
+      "before": {
+        "campaign": {
+          "id": 1,
+          "title": "Sensor kit delivery expiry",
+          "creator": "0x9602c1466cF5b565BAd58b1f69645Fc7c82617b5",
+          "goal_wei": "2",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "2",
+          "escrow_wei": "2",
+          "backers": [
+            {
+              "address": "0x7690111429b860D6a17554bE6b15Cd83eb26cfDF",
+              "amount": "2"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "MILESTONE_REVIEW",
+              "evidence_text": "Controlled original or corrective sensor kit delivery evidence.",
+              "evidence_date": "2026-11-19",
+              "evidence_hash": "6d8aff917402f906ceba2b10694814d4d1600d15b6c0618afeb86eba0fea80d4",
+              "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+              "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+              "snapshot_len": 398,
+              "snapshot_excerpt": "# Sensor kit delivery record\n\nControlled test document for MilestoneFund validator evaluation, not a report\nof a real installation or an independent audit.\n\nAll 12 Riverside sensor kits were assembled, installed and completed commissioning.\nFirmware v1.4.2 passed the final 24-hour reporting check on 2026-11-13.\nDelivery record ID MF-PAIR-001: every sensor reports temperature in degrees Celsius.\n",
+              "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+              "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+              "review_date": "2026-11-19",
+              "challenge_evidence": null,
+              "evaluations": [
+                {
+                  "round": 1,
+                  "source": "evidence",
+                  "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+                  "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+                  "snapshot_len": 398,
+                  "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+                  "flags": [
+                    "true",
+                    "true",
+                    "true"
+                  ],
+                  "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+                  "rationale": "The snapshot names Riverside sensor kits, explicitly states assembly was completed, and provides firmware version v1.4.2 and a dated 24-hour reporting check as checkable details.",
+                  "current_date": "2026-11-19",
+                  "verdict": "ACCEPT"
+                }
+              ],
+              "pending_verdict": "ACCEPT",
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null
+            }
+          ]
+        },
+        "credit": "0",
+        "totals": {
+          "total_received_wei": "1000000000000000004",
+          "total_withdrawn_wei": "1000000000000000002",
+          "contract_balance_wei": "2",
+          "credits_outstanding_wei": "0",
+          "escrow_locked_wei": "2",
+          "challenge_stakes_locked_wei": "0",
+          "accounted_wei": "1000000000000000004",
+          "invariant_ok": true
+        },
+        "actualBalance": "2"
+      },
+      "hash": "0x668cf9a5a6abe05617b55d138f09fbcdf8da24f231dad6b85c0a803f40a36a03",
+      "status": "FINALIZED",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "outcome": {
+        "accepted": true,
+        "challenge_id": "2",
+        "expires_at": 1795187788
+      },
+      "after": {
+        "campaign": {
+          "id": 1,
+          "title": "Sensor kit delivery expiry",
+          "creator": "0x9602c1466cF5b565BAd58b1f69645Fc7c82617b5",
+          "goal_wei": "2",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "2",
+          "escrow_wei": "2",
+          "backers": [
+            {
+              "address": "0x7690111429b860D6a17554bE6b15Cd83eb26cfDF",
+              "amount": "2"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "MILESTONE_REVIEW",
+              "evidence_text": "Controlled original or corrective sensor kit delivery evidence.",
+              "evidence_date": "2026-11-19",
+              "evidence_hash": "6d8aff917402f906ceba2b10694814d4d1600d15b6c0618afeb86eba0fea80d4",
+              "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+              "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+              "snapshot_len": 398,
+              "snapshot_excerpt": "# Sensor kit delivery record\n\nControlled test document for MilestoneFund validator evaluation, not a report\nof a real installation or an independent audit.\n\nAll 12 Riverside sensor kits were assembled, installed and completed commissioning.\nFirmware v1.4.2 passed the final 24-hour reporting check on 2026-11-13.\nDelivery record ID MF-PAIR-001: every sensor reports temperature in degrees Celsius.\n",
+              "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+              "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+              "review_date": "2026-11-19",
+              "challenge_evidence": null,
+              "evaluations": [
+                {
+                  "round": 1,
+                  "source": "evidence",
+                  "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+                  "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+                  "snapshot_len": 398,
+                  "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+                  "flags": [
+                    "true",
+                    "true",
+                    "true"
+                  ],
+                  "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+                  "rationale": "The snapshot names Riverside sensor kits, explicitly states assembly was completed, and provides firmware version v1.4.2 and a dated 24-hour reporting check as checkable details.",
+                  "current_date": "2026-11-19",
+                  "verdict": "ACCEPT"
+                }
+              ],
+              "pending_verdict": "ACCEPT",
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null,
+              "pending_challenge": {
+                "id": "2",
+                "challenger": "0x7690111429b860D6a17554bE6b15Cd83eb26cfDF",
+                "stake_wei": "1000000000000000000",
+                "expires_at": 1795187788,
+                "text": "Controlled original or corrective sensor kit delivery evidence.",
+                "date": "2026-11-19",
+                "url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/missing-counter.md",
+                "hash": "6d8aff917402f906ceba2b10694814d4d1600d15b6c0618afeb86eba0fea80d4"
+              }
+            }
+          ]
+        },
+        "credit": "0",
+        "totals": {
+          "total_received_wei": "2000000000000000004",
+          "total_withdrawn_wei": "1000000000000000002",
+          "contract_balance_wei": "1000000000000000002",
+          "credits_outstanding_wei": "0",
+          "escrow_locked_wei": "2",
+          "challenge_stakes_locked_wei": "1000000000000000000",
+          "accounted_wei": "2000000000000000004",
+          "invariant_ok": true
+        },
+        "actualBalance": "1000000000000000002"
+      },
+      "validated": true
+    },
+    "expiry-failed-review": {
+      "role": "stranger",
+      "functionName": "review_challenge",
+      "args": [
+        "1",
+        0,
+        "2"
+      ],
+      "valueWei": "0",
+      "before": {
+        "campaign": {
+          "id": 1,
+          "title": "Sensor kit delivery expiry",
+          "creator": "0x9602c1466cF5b565BAd58b1f69645Fc7c82617b5",
+          "goal_wei": "2",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "2",
+          "escrow_wei": "2",
+          "backers": [
+            {
+              "address": "0x7690111429b860D6a17554bE6b15Cd83eb26cfDF",
+              "amount": "2"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "MILESTONE_REVIEW",
+              "evidence_text": "Controlled original or corrective sensor kit delivery evidence.",
+              "evidence_date": "2026-11-19",
+              "evidence_hash": "6d8aff917402f906ceba2b10694814d4d1600d15b6c0618afeb86eba0fea80d4",
+              "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+              "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+              "snapshot_len": 398,
+              "snapshot_excerpt": "# Sensor kit delivery record\n\nControlled test document for MilestoneFund validator evaluation, not a report\nof a real installation or an independent audit.\n\nAll 12 Riverside sensor kits were assembled, installed and completed commissioning.\nFirmware v1.4.2 passed the final 24-hour reporting check on 2026-11-13.\nDelivery record ID MF-PAIR-001: every sensor reports temperature in degrees Celsius.\n",
+              "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+              "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+              "review_date": "2026-11-19",
+              "challenge_evidence": null,
+              "evaluations": [
+                {
+                  "round": 1,
+                  "source": "evidence",
+                  "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+                  "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+                  "snapshot_len": 398,
+                  "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+                  "flags": [
+                    "true",
+                    "true",
+                    "true"
+                  ],
+                  "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+                  "rationale": "The snapshot names Riverside sensor kits, explicitly states assembly was completed, and provides firmware version v1.4.2 and a dated 24-hour reporting check as checkable details.",
+                  "current_date": "2026-11-19",
+                  "verdict": "ACCEPT"
+                }
+              ],
+              "pending_verdict": "ACCEPT",
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null,
+              "pending_challenge": {
+                "id": "2",
+                "challenger": "0x7690111429b860D6a17554bE6b15Cd83eb26cfDF",
+                "stake_wei": "1000000000000000000",
+                "expires_at": 1795187788,
+                "text": "Controlled original or corrective sensor kit delivery evidence.",
+                "date": "2026-11-19",
+                "url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/missing-counter.md",
+                "hash": "6d8aff917402f906ceba2b10694814d4d1600d15b6c0618afeb86eba0fea80d4"
+              }
+            }
+          ]
+        },
+        "credit": "0",
+        "totals": {
+          "total_received_wei": "2000000000000000004",
+          "total_withdrawn_wei": "1000000000000000002",
+          "contract_balance_wei": "1000000000000000002",
+          "credits_outstanding_wei": "0",
+          "escrow_locked_wei": "2",
+          "challenge_stakes_locked_wei": "1000000000000000000",
+          "accounted_wei": "2000000000000000004",
+          "invariant_ok": true
+        },
+        "actualBalance": "1000000000000000002"
+      },
+      "hash": "0x844693b706ffce9f8dff9de51f37b1426442a8ee255bf51202b0c5253c77c641",
+      "status": "FINALIZED",
+      "proof": {
+        "status": "FINALIZED",
+        "execution": "SUCCESS",
+        "consensus": "MAJORITY_AGREE",
+        "success": true
+      },
+      "outcome": {
+        "accepted": false,
+        "reason": "adjudication_failed_retryable",
+        "error": "UserError(message='EXTERNAL: github_api_status')"
+      },
+      "after": {
+        "campaign": {
+          "id": 1,
+          "title": "Sensor kit delivery expiry",
+          "creator": "0x9602c1466cF5b565BAd58b1f69645Fc7c82617b5",
+          "goal_wei": "2",
+          "status": "MILESTONE_REVIEW",
+          "total_backed_wei": "2",
+          "escrow_wei": "2",
+          "backers": [
+            {
+              "address": "0x7690111429b860D6a17554bE6b15Cd83eb26cfDF",
+              "amount": "2"
+            }
+          ],
+          "milestones": [
+            {
+              "title": "Sensor kits assembled",
+              "amount": "2",
+              "status": "MILESTONE_REVIEW",
+              "evidence_text": "Controlled original or corrective sensor kit delivery evidence.",
+              "evidence_date": "2026-11-19",
+              "evidence_hash": "6d8aff917402f906ceba2b10694814d4d1600d15b6c0618afeb86eba0fea80d4",
+              "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+              "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+              "snapshot_len": 398,
+              "snapshot_excerpt": "# Sensor kit delivery record\n\nControlled test document for MilestoneFund validator evaluation, not a report\nof a real installation or an independent audit.\n\nAll 12 Riverside sensor kits were assembled, installed and completed commissioning.\nFirmware v1.4.2 passed the final 24-hour reporting check on 2026-11-13.\nDelivery record ID MF-PAIR-001: every sensor reports temperature in degrees Celsius.\n",
+              "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+              "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+              "review_date": "2026-11-19",
+              "challenge_evidence": null,
+              "evaluations": [
+                {
+                  "round": 1,
+                  "source": "evidence",
+                  "reference_url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/original.md",
+                  "snapshot_hash": "f9dc9c67e9e4cc85b2baceb5a6e4ebb31c19dd485b1b63bf27e458fcb833428e",
+                  "snapshot_len": 398,
+                  "github_sha": "38dac5d9090fb71bd0b121619fa968af4b5026e3",
+                  "flags": [
+                    "true",
+                    "true",
+                    "true"
+                  ],
+                  "quote": "All 12 Riverside sensor kits were assembled, installed and completed commissioning.",
+                  "rationale": "The snapshot names Riverside sensor kits, explicitly states assembly was completed, and provides firmware version v1.4.2 and a dated 24-hour reporting check as checkable details.",
+                  "current_date": "2026-11-19",
+                  "verdict": "ACCEPT"
+                }
+              ],
+              "pending_verdict": "ACCEPT",
+              "final_verdict": null,
+              "released_wei": "0",
+              "refunded_wei": "0",
+              "refund_payouts": [],
+              "settlement_wei": null,
+              "challenge": null,
+              "pending_challenge": {
+                "id": "2",
+                "challenger": "0x7690111429b860D6a17554bE6b15Cd83eb26cfDF",
+                "stake_wei": "1000000000000000000",
+                "expires_at": 1795187788,
+                "text": "Controlled original or corrective sensor kit delivery evidence.",
+                "date": "2026-11-19",
+                "url": "https://raw.githubusercontent.com/xiaoyu7799/crowdfund-milestone-genlayer/463b0ac268e44952c3b9a5f41fe007f4f632d4f0/docs/evidence/paired/missing-counter.md",
+                "hash": "6d8aff917402f906ceba2b10694814d4d1600d15b6c0618afeb86eba0fea80d4"
+              }
+            }
+          ]
+        },
+        "credit": "0",
+        "totals": {
+          "total_received_wei": "2000000000000000004",
+          "total_withdrawn_wei": "1000000000000000002",
+          "contract_balance_wei": "1000000000000000002",
+          "credits_outstanding_wei": "0",
+          "escrow_locked_wei": "2",
+          "challenge_stakes_locked_wei": "1000000000000000000",
+          "accounted_wei": "2000000000000000004",
+          "invariant_ok": true
+        },
+        "actualBalance": "1000000000000000002"
+      },
+      "validated": true
     }
   },
   "checks": [
@@ -1398,7 +1978,17 @@
     "settlement credits withdrawn",
     "expiry-create actual balance reconciles",
     "expiry-back actual balance reconciles",
-    "expiry funded"
+    "expiry funded",
+    "expiry-proof actual balance reconciles",
+    "expiry proof stored",
+    "expiry-review actual balance reconciles",
+    "expiry round one ACCEPT",
+    "expiry-file actual balance reconciles",
+    "expiry stake booked independently",
+    "expiry-failed-review actual balance reconciles",
+    "failed review returned a retryable outcome",
+    "failed review changes neither pending stake nor funds"
   ],
-  "complete": false
+  "complete": false,
+  "expiryDue": "2026-11-20T15:16:28.000Z"
 }
