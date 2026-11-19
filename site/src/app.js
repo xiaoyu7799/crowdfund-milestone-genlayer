@@ -629,6 +629,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // is static HTML (docs/index.html) and JS never overwrites it, so no
   // bundle version can truncate it again.
   $("contract-link").href = EXPLORER_ADDR + CFG.contractAddress;
+  $("contract-link").textContent = CFG.contractAddress;
+  if (!CFG.twoStageChallenges) {
+    const versionLink = $("version-link");
+    versionLink.href = "./";
+    versionLink.dataset.i18n = "open_two_stage_version";
+    versionLink.textContent = t("open_two_stage_version");
+  }
   $("source-link").href = CFG.repoUrl;
   $("network-note").textContent = "Stable Studionet · 61999";
   document.querySelectorAll(".faucet-link").forEach((el) => { el.href = FAUCET_URL; });

@@ -9,7 +9,7 @@ The GenLayer-accepted baseline is commit [f2c6647](https://github.com/xiaoyu7799
 3. A filed challenge blocks ordinary confirmation. After 24 hours from filing, anyone can release the pending stake as withdrawable credit to the original challenger. Review and expiry have disjoint time windows. The challenger withdraws the credit with the existing payout method. Unique challenge IDs prevent a stale review or refund request from acting on a later filing.
 4. The browser shows the recorded stake, UTC expiry and the available review or refund action. The exported audit dossier includes pending stakes in the ledger totals.
 
-The actual contract balance is checked against campaign escrow, pending challenge stakes and withdrawable credits. A project may be held open for up to 24 hours by a filed challenge. Expiry is settled by a transaction. Pending funds on historical deployments remain governed by their original contracts. A new deployment does not migrate historical balances.
+The actual contract balance is checked against campaign escrow, pending challenge stakes and withdrawable credits. A project may be held open for up to 24 hours by a filed challenge. Expiry is settled by a transaction. Pending funds on historical deployments remain governed by their original contracts. The [accepted-deployment view](https://xiaoyu7799.github.io/crowdfund-milestone-genlayer/?version=accepted) preserves access to earlier campaigns and withdrawals.
 
 ## Verification
 
