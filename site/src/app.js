@@ -9,7 +9,7 @@ import { createClient, createAccount, generatePrivateKey } from "genlayer-js";
 import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 import { sealKey, openKey } from "./signer.js";
-import { assertSuccessfulReceipt } from "../../scripts/receipt.mjs";
+import { assertSuccessfulReceipt, readReturnedObject } from "../../scripts/receipt.mjs";
 import { I18N } from "./i18n.js";
 import { buildDossier } from "./dossier.js";
 
@@ -438,8 +438,19 @@ async function doWrite(functionName, args, label, value = 0n) {
     const receipt = await client.waitForTransactionReceipt({ hash, status: TransactionStatus.FINALIZED, retries: 240, interval: 5000 });
     assertSuccessfulReceipt(receipt);
     txFeedAdd({ hash, label, status: receipt.statusName ?? "FINALIZED", valueWei: value > 0n ? value.toString() : null });
-    story("story_finalized");
+    const outcome = readReturnedObject(receipt);
     await refreshAll();
+    if (outcome?.accepted === false) {
+      const messages = {
+        adjudication_failed_retryable: "challenge_review_retry",
+        counter_evidence_not_rebuttal: "challenge_returned",
+        challenge_filing_closed: "challenge_filing_closed",
+        challenge_already_pending: "challenge_already_pending",
+      };
+      const message = messages[outcome.reason];
+      if (message) story(message);
+      else story("story_error", outcome.reason);
+    }
   } catch (err) {
     story("story_error", humanError(err));
   }

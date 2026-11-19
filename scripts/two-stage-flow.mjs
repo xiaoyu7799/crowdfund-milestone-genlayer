@@ -10,7 +10,7 @@ import {fileURLToPath} from 'node:url';
 import {createClient,createAccount} from 'genlayer-js';
 import {studionet} from 'genlayer-js/chains';
 import {TransactionStatus} from 'genlayer-js/types';
-import {assertSuccessfulReceipt,receiptProof} from './receipt.mjs';
+import {assertSuccessfulReceipt,readReturnedObject,receiptProof} from './receipt.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const stringify=x=>JSON.stringify(x,(k,v)=>typeof v==='bigint'?v.toString():v,2);
 const scenarios = ["file and book stake", "failed zero-value adjudication preserves stake", "valid rebuttal settles", "expiry refunds and withdraws stake"];
@@ -53,7 +53,8 @@ async function step(label,role,functionName,args,value,id,verify,expectedError=n
  fs.writeFileSync(path.join(root,'evidence/two-stage/receipts',label+'.json'),stringify(receipt)+'\n');
  const currentProof=receiptProof(receipt);
  if(record.proof && JSON.stringify(record.proof)!==JSON.stringify(currentProof)) { record.proofHistory ||= [];record.proofHistory.push(record.proof); }
- record.proof=currentProof;record.status=currentProof.status;save();
+ record.proof=currentProof;record.status=currentProof.status;
+ record.outcome=readReturnedObject(receipt);save();
  if(expectedError) {
   check(label+' finalized error',record.proof.status==='FINALIZED' && !record.proof.success && /ERROR/.test(record.proof.execution||''));
   check(label+' expected error',stringify(receipt).includes(expectedError));
@@ -102,6 +103,7 @@ await step('valid-withdraw','backer','withdraw_payout',[],0n,null,(_,a)=>check('
 const expiry=await prepare('expiry',base+'missing-counter.md');
 if (!evidence.transactions['expiry-failed-review']?.validated) {
  await step('expiry-failed-review','stranger','review_challenge',expiry.args,0n,expiry.id,(b,a)=>{
+  check('failed review returned a retryable outcome', evidence.transactions['expiry-failed-review'].outcome?.reason==='adjudication_failed_retryable');
   check('failed review changes neither pending stake nor funds',stringify(pending(b))===stringify(pending(a)) && b.actualBalance===a.actualBalance && b.credit===a.credit);
  });
 }
